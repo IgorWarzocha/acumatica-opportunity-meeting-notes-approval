@@ -1,0 +1,45 @@
+<template>
+	<qp-template id="formDocument" name="1-1" wg-container="Document_form" class="label-size-m">
+		<div slot="A">
+			<qp-fieldset id="groupIdentity" caption="Identity" view.bind="Document">
+				<field name="ApprovalID"></field>
+				<field name="ExternalMeetingID"></field>
+				<field name="ExternalClientReferenceID"></field>
+				<field name="Status"></field>
+				<field name="MeetingDate"></field>
+				<field name="MeetingTitle"></field>
+				<field name="Subject"></field>
+			</qp-fieldset>
+			<qp-fieldset id="groupMatching" caption="Matching" view.bind="Document">
+				<field name="BusinessAccountID"></field>
+				<field name="ContactID"></field>
+				<field name="SuggestedOpportunityID"></field>
+				<field name="SuggestedOpportunitySubject"></field>
+				<field name="ConfirmedOpportunityID"></field>
+				<field name="ConfirmedOpportunitySubject"></field>
+			</qp-fieldset>
+			<qp-fieldset id="groupLinks" caption="Links & Status" view.bind="Document">
+				<field name="OrganizerEmail"></field>
+				<field name="TranscriptUrl"></field>
+				<field name="ActivityNoteID"></field>
+				<field name="ApprovedDateTime"></field>
+				<field name="PostApprovalSyncStatus"></field>
+				<field name="PostApprovalSyncDateTime"></field>
+				<field name="Processed"></field>
+				<field name="CreatedDateTime"></field>
+			</qp-fieldset>
+		</div>
+		<div slot="B">
+			<qp-fieldset id="groupTranscript" caption="Transcript & Summary" view.bind="Document">
+				<field name="ParticipantEmails"></field>
+				<field name="MeetingSummary"></field>
+				<field name="TranscriptHtml"></field>
+			</qp-fieldset>
+			<qp-fieldset id="groupDiagnostics" caption="Diagnostics" view.bind="Document">
+				<field name="MatchDiagnostics"></field>
+				<field name="ErrorMessage"></field>
+				<field name="PostApprovalSyncError"></field>
+			</qp-fieldset>
+		</div>
+	</qp-template>
+</template>
