@@ -182,11 +182,17 @@ namespace PX.Objects.LS
 
 		[PXDBString(CROpportunity.OpportunityIDLength, IsUnicode = true, InputMask = ">CCCCCCCCCCCCCCC")]
 		[PXUIField(DisplayName = "Suggested Opportunity", Visibility = PXUIVisibility.SelectorVisible)]
-		[PXSelector(typeof(Search<
+		[PXSelector(typeof(Search2<
 				CROpportunity.opportunityID,
-				Where<
-					CROpportunity.status, NotEqual<LSOpportunityMeetingNotesApprovalOpportunityStatus.lost>,
-					And<CROpportunity.status, NotEqual<LSOpportunityMeetingNotesApprovalOpportunityStatus.won>>>,
+				LeftJoin<BAccount, On<BAccount.bAccountID, Equal<CROpportunity.bAccountID>>,
+				LeftJoin<Contact, On<Contact.contactID, Equal<CROpportunity.contactID>>>>,
+				Where2<
+					Where<
+						BAccount.bAccountID, IsNull,
+						Or<Match<BAccount, Current<AccessInfo.userName>>>>,
+					And<
+						CROpportunity.status, NotEqual<LSOpportunityMeetingNotesApprovalOpportunityStatus.lost>,
+						And<CROpportunity.status, NotEqual<LSOpportunityMeetingNotesApprovalOpportunityStatus.won>>>>,
 				OrderBy<Desc<CROpportunity.opportunityID>>>),
 			new[]
 			{
@@ -194,7 +200,13 @@ namespace PX.Objects.LS
 				typeof(CROpportunity.subject),
 				typeof(CROpportunity.status),
 				typeof(CROpportunity.curyAmount),
+				typeof(CROpportunity.curyID),
 				typeof(CROpportunity.closeDate),
+				typeof(CROpportunity.stageID),
+				typeof(CROpportunity.classID),
+				typeof(CROpportunity.isActive),
+				typeof(BAccount.acctName),
+				typeof(Contact.displayName),
 			},
 			Filterable = true,
 			DescriptionField = typeof(CROpportunity.subject))]
@@ -205,6 +217,7 @@ namespace PX.Objects.LS
 		public abstract class suggestedOpportunitySubject : BqlString.Field<suggestedOpportunitySubject> { }
 
 		[PXString(255, IsUnicode = true)]
+		[PXFormula(typeof(Selector<LSOpportunityMeetingNotesApproval.suggestedOpportunityID, CROpportunity.subject>))]
 		[PXUIField(DisplayName = "Suggested Opportunity Name", Enabled = false)]
 		public virtual string SuggestedOpportunitySubject { get; set; }
 		#endregion
@@ -214,11 +227,17 @@ namespace PX.Objects.LS
 
 		[PXDBString(CROpportunity.OpportunityIDLength, IsUnicode = true, InputMask = ">CCCCCCCCCCCCCCC")]
 		[PXUIField(DisplayName = "Confirmed Opportunity", Visibility = PXUIVisibility.SelectorVisible)]
-		[PXSelector(typeof(Search<
+		[PXSelector(typeof(Search2<
 				CROpportunity.opportunityID,
-				Where<
-					CROpportunity.status, NotEqual<LSOpportunityMeetingNotesApprovalOpportunityStatus.lost>,
-					And<CROpportunity.status, NotEqual<LSOpportunityMeetingNotesApprovalOpportunityStatus.won>>>,
+				LeftJoin<BAccount, On<BAccount.bAccountID, Equal<CROpportunity.bAccountID>>,
+				LeftJoin<Contact, On<Contact.contactID, Equal<CROpportunity.contactID>>>>,
+				Where2<
+					Where<
+						BAccount.bAccountID, IsNull,
+						Or<Match<BAccount, Current<AccessInfo.userName>>>>,
+					And<
+						CROpportunity.status, NotEqual<LSOpportunityMeetingNotesApprovalOpportunityStatus.lost>,
+						And<CROpportunity.status, NotEqual<LSOpportunityMeetingNotesApprovalOpportunityStatus.won>>>>,
 				OrderBy<Desc<CROpportunity.opportunityID>>>),
 			new[]
 			{
@@ -226,7 +245,13 @@ namespace PX.Objects.LS
 				typeof(CROpportunity.subject),
 				typeof(CROpportunity.status),
 				typeof(CROpportunity.curyAmount),
+				typeof(CROpportunity.curyID),
 				typeof(CROpportunity.closeDate),
+				typeof(CROpportunity.stageID),
+				typeof(CROpportunity.classID),
+				typeof(CROpportunity.isActive),
+				typeof(BAccount.acctName),
+				typeof(Contact.displayName),
 			},
 			Filterable = true,
 			DescriptionField = typeof(CROpportunity.subject))]
@@ -237,6 +262,7 @@ namespace PX.Objects.LS
 		public abstract class confirmedOpportunitySubject : BqlString.Field<confirmedOpportunitySubject> { }
 
 		[PXString(255, IsUnicode = true)]
+		[PXFormula(typeof(Selector<LSOpportunityMeetingNotesApproval.confirmedOpportunityID, CROpportunity.subject>))]
 		[PXUIField(DisplayName = "Confirmed Opportunity Name", Enabled = false)]
 		public virtual string ConfirmedOpportunitySubject { get; set; }
 		#endregion
@@ -312,7 +338,7 @@ namespace PX.Objects.LS
 
 		[PXDBBool]
 		[PXDefault(false)]
-		[PXUIField(DisplayName = "Post-Approval Synced", Enabled = false)]
+		[PXUIField(DisplayName = "Post-Approval Processed", Enabled = false)]
 		public virtual bool? Processed { get; set; }
 		#endregion
 

@@ -68,12 +68,8 @@ namespace PX.Objects.LS
 				return adapter.Get();
 			}
 
-			graph.Document.Current = document;
-
-			throw new PXRedirectRequiredException(graph, true, string.Empty)
-			{
-				Mode = PXBaseRedirectException.WindowMode.Same,
-			};
+			PXRedirectHelper.TryRedirect(Records.Cache, document, string.Empty, PXRedirectHelper.WindowMode.Same);
+			return adapter.Get();
 		}
 
 		public PXAction<LSOpportunityMeetingNotesApproval> ViewActivity;
@@ -118,7 +114,7 @@ namespace PX.Objects.LS
 
 				PXProcessing<LSOpportunityMeetingNotesApproval>.SetCurrentItem(row);
 				LSOpportunityMeetingNotesApprovalApprovalService.Reject(this, row.ApprovalID);
-				PXProcessing<LSOpportunityMeetingNotesApproval>.SetInfo("Rejected.");
+				PXProcessing<LSOpportunityMeetingNotesApproval>.SetInfo(LSOpportunityMeetingNotesApprovalMessages.RecordRejected);
 			}
 
 			return adapter.Get();
@@ -141,18 +137,19 @@ namespace PX.Objects.LS
 			var row = LSOpportunityMeetingNotesApproval.PK.Find(this, item.ApprovalID);
 			if (row == null)
 			{
-				throw new PXException("The approval record no longer exists.");
+				throw new PXException(LSOpportunityMeetingNotesApprovalMessages.ApprovalRecordNoLongerExists);
 			}
 
 			if (row.Status == LSOpportunityMeetingNotesApprovalStatus.Approved)
 			{
-				PXProcessing<LSOpportunityMeetingNotesApproval>.SetInfo("The record is already approved.");
+				PXProcessing<LSOpportunityMeetingNotesApproval>.SetInfo(LSOpportunityMeetingNotesApprovalMessages.RecordAlreadyApproved);
 				return;
 			}
 
 			LSOpportunityMeetingNotesApprovalApprovalService.Approve(this, row.ApprovalID);
-			PXProcessing<LSOpportunityMeetingNotesApproval>.SetInfo("Approved.");
+			PXProcessing<LSOpportunityMeetingNotesApproval>.SetInfo(LSOpportunityMeetingNotesApprovalMessages.RecordApproved);
 		}
+
 
 		private IEnumerable RedirectToOpportunity(PXAdapter adapter, string opportunityID)
 		{
@@ -175,5 +172,7 @@ namespace PX.Objects.LS
 				Mode = PXBaseRedirectException.WindowMode.NewWindow,
 			};
 		}
+
+
 	}
 }

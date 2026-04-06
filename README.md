@@ -14,7 +14,7 @@ Acumatica extension assets for the Fireflies-to-Opportunity meeting notes approv
   - install notes for the Acumatica dev instance
 
 ## Install Artifact
-- `dist/ls-opportunity-meeting-notes-approval-manual.zip`
+- `dist/ls-opportunity-meeting-notes-approval.zip`
 
 ## Main Screens
 - `LS501000` `Opportunity Meeting Notes Approval`
@@ -22,4 +22,5 @@ Acumatica extension assets for the Fireflies-to-Opportunity meeting notes approv
 
 ## Notes
 - This repo is an extension export, not a full Acumatica application checkout.
-- The ZIP contains the current manual customization package artifact together with the modern UI source files used to build it.
+- The ZIP contains the current generated customization package artifact.
+- The `frontend/` tree keeps the editable Modern UI source files for `LS501000` and `LS501010` alongside the packaged export.

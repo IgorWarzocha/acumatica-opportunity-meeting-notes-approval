@@ -23,6 +23,10 @@
       <HintPath>..\..\..\AcumaticaERP\Bin\PX.Common.dll</HintPath>
       <Private>false</Private>
     </Reference>
+    <Reference Include="PX.Common.Std">
+      <HintPath>..\..\..\AcumaticaERP\Bin\PX.Common.Std.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
     <Reference Include="PX.CS.Contracts">
       <HintPath>..\..\..\AcumaticaERP\Bin\PX.CS.Contracts.dll</HintPath>
       <Private>false</Private>

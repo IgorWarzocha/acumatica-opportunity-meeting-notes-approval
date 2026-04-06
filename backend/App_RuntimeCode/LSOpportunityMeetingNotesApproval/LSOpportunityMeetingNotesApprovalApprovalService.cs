@@ -1,8 +1,11 @@
 using System;
+using System.Linq;
+using System.Text;
 using PX.Common;
 using PX.Data;
 using PX.Objects.CR;
 using PX.Objects.EP;
+using PX.SM;
 
 namespace PX.Objects.LS
 {
@@ -17,7 +20,7 @@ namespace PX.Objects.LS
 
 			if (approvalID == null)
 			{
-				throw new PXException("Approval ID is required.");
+				throw new PXException(LSOpportunityMeetingNotesApprovalMessages.ApprovalIdIsRequired);
 			}
 
 			try
@@ -28,7 +31,7 @@ namespace PX.Objects.LS
 					var row = LSOpportunityMeetingNotesApproval.PK.Find(entryGraph, approvalID);
 					if (row == null)
 					{
-						throw new PXException("The approval record no longer exists.");
+						throw new PXException(LSOpportunityMeetingNotesApprovalMessages.ApprovalRecordNoLongerExists);
 					}
 
 					if (row.Status == LSOpportunityMeetingNotesApprovalStatus.Approved)
@@ -38,13 +41,13 @@ namespace PX.Objects.LS
 
 					if (string.IsNullOrWhiteSpace(row.ConfirmedOpportunityID))
 					{
-						throw new PXSetPropertyException<LSOpportunityMeetingNotesApproval.confirmedOpportunityID>("Confirmed Opportunity is required.");
+						throw new PXSetPropertyException<LSOpportunityMeetingNotesApproval.confirmedOpportunityID>(LSOpportunityMeetingNotesApprovalMessages.ConfirmedOpportunityIsRequired);
 					}
 
 					var opportunity = FindOpportunity(entryGraph, row.ConfirmedOpportunityID);
 					if (opportunity == null)
 					{
-						throw new PXException(string.Format("Opportunity '{0}' was not found.", row.ConfirmedOpportunityID));
+						throw new PXException(LSOpportunityMeetingNotesApprovalMessages.OpportunityNotFound, row.ConfirmedOpportunityID);
 					}
 
 					var activityGraph = PXGraph.CreateInstance<CRActivityMaint>();
@@ -52,7 +55,7 @@ namespace PX.Objects.LS
 					var activityBody = string.IsNullOrWhiteSpace(row.TranscriptHtml) ? row.MeetingSummary : row.TranscriptHtml;
 
 					activity.Subject = string.IsNullOrWhiteSpace(row.Subject)
-						? string.IsNullOrWhiteSpace(row.MeetingTitle) ? "Meeting Notes Summary" : row.MeetingTitle
+						? string.IsNullOrWhiteSpace(row.MeetingTitle) ? LSOpportunityMeetingNotesApprovalMessages.DefaultMeetingNotesSummarySubject : row.MeetingTitle
 						: row.Subject;
 					activity.RefNoteID = opportunity.NoteID;
 					activity.BAccountID = opportunity.BAccountID ?? row.BusinessAccountID;
@@ -65,7 +68,8 @@ namespace PX.Objects.LS
 					activity.Body = activityBody;
 					activity = activityGraph.Activities.Update(activity);
 
-					CopyFiles(entryGraph.Document.Cache, row, activityGraph.Activities.Cache, activity);
+					EnsureTranscriptAttachment(entryGraph, row);
+					MoveFilesToActivity(entryGraph.Document.Cache, row, activityGraph.Activities.Cache, activity);
 
 					activityGraph.Actions.PressSave();
 
@@ -74,10 +78,10 @@ namespace PX.Objects.LS
 					row.ApprovedByID = context.Accessinfo.UserID;
 					row.ApprovedDateTime = PXTimeZoneInfo.Now;
 					row.ErrorMessage = null;
-					row.PostApprovalSyncStatus = LSOpportunityMeetingNotesApprovalSyncStatus.Synced;
-					row.PostApprovalSyncDateTime = row.ApprovedDateTime;
+					row.PostApprovalSyncStatus = LSOpportunityMeetingNotesApprovalSyncStatus.NotReady;
+					row.PostApprovalSyncDateTime = null;
 					row.PostApprovalSyncError = null;
-					row.Processed = true;
+					row.Processed = false;
 					row.BusinessAccountID = activity.BAccountID;
 					row.ContactID = activity.ContactID;
 					entryGraph.Document.Update(row);
@@ -102,19 +106,19 @@ namespace PX.Objects.LS
 
 			if (approvalID == null)
 			{
-				throw new PXException("Approval ID is required.");
+				throw new PXException(LSOpportunityMeetingNotesApprovalMessages.ApprovalIdIsRequired);
 			}
 
 			var entryGraph = PXGraph.CreateInstance<LSOpportunityMeetingNotesApprovalEntry>();
 			var row = LSOpportunityMeetingNotesApproval.PK.Find(entryGraph, approvalID);
 			if (row == null)
 			{
-				throw new PXException("The approval record no longer exists.");
+				throw new PXException(LSOpportunityMeetingNotesApprovalMessages.ApprovalRecordNoLongerExists);
 			}
 
 			if (row.Status == LSOpportunityMeetingNotesApprovalStatus.Approved)
 			{
-				throw new PXException("Approved records cannot be rejected.");
+				throw new PXException(LSOpportunityMeetingNotesApprovalMessages.ApprovedRecordsCannotBeRejected);
 			}
 
 			row.Status = LSOpportunityMeetingNotesApprovalStatus.Rejected;
@@ -127,7 +131,39 @@ namespace PX.Objects.LS
 			entryGraph.Actions.PressSave();
 		}
 
-		private static void CopyFiles(PXCache sourceCache, object sourceRow, PXCache targetCache, object targetRow)
+		public static bool EnsureTranscriptAttachment(PXGraph context, LSOpportunityMeetingNotesApproval row)
+		{
+			if (context == null)
+			{
+				throw new PXArgumentException(nameof(context));
+			}
+
+			if (row?.NoteID == null || string.IsNullOrWhiteSpace(row.TranscriptHtml))
+			{
+				return false;
+			}
+
+			var cache = context.Caches<LSOpportunityMeetingNotesApproval>();
+			var existingFiles = PXNoteAttribute.GetFileNotes(cache, row) ?? Array.Empty<Guid>();
+			if (existingFiles.Length > 0)
+			{
+				return false;
+			}
+
+			var uploadGraph = PXGraph.CreateInstance<UploadFileMaintenance>();
+			var fileName = BuildTranscriptFileName(row);
+			var file = new FileInfo(fileName, null, Encoding.UTF8.GetBytes(row.TranscriptHtml));
+			if (!uploadGraph.SaveFile(file, FileExistsAction.CreateVersion) || file.UID == null)
+			{
+				throw new PXException("The transcript attachment could not be created.");
+			}
+
+			PXNoteAttribute.SetFileNotes(cache, row, new[] { file.UID.Value });
+			cache.Update(row);
+			return true;
+		}
+
+		private static void MoveFilesToActivity(PXCache sourceCache, object sourceRow, PXCache targetCache, object targetRow)
 		{
 			var files = PXNoteAttribute.GetFileNotes(sourceCache, sourceRow);
 			if (files == null || files.Length == 0)
@@ -136,6 +172,7 @@ namespace PX.Objects.LS
 			}
 
 			PXNoteAttribute.SetFileNotes(targetCache, targetRow, files);
+			PXNoteAttribute.SetFileNotes(sourceCache, sourceRow, Array.Empty<Guid>());
 		}
 
 		private static CROpportunity FindOpportunity(PXGraph graph, string opportunityID)
@@ -178,6 +215,37 @@ namespace PX.Objects.LS
 			row.Processed = false;
 			entryGraph.Document.Update(row);
 			entryGraph.Actions.PressSave();
+		}
+
+		private static string BuildTranscriptFileName(LSOpportunityMeetingNotesApproval row)
+		{
+			var seed = row?.ExternalMeetingID;
+			if (string.IsNullOrWhiteSpace(seed))
+			{
+				seed = row?.ApprovalID?.ToString();
+			}
+
+			if (string.IsNullOrWhiteSpace(seed))
+			{
+				seed = "meeting-notes";
+			}
+
+			var sanitized = new string(seed
+				.Select(ch => char.IsLetterOrDigit(ch) || ch == '-' || ch == '_' ? ch : '-')
+				.ToArray())
+				.Trim('-');
+
+			if (string.IsNullOrWhiteSpace(sanitized))
+			{
+				sanitized = "meeting-notes";
+			}
+
+			if (sanitized.Length > 80)
+			{
+				sanitized = sanitized.Substring(0, 80).Trim('-');
+			}
+
+			return sanitized + ".html";
 		}
 	}
 }

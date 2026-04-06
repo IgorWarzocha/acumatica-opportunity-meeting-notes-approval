@@ -4,16 +4,20 @@ This is the clean-instance install path that was verified on the Acumatica 25.20
 
 ## Package Inputs
 - Backend DLL: `development/package/ls-opportunity-meeting-notes-approval/Bin/LSOpportunityMeetingNotesApproval.dll`
-- Manual customization package ZIP: `development/package/ls-opportunity-meeting-notes-approval-manual.zip`
+- Generated customization package ZIP: `development/package/ls-opportunity-meeting-notes-approval.zip`
+
+Generate the ZIP with:
+
+- `Automation/Setup/build-ls-modern-package.ps1`
 
 ## Verified Install Flow
 1. Open `http://127.0.0.1:38121/AcumaticaERP`.
 2. Log in as `admin` / `admin1!`.
 3. Open `SM204505` (`Customization Projects`).
 4. Click `Import`.
-5. Upload `development/package/ls-opportunity-meeting-notes-approval-manual.zip`.
+5. Upload `development/package/ls-opportunity-meeting-notes-approval.zip`.
 6. Wait for the new project row to appear.
-   The imported project name currently appears as `lsopportunitymeetingnotesapprovalmanual`.
+   The imported project name should appear as `lsopportunitymeetingnotesapproval` or a similar normalized variant based on the package metadata.
 7. In the project grid, check the first editable checkbox column (`IsWorking`) for that row.
    Do not click the row-selector, `Files`, or `Notes` cells; the publish action only enables when `IsWorking` is checked.
 8. Click `Publish` in the toolbar.
@@ -34,24 +38,31 @@ The publish frame reported these steps successfully:
 - `Website updated.`
 - `Customization project published successfully.`
 
-## Important Limits
-- The ZIP currently contains the DLL and Modern UI source files only.
-- It does not yet contain full custom form/site-map packaging metadata.
-- Because of that, publish success does not automatically prove final menu/search surfacing.
-- The reliable post-publish check is still direct screen routing first: `LS501000` and `LS501010`.
+## Current Package Shape
+- The package is now built through `PX.CommandLine.exe /method buildproject`.
+- That produces `project.xml` entries for:
+  - `Bin\LSOpportunityMeetingNotesApproval.dll`
+  - `screens\LS\LS501000\*` and `screens\LS\LS501010\*` as `PerTenantFile` items
+- The package also injects an inline `Sql` item that:
+  - creates or updates `SiteMap` rows for `LS501000` and `LS501010`
+  - places `LS501000` in the existing `Opportunities` workspace
+  - keeps `LS501010` hidden from normal navigation
+- The package now also includes official `ScreenWithRights` customization items for:
+  - `LS501000`
+  - `LS501010`
+  seeded with the same baseline Acumatica uses for new forms in customization: `Customizer` with access level `4`.
+- After publish, use `SM201020` (`Access Rights by Screen`) to grant additional roles as needed.
+- This is the prod-like publish shape for the current LS modern screens because Acumatica can compile and deploy the tenant screen files during publish and register navigation during the same publish.
 
 ## What Was Not Reliable
-- Direct PowerShell calls into `PX.Web.Customization` from outside the app context were not reliable in this environment.
-- The `SM204510` project editor kept falling back to stale demo-project state, so `SM204505` import/publish was the dependable path.
+- Direct PowerShell calls into low-level `PX.Web.Customization` document APIs from outside the app context were brittle in this environment.
+- The supported path that worked was building the package through `PX.CommandLine.exe` and importing it through `SM204505`.
 
-
-## Demo Runtime Sync
-After package publish on this dev instance, run `./Automation/Setup/install-ls-demo-extension.sh`.
-
-This copies the LS backend DLL, generated `LS501000` / `LS501010` bundles, matching shared `app.*` bundle, and `App_Data/TSScreenInfo` metadata into the live site root at `C:\AcumaticaLocal\AcumaticaERP`, then recycles `AcumaticaERPAppPool`.
-
-Use this on the clean seeded instance when the customization project publishes successfully but the live site still does not have the LS runtime assets.
-
-After that, verify:
-- `http://127.0.0.1:38121/AcumaticaERP/Scripts/Screens/LS501000.html`
+## Post-publish verification
+After publish, verify directly:
+- global search finds `LS501000`
 - `http://127.0.0.1:38121/AcumaticaERP/Main?ScreenId=LS501000`
+- `http://127.0.0.1:38121/AcumaticaERP/Main?ScreenId=LS501010`
+- the `Opportunities` workspace shows `Opportunity Meeting Notes Approval`
+
+Fallback runtime sync scripts are now legacy troubleshooting helpers only and should not be part of the normal production-style install path.

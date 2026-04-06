@@ -1,5 +1,6 @@
 using PX.Data;
 using PX.Objects.CR;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -7,6 +8,8 @@ namespace PX.Objects.LS
 {
 	public class LSOpportunityMeetingNotesApprovalEntry : PXGraph<LSOpportunityMeetingNotesApprovalEntry, LSOpportunityMeetingNotesApproval>
 	{
+		private bool _syncingTranscriptAttachments;
+
 		[PXCopyPasteHiddenFields(typeof(LSOpportunityMeetingNotesApproval.transcriptHtml), typeof(LSOpportunityMeetingNotesApproval.matchDiagnostics))]
 		public PXSelect<LSOpportunityMeetingNotesApproval> Document;
 
@@ -53,6 +56,38 @@ namespace PX.Objects.LS
 		public virtual System.Collections.IEnumerable viewConfirmedOpportunity(PXAdapter adapter)
 		{
 			return RedirectToOpportunity(adapter, Document.Current?.ConfirmedOpportunityID);
+		}
+
+		public override void Persist()
+		{
+			if (_syncingTranscriptAttachments)
+			{
+				base.Persist();
+				return;
+			}
+
+			base.Persist();
+
+			var transcriptAttached = false;
+			foreach (var row in Document.Cache.Cached.OfType<LSOpportunityMeetingNotesApproval>())
+			{
+				transcriptAttached |= LSOpportunityMeetingNotesApprovalApprovalService.EnsureTranscriptAttachment(this, row);
+			}
+
+			if (!transcriptAttached)
+			{
+				return;
+			}
+
+			_syncingTranscriptAttachments = true;
+			try
+			{
+				base.Persist();
+			}
+			finally
+			{
+				_syncingTranscriptAttachments = false;
+			}
 		}
 
 		private IEnumerable<LSOpportunityMeetingNotesApproval> ResolveRows(PXAdapter adapter)
@@ -115,7 +150,7 @@ namespace PX.Objects.LS
 
 				if (duplicate != null)
 				{
-					throw new PXSetPropertyException<LSOpportunityMeetingNotesApproval.externalMeetingID>("External Meeting ID must be unique.");
+					throw new PXSetPropertyException<LSOpportunityMeetingNotesApproval.externalMeetingID>(LSOpportunityMeetingNotesApprovalMessages.ExternalMeetingIdMustBeUnique);
 				}
 			}
 		}
@@ -131,7 +166,7 @@ namespace PX.Objects.LS
 			var opportunity = CROpportunity.PK.Find(graph, opportunityID);
 				if (opportunity == null)
 				{
-					throw new PXException(string.Format("Opportunity '{0}' was not found.", opportunityID));
+					throw new PXException(LSOpportunityMeetingNotesApprovalMessages.OpportunityNotFound, opportunityID);
 				}
 
 			graph.Opportunity.Current = opportunity;
@@ -141,5 +176,6 @@ namespace PX.Objects.LS
 				Mode = PXBaseRedirectException.WindowMode.NewWindow,
 			};
 		}
+
 	}
 }
