@@ -1,0 +1,1782 @@
+[
+  {
+    "success": true,
+    "data": {
+      "id": "01KEG1NZ6RHJ7S3V71D4T70ZBJ",
+      "sentences": [
+        {
+          "index": 0,
+          "speaker_name": "Kyle Vanderstoep",
+          "speaker_id": 0,
+          "raw_text": "Hey, how's it going?",
+          "start_time": 3.92,
+          "end_time": 4.64,
+          "ai_filters": {
+            "text_cleanup": "Hey, how's it going?",
+            "task": null,
+            "pricing": null,
+            "metric": null,
+            "question": "Hey, how's it going?",
+            "date_and_time": null,
+            "sentiment": "neutral"
+          },
+          "text": "Hey, how's it going?"
+        },
+        {
+          "index": 1,
+          "speaker_name": "Stephen Korosy",
+          "speaker_id": 1,
+          "raw_text": "Hola.",
+          "start_time": 4.8,
+          "end_time": 5.36,
+          "ai_filters": {
+            "text_cleanup": "Hola.",
+            "task": null,
+            "pricing": null,
+            "metric": null,
+            "question": null,
+            "date_and_time": null,
+            "sentiment": "neutral"
+          },
+          "text": "Hola."
+        },
+        {
+          "index": 2,
+          "speaker_name": "Stephen Korosy",
+          "speaker_id": 1,
+          "raw_text": "Buenos dias.",
+          "start_time": 5.36,
+          "end_time": 6.32,
+          "ai_filters": {
+            "text_cleanup": "Buenos dias.",
+            "task": null,
+            "pricing": null,
+            "metric": null,
+            "question": null,
+            "date_and_time": null,
+            "sentiment": "neutral"
+          },
+          "text": "Buenos dias."
+        },
+        {
+          "index": 3,
+          "speaker_name": "Kyle Vanderstoep",
+          "speaker_id": 0,
+          "raw_text": "Buenos dias.",
+          "start_time": 6.72,
+          "end_time": 7.48,
+          "ai_filters": {
+            "text_cleanup": "Buenos dias.",
+            "task": null,
+            "pricing": null,
+            "metric": null,
+            "question": null,
+            "date_and_time": null,
+            "sentiment": "neutral"
+          },
+          "text": "Buenos dias."
+        },
+        {
+          "index": 4,
+          "speaker_name": "Kyle Vanderstoep",
+          "speaker_id": 0,
+          "raw_text": "How was your birthday?",
+          "start_time": 7.48,
+          "end_time": 8.16,
+          "ai_filters": {
+            "text_cleanup": "How was your birthday?",
+            "task": null,
+            "pricing": null,
+            "metric": null,
+            "question": "How was your birthday?",
+            "date_and_time": null,
+            "sentiment": "neutral"
+          },
+          "text": "How was your birthday?"
+        },
+        {
+          "index": 5,
+          "speaker_name": "Stephen Korosy",
+          "speaker_id": 1,
+          "raw_text": "It was good, man.",
+          "start_time": 10.24,
+          "end_time": 11.36,
+          "ai_filters": {
+            "text_cleanup": "It was good, man.",
+            "task": null,
+            "pricing": null,
+            "metric": null,
+            "question": null,
+            "date_and_time": null,
+            "sentiment": "positive"
+          },
+          "text": "It was good, man."
+        },
+        {
+          "index": 6,
+          "speaker_name": "Stephen Korosy",
+          "speaker_id": 1,
+          "raw_text": "Thanks.",
+          "start_time": 12.4,
+          "end_time": 12.88,
+          "ai_filters": {
+            "text_cleanup": "Thanks.",
+            "task": null,
+            "pricing": null,
+            "metric": null,
+            "question": null,
+            "date_and_time": null,
+            "sentiment": "positive"
+          },
+          "text": "Thanks."
+        },
+        {
+          "index": 7,
+          "speaker_name": "Stephen Korosy",
+          "speaker_id": 1,
+          "raw_text": "Went to restaurant in Montecito last night.",
+          "start_time": 14.24,
+          "end_time": 22.12,
+          "ai_filters": {
+            "text_cleanup": "Went to restaurant in Montecito last night.",
+            "task": null,
+            "pricing": null,
+            "metric": null,
+            "question": null,
+            "date_and_time": null,
+            "sentiment": "neutral"
+          },
+          "text": "Went to restaurant in Montecito last night."
+        },
+        {
+          "index": 8,
+          "speaker_name": "Stephen Korosy",
+          "speaker_id": 1,
+          "raw_text": "Italian joint that the family likes to go to.",
+          "start_time": 22.12,
+          "end_time": 25.36,
+          "ai_filters": {
+            "text_cleanup": "Italian joint that the family likes to go to.",
+            "task": null,
+            "pricing": null,
+            "metric": null,
+            "question": null,
+            "date_and_time": null,
+            "sentiment": "positive"
+          },
+          "text": "Italian joint that the family likes to go to."
+        },
+        {
+          "index": 9,
+          "speaker_name": "Stephen Korosy",
+          "speaker_id": 1,
+          "raw_text": "Nice, homemade, like Pete, like authentic Italian style pizzas and stuff like that.",
+          "start_time": 26.47,
+          "end_time": 33.03,
+          "ai_filters": {
+            "text_cleanup": "Nice, homemade, like Pete, like authentic Italian style pizzas and stuff like that.",
+            "task": null,
+            "pricing": null,
+            "metric": null,
+            "question": null,
+            "date_and_time": null,
+            "sentiment": "positive"
+          },
+          "text": "Nice, homemade, like Pete, like authentic Italian style pizzas and stuff like that."
+        },
+        {
+          "index": 10,
+          "speaker_name": "Stephen Korosy",
+          "speaker_id": 1,
+          "raw_text": "Yeah, that's good.",
+          "start_time": 33.67,
+          "end_time": 34.47,
+          "ai_filters": {
+            "text_cleanup": "Yeah, that's good.",
+            "task": null,
+            "pricing": null,
+            "metric": null,
+            "question": null,
+            "date_and_time": null,
+            "sentiment": "positive"
+          },
+          "text": "Yeah, that's good."
+        },
+        {
+          "index": 11,
+          "speaker_name": "Stephen Korosy",
+          "speaker_id": 1,
+          "raw_text": "Yeah.",
+          "start_time": 35.67,
+          "end_time": 36.23,
+          "ai_filters": {
+            "text_cleanup": "Yeah.",
+            "task": null,
+            "pricing": null,
+            "metric": null,
+            "question": null,
+            "date_and_time": null,
+            "sentiment": "positive"
+          },
+          "text": "Yeah."
+        },
+        {
+          "index": 12,
+          "speaker_name": "Stephen Korosy",
+          "speaker_id": 1,
+          "raw_text": "All right, so I've got firefly running.",
+          "start_time": 37.83,
+          "end_time": 40.55,
+          "ai_filters": {
+            "text_cleanup": "All right, so I've got firefly running.",
+            "task": null,
+            "pricing": null,
+            "metric": null,
+            "question": null,
+            "date_and_time": null,
+            "sentiment": "neutral"
+          },
+          "text": "All right, so I've got firefly running."
+        },
+        {
+          "index": 13,
+          "speaker_name": "Kyle Vanderstoep",
+          "speaker_id": 0,
+          "raw_text": "What?",
+          "start_time": 40.79,
+          "end_time": 41.11,
+          "ai_filters": {
+            "text_cleanup": "What?",
+            "task": null,
+            "pricing": null,
+            "metric": null,
+            "question": "What?",
+            "date_and_time": null,
+            "sentiment": "neutral"
+          },
+          "text": "What?"
+        },
+        {
+          "index": 14,
+          "speaker_name": "Stephen Korosy",
+          "speaker_id": 1,
+          "raw_text": "Tell me what you want me to do.",
+          "start_time": 41.11,
+          "end_time": 42.79,
+          "ai_filters": {
+            "text_cleanup": "Tell me what you want me to do.",
+            "task": "Tell me what you want me to do.",
+            "pricing": null,
+            "metric": null,
+            "question": null,
+            "date_and_time": null,
+            "sentiment": "positive"
+          },
+          "text": "Tell me what you want me to do."
+        },
+        {
+          "index": 15,
+          "speaker_name": "Kyle Vanderstoep",
+          "speaker_id": 0,
+          "raw_text": "For now, we just need to talk about random things because we need to generate a transcript so that I can get a test notification.",
+          "start_time": 44.63,
+          "end_time": 54.34,
+          "ai_filters": {
+            "text_cleanup": "For now, we just need to talk about random things because we need to generate a transcript so that I can get a test notification.",
+            "task": "For now, we just need to talk about random things because we need to generate a transcript so that I can get a test notification.",
+            "pricing": null,
+            "metric": null,
+            "question": null,
+            "date_and_time": null,
+            "sentiment": "neutral"
+          },
+          "text": "For now, we just need to talk about random things because we need to generate a transcript so that I can get a test notification."
+        },
+        {
+          "index": 16,
+          "speaker_name": "Stephen Korosy",
+          "speaker_id": 1,
+          "raw_text": "While.",
+          "start_time": 55.38,
+          "end_time": 55.78,
+          "ai_filters": {
+            "text_cleanup": "While.",
+            "task": null,
+            "pricing": null,
+            "metric": null,
+            "question": null,
+            "date_and_time": null,
+            "sentiment": "neutral"
+          },
+          "text": "While."
+        },
+        {
+          "index": 17,
+          "speaker_name": "Stephen Korosy",
+          "speaker_id": 1,
+          "raw_text": "While we're at it, should we go ahead and talk about what your current core processor is like?",
+          "start_time": 55.78,
+          "end_time": 62.3,
+          "ai_filters": {
+            "text_cleanup": "While we're at it, should we go ahead and talk about what your current core processor is like?",
+            "task": null,
+            "pricing": null,
+            "metric": null,
+            "question": "While we're at it, should we go ahead and talk about what your current core processor is like?",
+            "date_and_time": null,
+            "sentiment": "positive"
+          },
+          "text": "While we're at it, should we go ahead and talk about what your current core processor is like?"
+        },
+        {
+          "index": 18,
+          "speaker_name": "Stephen Korosy",
+          "speaker_id": 1,
+          "raw_text": "What is your current core processor that you're using right now?",
+          "start_time": 62.3,
+          "end_time": 65.14,
+          "ai_filters": {
+            "text_cleanup": "What is your current core processor that you're using right now?",
+            "task": null,
+            "pricing": null,
+            "metric": null,
+            "question": "What is your current core processor that you're using right now?",
+            "date_and_time": null,
+            "sentiment": "neutral"
+          },
+          "text": "What is your current core processor that you're using right now?"
+        },
+        {
+          "index": 19,
+          "speaker_name": "Kyle Vanderstoep",
+          "speaker_id": 0,
+          "raw_text": "I think it's skorosy.",
+          "start_time": 65.94,
+          "end_time": 67.22,
+          "ai_filters": {
+            "text_cleanup": "I think it's skorosy.",
+            "task": null,
+            "pricing": null,
+            "metric": null,
+            "question": null,
+            "date_and_time": null,
+            "sentiment": "neutral"
+          },
+          "text": "I think it's skorosy."
+        },
+        {
+          "index": 20,
+          "speaker_name": "Stephen Korosy",
+          "speaker_id": 1,
+          "raw_text": "Okay.",
+          "start_time": 67.78,
+          "end_time": 68.42,
+          "ai_filters": {
+            "text_cleanup": "Okay.",
+            "task": null,
+            "pricing": null,
+            "metric": null,
+            "question": null,
+            "date_and_time": null,
+            "sentiment": "neutral"
+          },
+          "text": "Okay."
+        },
+        {
+          "index": 21,
+          "speaker_name": "Kyle Vanderstoep",
+          "speaker_id": 0,
+          "raw_text": "And I'm using the GL in it.",
+          "start_time": 68.66,
+          "end_time": 70.34,
+          "ai_filters": {
+            "text_cleanup": "And I'm using the GL in it.",
+            "task": null,
+            "pricing": null,
+            "metric": null,
+            "question": null,
+            "date_and_time": null,
+            "sentiment": "neutral"
+          },
+          "text": "And I'm using the GL in it."
+        },
+        {
+          "index": 22,
+          "speaker_name": "Stephen Korosy",
+          "speaker_id": 1,
+          "raw_text": "Okay.",
+          "start_time": 70.82,
+          "end_time": 71.3,
+          "ai_filters": {
+            "text_cleanup": "Okay.",
+            "task": null,
+            "pricing": null,
+            "metric": null,
+            "question": null,
+            "date_and_time": null,
+            "sentiment": "neutral"
+          },
+          "text": "Okay."
+        },
+        {
+          "index": 23,
+          "speaker_name": "Stephen Korosy",
+          "speaker_id": 1,
+          "raw_text": "You are?",
+          "start_time": 71.3,
+          "end_time": 71.78,
+          "ai_filters": {
+            "text_cleanup": "You are?",
+            "task": null,
+            "pricing": null,
+            "metric": null,
+            "question": "You are?",
+            "date_and_time": null,
+            "sentiment": "neutral"
+          },
+          "text": "You are?"
+        },
+        {
+          "index": 24,
+          "speaker_name": "Stephen Korosy",
+          "speaker_id": 1,
+          "raw_text": "Okay.",
+          "start_time": 71.94,
+          "end_time": 72.42,
+          "ai_filters": {
+            "text_cleanup": "Okay.",
+            "task": null,
+            "pricing": null,
+            "metric": null,
+            "question": null,
+            "date_and_time": null,
+            "sentiment": "neutral"
+          },
+          "text": "Okay."
+        },
+        {
+          "index": 25,
+          "speaker_name": "Stephen Korosy",
+          "speaker_id": 1,
+          "raw_text": "Yep.",
+          "start_time": 72.42,
+          "end_time": 72.78,
+          "ai_filters": {
+            "text_cleanup": "Yep.",
+            "task": null,
+            "pricing": null,
+            "metric": null,
+            "question": null,
+            "date_and_time": null,
+            "sentiment": "neutral"
+          },
+          "text": "Yep."
+        },
+        {
+          "index": 26,
+          "speaker_name": "Kyle Vanderstoep",
+          "speaker_id": 0,
+          "raw_text": "But I'm looking to switch to something with, you know, has more functionality.",
+          "start_time": 72.78,
+          "end_time": 77.22,
+          "ai_filters": {
+            "text_cleanup": "But I'm looking to switch to something with, you know, has more functionality.",
+            "task": null,
+            "pricing": null,
+            "metric": null,
+            "question": null,
+            "date_and_time": null,
+            "sentiment": "neutral"
+          },
+          "text": "But I'm looking to switch to something with, you know, has more functionality."
+        },
+        {
+          "index": 27,
+          "speaker_name": "Stephen Korosy",
+          "speaker_id": 1,
+          "raw_text": "So you're using.",
+          "start_time": 77.7,
+          "end_time": 78.5,
+          "ai_filters": {
+            "text_cleanup": "So you're using.",
+            "task": null,
+            "pricing": null,
+            "metric": null,
+            "question": null,
+            "date_and_time": null,
+            "sentiment": "neutral"
+          },
+          "text": "So you're using."
+        },
+        {
+          "index": 28,
+          "speaker_name": "Stephen Korosy",
+          "speaker_id": 1,
+          "raw_text": "Actually, I think you're using a third party general ledger system.",
+          "start_time": 78.9,
+          "end_time": 82.18,
+          "ai_filters": {
+            "text_cleanup": "Actually, I think you're using a third party general ledger system.",
+            "task": null,
+            "pricing": null,
+            "metric": null,
+            "question": null,
+            "date_and_time": null,
+            "sentiment": "neutral"
+          },
+          "text": "Actually, I think you're using a third party general ledger system."
+        },
+        {
+          "index": 29,
+          "speaker_name": "Stephen Korosy",
+          "speaker_id": 1,
+          "raw_text": "It's either wisdom or prolo.",
+          "start_time": 82.42,
+          "end_time": 84.41,
+          "ai_filters": {
+            "text_cleanup": "It's either wisdom or prolo.",
+            "task": null,
+            "pricing": null,
+            "metric": null,
+            "question": null,
+            "date_and_time": null,
+            "sentiment": "positive"
+          },
+          "text": "It's either wisdom or prolo."
+        },
+        {
+          "index": 30,
+          "speaker_name": "Stephen Korosy",
+          "speaker_id": 1,
+          "raw_text": "Do you remember which one it is?",
+          "start_time": 84.8,
+          "end_time": 86,
+          "ai_filters": {
+            "text_cleanup": "Do you remember which one it is?",
+            "task": null,
+            "pricing": null,
+            "metric": "Do you remember which one it is?",
+            "question": "Do you remember which one it is?",
+            "date_and_time": null,
+            "sentiment": "neutral"
+          },
+          "text": "Do you remember which one it is?"
+        },
+        {
+          "index": 31,
+          "speaker_name": "Kyle Vanderstoep",
+          "speaker_id": 0,
+          "raw_text": "I'm gonna have to go with wisdom.",
+          "start_time": 87.04,
+          "end_time": 88.92,
+          "ai_filters": {
+            "text_cleanup": "I'm gonna have to go with wisdom.",
+            "task": null,
+            "pricing": null,
+            "metric": null,
+            "question": null,
+            "date_and_time": null,
+            "sentiment": "positive"
+          },
+          "text": "I'm gonna have to go with wisdom."
+        },
+        {
+          "index": 32,
+          "speaker_name": "Kyle Vanderstoep",
+          "speaker_id": 0,
+          "raw_text": "That sounds the most familiar.",
+          "start_time": 88.92,
+          "end_time": 90.16,
+          "ai_filters": {
+            "text_cleanup": "That sounds the most familiar.",
+            "task": null,
+            "pricing": null,
+            "metric": null,
+            "question": null,
+            "date_and_time": null,
+            "sentiment": "neutral"
+          },
+          "text": "That sounds the most familiar."
+        },
+        {
+          "index": 33,
+          "speaker_name": "Stephen Korosy",
+          "speaker_id": 1,
+          "raw_text": "Okay, so it sounds like you're on wisdom and skorosy and you're not very happy with it.",
+          "start_time": 90.64,
+          "end_time": 97.2,
+          "ai_filters": {
+            "text_cleanup": "Okay, so it sounds like you're on wisdom and skorosy and you're not very happy with it.",
+            "task": null,
+            "pricing": null,
+            "metric": null,
+            "question": null,
+            "date_and_time": null,
+            "sentiment": "positive"
+          },
+          "text": "Okay, so it sounds like you're on wisdom and skorosy and you're not very happy with it."
+        },
+        {
+          "index": 34,
+          "speaker_name": "Stephen Korosy",
+          "speaker_id": 1,
+          "raw_text": "Okay, perfect.",
+          "start_time": 97.2,
+          "end_time": 97.84,
+          "ai_filters": {
+            "text_cleanup": "Okay, perfect.",
+            "task": null,
+            "pricing": null,
+            "metric": null,
+            "question": null,
+            "date_and_time": null,
+            "sentiment": "positive"
+          },
+          "text": "Okay, perfect."
+        },
+        {
+          "index": 35,
+          "speaker_name": "Stephen Korosy",
+          "speaker_id": 1,
+          "raw_text": "Did you have a particular time frame in mind that you'd want to start a project and then be live on the project?",
+          "start_time": 97.84,
+          "end_time": 104.56,
+          "ai_filters": {
+            "text_cleanup": "Did you have a particular time frame in mind that you'd want to start a project and then be live on the project?",
+            "task": null,
+            "pricing": null,
+            "metric": null,
+            "question": "Did you have a particular time frame in mind that you'd want to start a project and then be live on the project?",
+            "date_and_time": null,
+            "sentiment": "positive"
+          },
+          "text": "Did you have a particular time frame in mind that you'd want to start a project and then be live on the project?"
+        },
+        {
+          "index": 36,
+          "speaker_name": "Kyle Vanderstoep",
+          "speaker_id": 0,
+          "raw_text": "I'm hoping that we could start the project on Monday and maybe we could be done the Monday after.",
+          "start_time": 105.6,
+          "end_time": 110.44,
+          "ai_filters": {
+            "text_cleanup": "I'm hoping that we could start the project on Monday and maybe we could be done the Monday after.",
+            "task": "I'm hoping that we could start the project on Monday and maybe we could be done the Monday after.",
+            "pricing": null,
+            "metric": null,
+            "question": null,
+            "date_and_time": null,
+            "sentiment": "positive"
+          },
+          "text": "I'm hoping that we could start the project on Monday and maybe we could be done the Monday after."
+        },
+        {
+          "index": 37,
+          "speaker_name": "Kyle Vanderstoep",
+          "speaker_id": 0,
+          "raw_text": "How does that sound?",
+          "start_time": 110.44,
+          "end_time": 111.36,
+          "ai_filters": {
+            "text_cleanup": "How does that sound?",
+            "task": null,
+            "pricing": null,
+            "metric": null,
+            "question": "How does that sound?",
+            "date_and_time": null,
+            "sentiment": "neutral"
+          },
+          "text": "How does that sound?"
+        },
+        {
+          "index": 38,
+          "speaker_name": "Stephen Korosy",
+          "speaker_id": 1,
+          "raw_text": "Actually, I think it would sound better if you gave me a little bit more of a realistic, like, okay, start the project this coming August and then go live maybe like mid November.",
+          "start_time": 112.63,
+          "end_time": 124.23,
+          "ai_filters": {
+            "text_cleanup": "Actually, I think it would sound better if you gave me a little bit more of a realistic, like, okay, start the project this coming August and then go live maybe like mid November.",
+            "task": null,
+            "pricing": null,
+            "metric": null,
+            "question": null,
+            "date_and_time": null,
+            "sentiment": "positive"
+          },
+          "text": "Actually, I think it would sound better if you gave me a little bit more of a realistic, like, okay, start the project this coming August and then go live maybe like mid November."
+        },
+        {
+          "index": 39,
+          "speaker_name": "Stephen Korosy",
+          "speaker_id": 1,
+          "raw_text": "Does that sound like that would work for you?",
+          "start_time": 124.23,
+          "end_time": 126.07,
+          "ai_filters": {
+            "text_cleanup": "Does that sound like that would work for you?",
+            "task": null,
+            "pricing": null,
+            "metric": null,
+            "question": "Does that sound like that would work for you?",
+            "date_and_time": null,
+            "sentiment": "positive"
+          },
+          "text": "Does that sound like that would work for you?"
+        },
+        {
+          "index": 40,
+          "speaker_name": "Kyle Vanderstoep",
+          "speaker_id": 0,
+          "raw_text": "Yeah, you know, after looking at my schedule, I think that's a much more realistic time frame.",
+          "start_time": 126.71,
+          "end_time": 130.55,
+          "ai_filters": {
+            "text_cleanup": "Yeah, you know, after looking at my schedule, I think that's a much more realistic time frame.",
+            "task": null,
+            "pricing": null,
+            "metric": null,
+            "question": null,
+            "date_and_time": null,
+            "sentiment": "positive"
+          },
+          "text": "Yeah, you know, after looking at my schedule, I think that's a much more realistic time frame."
+        },
+        {
+          "index": 41,
+          "speaker_name": "Kyle Vanderstoep",
+          "speaker_id": 0,
+          "raw_text": "Let's stick with that.",
+          "start_time": 130.79,
+          "end_time": 131.83,
+          "ai_filters": {
+            "text_cleanup": "Let's stick with that.",
+            "task": null,
+            "pricing": null,
+            "metric": null,
+            "question": null,
+            "date_and_time": null,
+            "sentiment": "neutral"
+          },
+          "text": "Let's stick with that."
+        },
+        {
+          "index": 42,
+          "speaker_name": "Stephen Korosy",
+          "speaker_id": 1,
+          "raw_text": "Okay, perfect.",
+          "start_time": 132.15,
+          "end_time": 133.11,
+          "ai_filters": {
+            "text_cleanup": "Okay, perfect.",
+            "task": null,
+            "pricing": null,
+            "metric": null,
+            "question": null,
+            "date_and_time": null,
+            "sentiment": "positive"
+          },
+          "text": "Okay, perfect."
+        },
+        {
+          "index": 43,
+          "speaker_name": "Stephen Korosy",
+          "speaker_id": 1,
+          "raw_text": "All right.",
+          "start_time": 133.83,
+          "end_time": 134.35,
+          "ai_filters": {
+            "text_cleanup": "All right.",
+            "task": null,
+            "pricing": null,
+            "metric": null,
+            "question": null,
+            "date_and_time": null,
+            "sentiment": "neutral"
+          },
+          "text": "All right."
+        },
+        {
+          "index": 44,
+          "speaker_name": "Stephen Korosy",
+          "speaker_id": 1,
+          "raw_text": "And then usually the scope of our implementations is general ledger, accounts payable, fixed assets, and then financial reporting.",
+          "start_time": 134.35,
+          "end_time": 146.06,
+          "ai_filters": {
+            "text_cleanup": "And then usually the scope of our implementations is general ledger, accounts payable, fixed assets, and then financial reporting.",
+            "task": null,
+            "pricing": null,
+            "metric": null,
+            "question": null,
+            "date_and_time": null,
+            "sentiment": "positive"
+          },
+          "text": "And then usually the scope of our implementations is general ledger, accounts payable, fixed assets, and then financial reporting."
+        },
+        {
+          "index": 45,
+          "speaker_name": "Stephen Korosy",
+          "speaker_id": 1,
+          "raw_text": "Then we usually also do advanced expense management, like, which would be like an expense reimbursement, which usually would replace something like Certify or Concur.",
+          "start_time": 147.02,
+          "end_time": 158.38,
+          "ai_filters": {
+            "text_cleanup": "Then we usually also do advanced expense management, like, which would be like an expense reimbursement, which usually would replace something like Certify or Concur.",
+            "task": null,
+            "pricing": null,
+            "metric": null,
+            "question": null,
+            "date_and_time": null,
+            "sentiment": "positive"
+          },
+          "text": "Then we usually also do advanced expense management, like, which would be like an expense reimbursement, which usually would replace something like Certify or Concur."
+        },
+        {
+          "index": 46,
+          "speaker_name": "Stephen Korosy",
+          "speaker_id": 1,
+          "raw_text": "Do you use either of those two products?",
+          "start_time": 158.7,
+          "end_time": 160.62,
+          "ai_filters": {
+            "text_cleanup": "Do you use either of those two products?",
+            "task": null,
+            "pricing": null,
+            "metric": "Do you use either of those two products?",
+            "question": "Do you use either of those two products?",
+            "date_and_time": null,
+            "sentiment": "neutral"
+          },
+          "text": "Do you use either of those two products?"
+        },
+        {
+          "index": 47,
+          "speaker_name": "Kyle Vanderstoep",
+          "speaker_id": 0,
+          "raw_text": "Yeah, I use Concur.",
+          "start_time": 161.5,
+          "end_time": 163.18,
+          "ai_filters": {
+            "text_cleanup": "Yeah, I use Concur.",
+            "task": null,
+            "pricing": null,
+            "metric": null,
+            "question": null,
+            "date_and_time": null,
+            "sentiment": "positive"
+          },
+          "text": "Yeah, I use Concur."
+        },
+        {
+          "index": 48,
+          "speaker_name": "Kyle Vanderstoep",
+          "speaker_id": 0,
+          "raw_text": "And I'd be happy to roll that into my acumatica implementation.",
+          "start_time": 163.18,
+          "end_time": 166.22,
+          "ai_filters": {
+            "text_cleanup": "And I'd be happy to roll that into my acumatica implementation.",
+            "task": null,
+            "pricing": null,
+            "metric": null,
+            "question": null,
+            "date_and_time": null,
+            "sentiment": "positive"
+          },
+          "text": "And I'd be happy to roll that into my acumatica implementation."
+        },
+        {
+          "index": 49,
+          "speaker_name": "Stephen Korosy",
+          "speaker_id": 1,
+          "raw_text": "Great.",
+          "start_time": 166.38,
+          "end_time": 166.78,
+          "ai_filters": {
+            "text_cleanup": "Great.",
+            "task": null,
+            "pricing": null,
+            "metric": null,
+            "question": null,
+            "date_and_time": null,
+            "sentiment": "positive"
+          },
+          "text": "Great."
+        },
+        {
+          "index": 50,
+          "speaker_name": "Stephen Korosy",
+          "speaker_id": 1,
+          "raw_text": "Okay, perfect.",
+          "start_time": 166.86,
+          "end_time": 167.58,
+          "ai_filters": {
+            "text_cleanup": "Okay, perfect.",
+            "task": null,
+            "pricing": null,
+            "metric": null,
+            "question": null,
+            "date_and_time": null,
+            "sentiment": "positive"
+          },
+          "text": "Okay, perfect."
+        },
+        {
+          "index": 51,
+          "speaker_name": "Stephen Korosy",
+          "speaker_id": 1,
+          "raw_text": "And then usually what goes along with that is we couple that with corporate credit card reimbursements.",
+          "start_time": 167.58,
+          "end_time": 174.43,
+          "ai_filters": {
+            "text_cleanup": "And then usually what goes along with that is we couple that with corporate credit card reimbursements.",
+            "task": null,
+            "pricing": null,
+            "metric": null,
+            "question": null,
+            "date_and_time": null,
+            "sentiment": "neutral"
+          },
+          "text": "And then usually what goes along with that is we couple that with corporate credit card reimbursements."
+        },
+        {
+          "index": 52,
+          "speaker_name": "Stephen Korosy",
+          "speaker_id": 1,
+          "raw_text": "So if you have any corporate credit cards that you issue, typically it's like anywhere from 20 to 50 corporate credit cards we see are issued at credit unions.",
+          "start_time": 175.07,
+          "end_time": 184.83,
+          "ai_filters": {
+            "text_cleanup": "So if you have any corporate credit cards that you issue, typically it's like anywhere from 20 to 50 corporate credit cards we see are issued at credit unions.",
+            "task": null,
+            "pricing": null,
+            "metric": "So if you have any corporate credit cards that you issue, typically it's like anywhere from 20 to 50 corporate credit cards we see are issued at credit unions.",
+            "question": null,
+            "date_and_time": null,
+            "sentiment": "positive"
+          },
+          "text": "So if you have any corporate credit cards that you issue, typically it's like anywhere from 20 to 50 corporate credit cards we see are issued at credit unions."
+        },
+        {
+          "index": 53,
+          "speaker_name": "Stephen Korosy",
+          "speaker_id": 1,
+          "raw_text": "How many corporate credit cards do you have in use there?",
+          "start_time": 184.99,
+          "end_time": 188.51,
+          "ai_filters": {
+            "text_cleanup": "How many corporate credit cards do you have in use there?",
+            "task": null,
+            "pricing": null,
+            "metric": null,
+            "question": "How many corporate credit cards do you have in use there?",
+            "date_and_time": null,
+            "sentiment": "neutral"
+          },
+          "text": "How many corporate credit cards do you have in use there?"
+        },
+        {
+          "index": 54,
+          "speaker_name": "Kyle Vanderstoep",
+          "speaker_id": 0,
+          "raw_text": "We've got about 25.",
+          "start_time": 189.47,
+          "end_time": 190.974,
+          "ai_filters": {
+            "text_cleanup": "We've got about 25.",
+            "task": null,
+            "pricing": null,
+            "metric": "We've got about 25.",
+            "question": null,
+            "date_and_time": null,
+            "sentiment": "neutral"
+          },
+          "text": "We've got about 25."
+        },
+        {
+          "index": 55,
+          "speaker_name": "Stephen Korosy",
+          "speaker_id": 1,
+          "raw_text": "25.",
+          "start_time": 191.166,
+          "end_time": 192.03,
+          "ai_filters": {
+            "text_cleanup": "25.",
+            "task": null,
+            "pricing": null,
+            "metric": "25.",
+            "question": null,
+            "date_and_time": null,
+            "sentiment": "neutral"
+          },
+          "text": "25."
+        },
+        {
+          "index": 56,
+          "speaker_name": "Stephen Korosy",
+          "speaker_id": 1,
+          "raw_text": "Okay, that's good to know.",
+          "start_time": 192.03,
+          "end_time": 193.39,
+          "ai_filters": {
+            "text_cleanup": "Okay, that's good to know.",
+            "task": null,
+            "pricing": null,
+            "metric": null,
+            "question": null,
+            "date_and_time": null,
+            "sentiment": "positive"
+          },
+          "text": "Okay, that's good to know."
+        },
+        {
+          "index": 57,
+          "speaker_name": "Stephen Korosy",
+          "speaker_id": 1,
+          "raw_text": "And usually Acumatica connects to this corporate card through either plaid or M. X.",
+          "start_time": 194.11,
+          "end_time": 201.52,
+          "ai_filters": {
+            "text_cleanup": "And usually Acumatica connects to this corporate card through either plaid or M. X.",
+            "task": null,
+            "pricing": null,
+            "metric": null,
+            "question": null,
+            "date_and_time": null,
+            "sentiment": "neutral"
+          },
+          "text": "And usually Acumatica connects to this corporate card through either plaid or M. X."
+        },
+        {
+          "index": 58,
+          "speaker_name": "Stephen Korosy",
+          "speaker_id": 1,
+          "raw_text": "The letters M. The letter X.",
+          "start_time": 201.52,
+          "end_time": 203.2,
+          "ai_filters": {
+            "text_cleanup": "The letters M. The letter X.",
+            "task": null,
+            "pricing": null,
+            "metric": null,
+            "question": null,
+            "date_and_time": null,
+            "sentiment": "neutral"
+          },
+          "text": "The letters M. The letter X."
+        },
+        {
+          "index": 59,
+          "speaker_name": "Stephen Korosy",
+          "speaker_id": 1,
+          "raw_text": "Do you know if your credit union has a relationship with Plaid or Amex?",
+          "start_time": 203.6,
+          "end_time": 207.84,
+          "ai_filters": {
+            "text_cleanup": "Do you know if your credit union has a relationship with Plaid or Amex?",
+            "task": null,
+            "pricing": null,
+            "metric": null,
+            "question": "Do you know if your credit union has a relationship with Plaid or Amex?",
+            "date_and_time": null,
+            "sentiment": "neutral"
+          },
+          "text": "Do you know if your credit union has a relationship with Plaid or Amex?"
+        },
+        {
+          "index": 60,
+          "speaker_name": "Kyle Vanderstoep",
+          "speaker_id": 0,
+          "raw_text": "Yeah, we have a relationship with plaid.",
+          "start_time": 208.4,
+          "end_time": 210.48,
+          "ai_filters": {
+            "text_cleanup": "Yeah, we have a relationship with plaid.",
+            "task": "Yeah, we have a relationship with plaid.",
+            "pricing": null,
+            "metric": null,
+            "question": null,
+            "date_and_time": null,
+            "sentiment": "positive"
+          },
+          "text": "Yeah, we have a relationship with plaid."
+        },
+        {
+          "index": 61,
+          "speaker_name": "Stephen Korosy",
+          "speaker_id": 1,
+          "raw_text": "Oh, that's great.",
+          "start_time": 210.96,
+          "end_time": 211.919,
+          "ai_filters": {
+            "text_cleanup": "Oh, that's great.",
+            "task": null,
+            "pricing": null,
+            "metric": null,
+            "question": null,
+            "date_and_time": null,
+            "sentiment": "positive"
+          },
+          "text": "Oh, that's great."
+        },
+        {
+          "index": 62,
+          "speaker_name": "Stephen Korosy",
+          "speaker_id": 1,
+          "raw_text": "Okay, perfect.",
+          "start_time": 211.92,
+          "end_time": 213.36,
+          "ai_filters": {
+            "text_cleanup": "Okay, perfect.",
+            "task": null,
+            "pricing": null,
+            "metric": null,
+            "question": null,
+            "date_and_time": null,
+            "sentiment": "positive"
+          },
+          "text": "Okay, perfect."
+        },
+        {
+          "index": 63,
+          "speaker_name": "Stephen Korosy",
+          "speaker_id": 1,
+          "raw_text": "All right, let's see if I can think of any other complications or points of interest that come up during the sales cycle that we should talk about that I know my team is usually generally pretty interested in.",
+          "start_time": 215.52,
+          "end_time": 227.91,
+          "ai_filters": {
+            "text_cleanup": "All right, let's see if I can think of any other complications or points of interest that come up during the sales cycle that we should talk about that I know my team is usually generally pretty interested in.",
+            "task": "All right, let's see if I can think of any other complications or points of interest that come up during the sales cycle that we should talk about that I know my team is usually generally pretty interested in.",
+            "pricing": null,
+            "metric": null,
+            "question": null,
+            "date_and_time": null,
+            "sentiment": "positive"
+          },
+          "text": "All right, let's see if I can think of any other complications or points of interest that come up during the sales cycle that we should talk about that I know my team is usually generally pretty interested in."
+        },
+        {
+          "index": 64,
+          "speaker_name": "Stephen Korosy",
+          "speaker_id": 1,
+          "raw_text": "Usually when we convert you over, we bring over like the two most current years of general ledger history data and usually after that maybe a subsequent three more years in just summary detail change.",
+          "start_time": 231.99,
+          "end_time": 248.71,
+          "ai_filters": {
+            "text_cleanup": "Usually when we convert you over, we bring over like the two most current years of general ledger history data and usually after that maybe a subsequent three more years in just summary detail change.",
+            "task": null,
+            "pricing": null,
+            "metric": "Usually when we convert you over, we bring over like the two most current years of general ledger history data and usually after that maybe a subsequent three more years in just summary detail change.",
+            "question": null,
+            "date_and_time": null,
+            "sentiment": "positive"
+          },
+          "text": "Usually when we convert you over, we bring over like the two most current years of general ledger history data and usually after that maybe a subsequent three more years in just summary detail change."
+        },
+        {
+          "index": 65,
+          "speaker_name": "Stephen Korosy",
+          "speaker_id": 1,
+          "raw_text": "Does that work for you or do you want more years of history and detail and then more years in summary?",
+          "start_time": 249.19,
+          "end_time": 255.72,
+          "ai_filters": {
+            "text_cleanup": "Does that work for you or do you want more years of history and detail and then more years in summary?",
+            "task": null,
+            "pricing": null,
+            "metric": null,
+            "question": "Does that work for you or do you want more years of history and detail and then more years in summary?",
+            "date_and_time": null,
+            "sentiment": "positive"
+          },
+          "text": "Does that work for you or do you want more years of history and detail and then more years in summary?"
+        },
+        {
+          "index": 66,
+          "speaker_name": "Stephen Korosy",
+          "speaker_id": 1,
+          "raw_text": "What, how, how many of each do you think you would like?",
+          "start_time": 255.72,
+          "end_time": 258.44,
+          "ai_filters": {
+            "text_cleanup": "What, how, how many of each do you think you would like?",
+            "task": null,
+            "pricing": null,
+            "metric": null,
+            "question": "What, how, how many of each do you think you would like?",
+            "date_and_time": null,
+            "sentiment": "positive"
+          },
+          "text": "What, how, how many of each do you think you would like?"
+        },
+        {
+          "index": 67,
+          "speaker_name": "Kyle Vanderstoep",
+          "speaker_id": 0,
+          "raw_text": "I think two years of detail and five years of summary.",
+          "start_time": 259.88,
+          "end_time": 263.08,
+          "ai_filters": {
+            "text_cleanup": "I think two years of detail and five years of summary.",
+            "task": null,
+            "pricing": null,
+            "metric": "I think two years of detail and five years of summary.",
+            "question": null,
+            "date_and_time": null,
+            "sentiment": "neutral"
+          },
+          "text": "I think two years of detail and five years of summary."
+        },
+        {
+          "index": 68,
+          "speaker_name": "Stephen Korosy",
+          "speaker_id": 1,
+          "raw_text": "Okay, that works.",
+          "start_time": 263.48,
+          "end_time": 264.84,
+          "ai_filters": {
+            "text_cleanup": "Okay, that works.",
+            "task": null,
+            "pricing": null,
+            "metric": null,
+            "question": null,
+            "date_and_time": null,
+            "sentiment": "neutral"
+          },
+          "text": "Okay, that works."
+        },
+        {
+          "index": 69,
+          "speaker_name": "Stephen Korosy",
+          "speaker_id": 1,
+          "raw_text": "And then we do require that you have an SFTP site that you host.",
+          "start_time": 267.32,
+          "end_time": 272.84,
+          "ai_filters": {
+            "text_cleanup": "And then we do require that you have an SFTP site that you host.",
+            "task": null,
+            "pricing": null,
+            "metric": null,
+            "question": null,
+            "date_and_time": null,
+            "sentiment": "neutral"
+          },
+          "text": "And then we do require that you have an SFTP site that you host."
+        },
+        {
+          "index": 70,
+          "speaker_name": "Stephen Korosy",
+          "speaker_id": 1,
+          "raw_text": "That is our mechanism by which we integrate with your core processor and we grab that data file.",
+          "start_time": 272.92,
+          "end_time": 279.18,
+          "ai_filters": {
+            "text_cleanup": "That is our mechanism by which we integrate with your core processor and we grab that data file.",
+            "task": null,
+            "pricing": null,
+            "metric": null,
+            "question": null,
+            "date_and_time": null,
+            "sentiment": "neutral"
+          },
+          "text": "That is our mechanism by which we integrate with your core processor and we grab that data file."
+        },
+        {
+          "index": 71,
+          "speaker_name": "Stephen Korosy",
+          "speaker_id": 1,
+          "raw_text": "Is that going to be an issue if you need to be able to spin up your own SFTP server?",
+          "start_time": 279.66,
+          "end_time": 285.82,
+          "ai_filters": {
+            "text_cleanup": "Is that going to be an issue if you need to be able to spin up your own SFTP server?",
+            "task": "Is that going to be an issue if you need to be able to spin up your own SFTP server?",
+            "pricing": null,
+            "metric": null,
+            "question": "Is that going to be an issue if you need to be able to spin up your own SFTP server?",
+            "date_and_time": null,
+            "sentiment": "neutral"
+          },
+          "text": "Is that going to be an issue if you need to be able to spin up your own SFTP server?"
+        },
+        {
+          "index": 72,
+          "speaker_name": "Kyle Vanderstoep",
+          "speaker_id": 0,
+          "raw_text": "Certainly we can.",
+          "start_time": 288.46,
+          "end_time": 289.26,
+          "ai_filters": {
+            "text_cleanup": "Certainly we can.",
+            "task": "Certainly we can.",
+            "pricing": null,
+            "metric": null,
+            "question": null,
+            "date_and_time": null,
+            "sentiment": "neutral"
+          },
+          "text": "Certainly we can."
+        },
+        {
+          "index": 73,
+          "speaker_name": "Kyle Vanderstoep",
+          "speaker_id": 0,
+          "raw_text": "We can certainly get one of those spun up.",
+          "start_time": 289.26,
+          "end_time": 290.9,
+          "ai_filters": {
+            "text_cleanup": "We can certainly get one of those spun up.",
+            "task": "We can certainly get one of those spun up.",
+            "pricing": null,
+            "metric": null,
+            "question": null,
+            "date_and_time": null,
+            "sentiment": "neutral"
+          },
+          "text": "We can certainly get one of those spun up."
+        },
+        {
+          "index": 74,
+          "speaker_name": "Kyle Vanderstoep",
+          "speaker_id": 0,
+          "raw_text": "I think we'll take.",
+          "start_time": 290.9,
+          "end_time": 291.74,
+          "ai_filters": {
+            "text_cleanup": "I think we'll take.",
+            "task": null,
+            "pricing": null,
+            "metric": null,
+            "question": null,
+            "date_and_time": null,
+            "sentiment": "neutral"
+          },
+          "text": "I think we'll take."
+        },
+        {
+          "index": 75,
+          "speaker_name": "Kyle Vanderstoep",
+          "speaker_id": 0,
+          "raw_text": "We'll take that on bringing up our own.",
+          "start_time": 291.98,
+          "end_time": 294.54,
+          "ai_filters": {
+            "text_cleanup": "We'll take that on bringing up our own.",
+            "task": "We'll take that on bringing up our own.",
+            "pricing": null,
+            "metric": null,
+            "question": null,
+            "date_and_time": null,
+            "sentiment": "neutral"
+          },
+          "text": "We'll take that on bringing up our own."
+        },
+        {
+          "index": 76,
+          "speaker_name": "Stephen Korosy",
+          "speaker_id": 1,
+          "raw_text": "Well, I feel good in the fact that we've at least had this conversation because I know that my team will often ask me was it discussed?",
+          "start_time": 294.86,
+          "end_time": 304.06,
+          "ai_filters": {
+            "text_cleanup": "Well, I feel good in the fact that we've at least had this conversation because I know that my team will often ask me was it discussed?",
+            "task": "Well, I feel good in the fact that we've at least had this conversation because I know that my team will often ask me was it discussed?",
+            "pricing": null,
+            "metric": null,
+            "question": "Well, I feel good in the fact that we've at least had this conversation because I know that my team will often ask me was it discussed?",
+            "date_and_time": null,
+            "sentiment": "positive"
+          },
+          "text": "Well, I feel good in the fact that we've at least had this conversation because I know that my team will often ask me was it discussed?"
+        },
+        {
+          "index": 77,
+          "speaker_name": "Stephen Korosy",
+          "speaker_id": 1,
+          "raw_text": "So perfect.",
+          "start_time": 304.64,
+          "end_time": 305.28,
+          "ai_filters": {
+            "text_cleanup": "So perfect.",
+            "task": null,
+            "pricing": null,
+            "metric": null,
+            "question": null,
+            "date_and_time": null,
+            "sentiment": "positive"
+          },
+          "text": "So perfect."
+        },
+        {
+          "index": 78,
+          "speaker_name": "Stephen Korosy",
+          "speaker_id": 1,
+          "raw_text": "Let's see here real quick if there's anything else that is worth discussing.",
+          "start_time": 309.04,
+          "end_time": 314.16,
+          "ai_filters": {
+            "text_cleanup": "Let's see here real quick if there's anything else that is worth discussing.",
+            "task": null,
+            "pricing": null,
+            "metric": null,
+            "question": null,
+            "date_and_time": null,
+            "sentiment": "positive"
+          },
+          "text": "Let's see here real quick if there's anything else that is worth discussing."
+        },
+        {
+          "index": 79,
+          "speaker_name": "Stephen Korosy",
+          "speaker_id": 1,
+          "raw_text": "I mean, I thought we would just kill two birds with one stone here because I know that you've been asking me what are some of the.",
+          "start_time": 314.4,
+          "end_time": 321.12,
+          "ai_filters": {
+            "text_cleanup": "I mean, I thought we would just kill two birds with one stone here because I know that you've been asking me what are some of the.",
+            "task": "I mean, I thought we would just kill two birds with one stone here because I know that you've been asking me what are some of the.",
+            "pricing": null,
+            "metric": "I mean, I thought we would just kill two birds with one stone here because I know that you've been asking me what are some of the.",
+            "question": null,
+            "date_and_time": null,
+            "sentiment": "negative"
+          },
+          "text": "I mean, I thought we would just kill two birds with one stone here because I know that you've been asking me what are some of the."
+        },
+        {
+          "index": 80,
+          "speaker_name": "Stephen Korosy",
+          "speaker_id": 1,
+          "raw_text": "What are some of the things that if we could extract from these conversational notes and maybe fill out some imputed values in some fields.",
+          "start_time": 322.4,
+          "end_time": 332.93,
+          "ai_filters": {
+            "text_cleanup": "What are some of the things that if we could extract from these conversational notes and maybe fill out some imputed values in some fields.",
+            "task": null,
+            "pricing": null,
+            "metric": null,
+            "question": null,
+            "date_and_time": null,
+            "sentiment": "neutral"
+          },
+          "text": "What are some of the things that if we could extract from these conversational notes and maybe fill out some imputed values in some fields."
+        },
+        {
+          "index": 81,
+          "speaker_name": "Stephen Korosy",
+          "speaker_id": 1,
+          "raw_text": "Fields, right.",
+          "start_time": 333.25,
+          "end_time": 334.05,
+          "ai_filters": {
+            "text_cleanup": "Fields, right.",
+            "task": null,
+            "pricing": null,
+            "metric": null,
+            "question": null,
+            "date_and_time": null,
+            "sentiment": "neutral"
+          },
+          "text": "Fields, right."
+        },
+        {
+          "index": 82,
+          "speaker_name": "Stephen Korosy",
+          "speaker_id": 1,
+          "raw_text": "Weren't you saying that you could maybe come up with something like that?",
+          "start_time": 334.21,
+          "end_time": 337.49,
+          "ai_filters": {
+            "text_cleanup": "Weren't you saying that you could maybe come up with something like that?",
+            "task": null,
+            "pricing": null,
+            "metric": null,
+            "question": "Weren't you saying that you could maybe come up with something like that?",
+            "date_and_time": null,
+            "sentiment": "positive"
+          },
+          "text": "Weren't you saying that you could maybe come up with something like that?"
+        },
+        {
+          "index": 83,
+          "speaker_name": "Kyle Vanderstoep",
+          "speaker_id": 0,
+          "raw_text": "Yeah, yeah.",
+          "start_time": 337.89,
+          "end_time": 338.61,
+          "ai_filters": {
+            "text_cleanup": "Yeah, yeah.",
+            "task": null,
+            "pricing": null,
+            "metric": null,
+            "question": null,
+            "date_and_time": null,
+            "sentiment": "positive"
+          },
+          "text": "Yeah, yeah."
+        },
+        {
+          "index": 84,
+          "speaker_name": "Kyle Vanderstoep",
+          "speaker_id": 0,
+          "raw_text": "Again, think of, think of things like that.",
+          "start_time": 338.61,
+          "end_time": 340.29,
+          "ai_filters": {
+            "text_cleanup": "Again, think of, think of things like that.",
+            "task": null,
+            "pricing": null,
+            "metric": null,
+            "question": null,
+            "date_and_time": null,
+            "sentiment": "positive"
+          },
+          "text": "Again, think of, think of things like that."
+        },
+        {
+          "index": 85,
+          "speaker_name": "Kyle Vanderstoep",
+          "speaker_id": 0,
+          "raw_text": "Like, again, we could think about a.",
+          "start_time": 340.29,
+          "end_time": 342.45,
+          "ai_filters": {
+            "text_cleanup": "Like, again, we could think about a.",
+            "task": null,
+            "pricing": null,
+            "metric": null,
+            "question": null,
+            "date_and_time": null,
+            "sentiment": "positive"
+          },
+          "text": "Like, again, we could think about a."
+        },
+        {
+          "index": 86,
+          "speaker_name": "Kyle Vanderstoep",
+          "speaker_id": 0,
+          "raw_text": "Think about maybe like a field on the opportunity that says, you know, number of corporate credit cards.",
+          "start_time": 343.65,
+          "end_time": 351.01,
+          "ai_filters": {
+            "text_cleanup": "Think about maybe like a field on the opportunity that says, you know, number of corporate credit cards.",
+            "task": null,
+            "pricing": null,
+            "metric": null,
+            "question": null,
+            "date_and_time": null,
+            "sentiment": "positive"
+          },
+          "text": "Think about maybe like a field on the opportunity that says, you know, number of corporate credit cards."
+        },
+        {
+          "index": 87,
+          "speaker_name": "Kyle Vanderstoep",
+          "speaker_id": 0,
+          "raw_text": "Exactly.",
+          "start_time": 351.89,
+          "end_time": 352.53,
+          "ai_filters": {
+            "text_cleanup": "Exactly.",
+            "task": null,
+            "pricing": null,
+            "metric": null,
+            "question": null,
+            "date_and_time": null,
+            "sentiment": "neutral"
+          },
+          "text": "Exactly."
+        },
+        {
+          "index": 88,
+          "speaker_name": "Stephen Korosy",
+          "speaker_id": 1,
+          "raw_text": "Okay, I got one.",
+          "start_time": 353.57,
+          "end_time": 357.89,
+          "ai_filters": {
+            "text_cleanup": "Okay, I got one.",
+            "task": null,
+            "pricing": null,
+            "metric": null,
+            "question": null,
+            "date_and_time": null,
+            "sentiment": "neutral"
+          },
+          "text": "Okay, I got one."
+        },
+        {
+          "index": 89,
+          "speaker_name": "Stephen Korosy",
+          "speaker_id": 1,
+          "raw_text": "So a lot of times a credit union will have a cuso, spelled cuso, or it's typically just a subsidiary organization that would roll up into Acumatica's financial.",
+          "start_time": 358.57,
+          "end_time": 369.05,
+          "ai_filters": {
+            "text_cleanup": "So a lot of times a credit union will have a cuso, spelled cuso, or it's typically just a subsidiary organization that would roll up into Acumatica's financial.",
+            "task": null,
+            "pricing": null,
+            "metric": null,
+            "question": null,
+            "date_and_time": null,
+            "sentiment": "neutral"
+          },
+          "text": "So a lot of times a credit union will have a cuso, spelled cuso, or it's typically just a subsidiary organization that would roll up into Acumatica's financial."
+        },
+        {
+          "index": 90,
+          "speaker_name": "Stephen Korosy",
+          "speaker_id": 1,
+          "raw_text": "Does your credit union have a cuso or a subsidiary organization that we need to include as part of this implementation?",
+          "start_time": 369.45,
+          "end_time": 376.49,
+          "ai_filters": {
+            "text_cleanup": "Does your credit union have a cuso or a subsidiary organization that we need to include as part of this implementation?",
+            "task": "Does your credit union have a cuso or a subsidiary organization that we need to include as part of this implementation?",
+            "pricing": null,
+            "metric": null,
+            "question": "Does your credit union have a cuso or a subsidiary organization that we need to include as part of this implementation?",
+            "date_and_time": null,
+            "sentiment": "neutral"
+          },
+          "text": "Does your credit union have a cuso or a subsidiary organization that we need to include as part of this implementation?"
+        },
+        {
+          "index": 91,
+          "speaker_name": "Kyle Vanderstoep",
+          "speaker_id": 0,
+          "raw_text": "No, we do not.",
+          "start_time": 377.45,
+          "end_time": 378.41,
+          "ai_filters": {
+            "text_cleanup": "No, we do not.",
+            "task": null,
+            "pricing": null,
+            "metric": null,
+            "question": null,
+            "date_and_time": null,
+            "sentiment": "negative"
+          },
+          "text": "No, we do not."
+        },
+        {
+          "index": 92,
+          "speaker_name": "Stephen Korosy",
+          "speaker_id": 1,
+          "raw_text": "Okay.",
+          "start_time": 378.97,
+          "end_time": 379.49,
+          "ai_filters": {
+            "text_cleanup": "Okay.",
+            "task": null,
+            "pricing": null,
+            "metric": null,
+            "question": null,
+            "date_and_time": null,
+            "sentiment": "neutral"
+          },
+          "text": "Okay."
+        },
+        {
+          "index": 93,
+          "speaker_name": "Stephen Korosy",
+          "speaker_id": 1,
+          "raw_text": "Any plans to do so.",
+          "start_time": 379.49,
+          "end_time": 380.97,
+          "ai_filters": {
+            "text_cleanup": "Any plans to do so.",
+            "task": null,
+            "pricing": null,
+            "metric": null,
+            "question": null,
+            "date_and_time": null,
+            "sentiment": "neutral"
+          },
+          "text": "Any plans to do so."
+        },
+        {
+          "index": 94,
+          "speaker_name": "Kyle Vanderstoep",
+          "speaker_id": 0,
+          "raw_text": "At this point?",
+          "start_time": 384.02,
+          "end_time": 384.54,
+          "ai_filters": {
+            "text_cleanup": "At this point?",
+            "task": null,
+            "pricing": null,
+            "metric": null,
+            "question": "At this point?",
+            "date_and_time": null,
+            "sentiment": "neutral"
+          },
+          "text": "At this point?"
+        },
+        {
+          "index": 95,
+          "speaker_name": "Kyle Vanderstoep",
+          "speaker_id": 0,
+          "raw_text": "No, I Guess I guess I don't know what I would say to that as a response like yes and sure, maybe in a year.",
+          "start_time": 384.54,
+          "end_time": 392.42,
+          "ai_filters": {
+            "text_cleanup": "No, I Guess I guess I don't know what I would say to that as a response like yes and sure, maybe in a year.",
+            "task": "No, I Guess I guess I don't know what I would say to that as a response like yes and sure, maybe in a year.",
+            "pricing": null,
+            "metric": "No, I Guess I guess I don't know what I would say to that as a response like yes and sure, maybe in a year.",
+            "question": null,
+            "date_and_time": null,
+            "sentiment": "positive"
+          },
+          "text": "No, I Guess I guess I don't know what I would say to that as a response like yes and sure, maybe in a year."
+        },
+        {
+          "index": 96,
+          "speaker_name": "Stephen Korosy",
+          "speaker_id": 1,
+          "raw_text": "Okay, sounds good.",
+          "start_time": 392.82,
+          "end_time": 394.34,
+          "ai_filters": {
+            "text_cleanup": "Okay, sounds good.",
+            "task": null,
+            "pricing": null,
+            "metric": null,
+            "question": null,
+            "date_and_time": null,
+            "sentiment": "positive"
+          },
+          "text": "Okay, sounds good."
+        },
+        {
+          "index": 97,
+          "speaker_name": "Stephen Korosy",
+          "speaker_id": 1,
+          "raw_text": "Let's see, there was another one that I just thought of.",
+          "start_time": 396.66,
+          "end_time": 400.5,
+          "ai_filters": {
+            "text_cleanup": "Let's see, there was another one that I just thought of.",
+            "task": null,
+            "pricing": null,
+            "metric": null,
+            "question": null,
+            "date_and_time": null,
+            "sentiment": "neutral"
+          },
+          "text": "Let's see, there was another one that I just thought of."
+        },
+        {
+          "index": 98,
+          "speaker_name": "Stephen Korosy",
+          "speaker_id": 1,
+          "raw_text": "Where did it go?",
+          "start_time": 404.34,
+          "end_time": 405.54,
+          "ai_filters": {
+            "text_cleanup": "Where did it go?",
+            "task": null,
+            "pricing": null,
+            "metric":

@@ -1,0 +1,209 @@
+[
+  {
+    "updatedAt": "2026-04-06T03:21:56.769Z",
+    "createdAt": "2026-04-06T03:21:56.769Z",
+    "id": "f251dd7b-9f0d-4cb1-bd6e-2d8a68c00d46",
+    "name": "Opportunity Summary Sync",
+    "description": "Fetches approved Acumatica meeting-note approvals that are pending downstream sync, posts a structured opportunity-summary update payload to an external summary service, and marks the approval row as synced.",
+    "active": false,
+    "isArchived": false,
+    "nodes": [
+      {
+        "id": "1",
+        "name": "Manual Trigger",
+        "type": "n8n-nodes-base.manualTrigger",
+        "typeVersion": 1,
+        "position": [
+          260,
+          300
+        ],
+        "parameters": {}
+      },
+      {
+        "id": "2",
+        "name": "Get Approved Records",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.4,
+        "position": [
+          520,
+          300
+        ],
+        "parameters": {
+          "method": "GET",
+          "url": "={{ ($env.ACU_BASE_URL || \"https://localhost:443\") + \"/\" + ($env.ACU_INSTANCE_NAME || \"demo\") + \"/entity/\" + ($env.ACU_APPROVAL_ENDPOINT_NAME || \"LSOpportunityNotes\") + \"/\" + ($env.ACU_APPROVAL_ENDPOINT_VERSION || \"25.200.001\") + \"/OpportunityNotesApproval\" }}",
+          "authentication": "genericCredentialType",
+          "genericAuthType": "oAuth2Api",
+          "sendQuery": true,
+          "queryParameters": {
+            "parameters": [
+              {
+                "name": "$filter",
+                "value": "Status eq 'A' and PostApprovalSyncStatus eq 'P'"
+              }
+            ]
+          },
+          "options": {
+            "allowUnauthorizedCerts": true,
+            "timeout": 60000,
+            "response": {
+              "response": {
+                "neverError": false,
+                "responseFormat": "json"
+              }
+            }
+          }
+        }
+      },
+      {
+        "id": "3",
+        "name": "Normalize Approved Records",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          780,
+          300
+        ],
+        "parameters": {
+          "mode": "runOnceForAllItems",
+          "language": "javaScript",
+          "jsCode": "\nconst input = $input.first()?.json ?? [];\nconst records = Array.isArray(input) ? input : [input];\n\nconst readValue = (record, ...keys) => {\n\tif (!record || typeof record !== \"object\") {\n\t\treturn null;\n\t}\n\n\tfor (const key of keys) {\n\t\tif (!(key in record)) {\n\t\t\tcontinue;\n\t\t}\n\n\t\tconst value = record[key];\n\t\tif (value && typeof value === \"object\" && \"value\" in value) {\n\t\t\treturn value.value;\n\t\t}\n\t\tif (value !== undefined) {\n\t\t\treturn value;\n\t\t}\n\t}\n\n\treturn null;\n};\n\nreturn records\n\t.filter((record) => readValue(record, \"ApprovalID\"))\n\t.map((record) => ({\n\t\tjson: {\n\t\t\tapprovalId: String(readValue(record, \"ApprovalID\")),\n\t\t\texternalMeetingID: readValue(record, \"ExternalMeetingID\") || \"\",\n\t\t\texternalClientReferenceID: readValue(record, \"ExternalClientReferenceID\") || \"\",\n\t\t\tconfirmedOpportunityID: readValue(record, \"ConfirmedOpportunityID\") || \"\",\n\t\t\tbusinessAccountID: readValue(record, \"BusinessAccountID\") || \"\",\n\t\t\tcontactID: readValue(record, \"ContactID\") || \"\",\n\t\t\tactivityNoteID: readValue(record, \"ActivityNoteID\") || \"\",\n\t\t\tmeetingDate: readValue(record, \"MeetingDate\") || \"\",\n\t\t\tmeetingTitle: readValue(record, \"MeetingTitle\") || \"\",\n\t\t\tmeetingSummary: readValue(record, \"MeetingSummary\") || \"\",\n\t\t\ttranscriptHtml: readValue(record, \"TranscriptHtml\") || \"\",\n\t\t\ttranscriptUrl: readValue(record, \"TranscriptUrl\") || \"\",\n\t\t\tmatchDiagnostics: readValue(record, \"MatchDiagnostics\") || \"\",\n\t\t\tapprovedDateTime: readValue(record, \"ApprovedDateTime\") || \"\",\n\t\t},\n\t}));\n"
+        }
+      },
+      {
+        "id": "4",
+        "name": "Build Summary Request",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          1040,
+          300
+        ],
+        "parameters": {
+          "mode": "runOnceForEachItem",
+          "language": "javaScript",
+          "jsCode": "\nconst row = $input.first()?.json ?? {};\n\nreturn [\n\t{\n\t\tjson: {\n\t\t\tapprovalId: row.approvalId,\n\t\t\tacumaticaSyncPayload: {\n\t\t\t\tApprovalID: { value: row.approvalId },\n\t\t\t\tPostApprovalSyncStatus: { value: \"S\" },\n\t\t\t\tPostApprovalSyncDateTime: { value: new Date().toISOString() },\n\t\t\t\tPostApprovalSyncError: { value: \"\" },\n\t\t\t\tProcessed: { value: true },\n\t\t\t},\n\t\t\tsummaryUpsertPayload: {\n\t\t\t\topportunityId: row.confirmedOpportunityID,\n\t\t\t\tapprovalId: row.approvalId,\n\t\t\t\texternalMeetingId: row.externalMeetingID,\n\t\t\t\texternalClientReferenceId: row.externalClientReferenceID,\n\t\t\t\tbusinessAccountId: row.businessAccountID,\n\t\t\t\tcontactId: row.contactID,\n\t\t\t\tactivityNoteId: row.activityNoteID,\n\t\t\t\tmeetingDate: row.meetingDate,\n\t\t\t\tmeetingTitle: row.meetingTitle,\n\t\t\t\tmeetingSummary: row.meetingSummary,\n\t\t\t\ttranscriptHtml: row.transcriptHtml,\n\t\t\t\ttranscriptUrl: row.transcriptUrl,\n\t\t\t\tmatchDiagnostics: row.matchDiagnostics,\n\t\t\t\tapprovedDateTime: row.approvedDateTime,\n\t\t\t},\n\t\t},\n\t},\n];\n"
+        }
+      },
+      {
+        "id": "5",
+        "name": "Push Opportunity Summary Update",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.4,
+        "position": [
+          1300,
+          300
+        ],
+        "parameters": {
+          "method": "POST",
+          "url": "={{ $env.OPPORTUNITY_SUMMARY_UPSERT_URL }}",
+          "authentication": "none",
+          "sendBody": true,
+          "contentType": "json",
+          "specifyBody": "json",
+          "jsonBody": "={{ $json.summaryUpsertPayload }}",
+          "options": {
+            "timeout": 60000,
+            "response": {
+              "response": {
+                "neverError": false,
+                "responseFormat": "json"
+              }
+            }
+          }
+        }
+      },
+      {
+        "id": "6",
+        "name": "Update Sync Success",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.4,
+        "position": [
+          1560,
+          300
+        ],
+        "parameters": {
+          "method": "PUT",
+          "url": "={{ ($env.ACU_BASE_URL || \"https://localhost:443\") + \"/\" + ($env.ACU_INSTANCE_NAME || \"demo\") + \"/entity/\" + ($env.ACU_APPROVAL_ENDPOINT_NAME || \"LSOpportunityNotes\") + \"/\" + ($env.ACU_APPROVAL_ENDPOINT_VERSION || \"25.200.001\") + \"/OpportunityNotesApproval\" }}",
+          "authentication": "genericCredentialType",
+          "genericAuthType": "oAuth2Api",
+          "sendBody": true,
+          "contentType": "json",
+          "specifyBody": "json",
+          "jsonBody": "={{ $json.acumaticaSyncPayload }}",
+          "options": {
+            "allowUnauthorizedCerts": true,
+            "timeout": 60000,
+            "response": {
+              "response": {
+                "neverError": false,
+                "responseFormat": "json"
+              }
+            }
+          }
+        }
+      }
+    ],
+    "connections": {
+      "Manual Trigger": {
+        "main": [
+          [
+            {
+              "node": "Get Approved Records",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Get Approved Records": {
+        "main": [
+          [
+            {
+              "node": "Normalize Approved Records",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Normalize Approved Records": {
+        "main": [
+          [
+            {
+              "node": "Build Summary Request",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Build Summary Request": {
+        "main": [
+          [
+            {
+              "node": "Push Opportunity Summary Update",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Push Opportunity Summary Update": {
+        "main": [
+          [
+            {
+              "node": "Update Sync Success",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "settings": {},
+    "versionId": "1",
+    "meta": {},
+    "pinData": {},
+    "tags": []
+  }
+]
