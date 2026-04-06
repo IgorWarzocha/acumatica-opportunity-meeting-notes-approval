@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "dgSpecHash": "TGKdw5zxqdA=",
+  "success": true,
+  "projectFilePath": "C:\\Acumatica-ERP\\development\\package\\ls-opportunity-meeting-notes-approval\\LSOpportunityMeetingNotesApproval.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\igorw\\.nuget\\packages\\microsoft.netframework.referenceassemblies.net48\\1.0.3\\microsoft.netframework.referenceassemblies.net48.1.0.3.nupkg.sha512"
+  ],
+  "logs": []
+}

@@ -1,0 +1,47 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net48</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <OutputPath>Bin\</OutputPath>
+    <RootNamespace>PX.Objects.LS</RootNamespace>
+    <AssemblyName>LSOpportunityMeetingNotesApproval</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies.net48" Version="1.0.3" PrivateAssets="all" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="App_RuntimeCode\LSOpportunityMeetingNotesApproval\*.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="PX.Common">
+      <HintPath>..\..\..\AcumaticaERP\Bin\PX.Common.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="PX.Common.Std">
+      <HintPath>..\..\..\AcumaticaERP\Bin\PX.Common.Std.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="PX.CS.Contracts">
+      <HintPath>..\..\..\AcumaticaERP\Bin\PX.CS.Contracts.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="PX.Data">
+      <HintPath>..\..\..\AcumaticaERP\Bin\PX.Data.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="PX.Objects">
+      <HintPath>..\..\..\AcumaticaERP\Bin\PX.Objects.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="PX.Web.UI">
+      <HintPath>..\..\..\AcumaticaERP\Bin\PX.Web.UI.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+</Project>

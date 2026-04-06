@@ -1,0 +1,67 @@
+<EntityEndpoint>
+	<Endpoint xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.acumatica.com/entity/maintenance/5.31" name="LSOpportunityNotes" version="25.200.001" systemContractVersion="4">
+		<ExtendsEndpoint name="Default" version="25.200.001" />
+		<TopLevelEntity name="OpportunityNotesApproval" screen="LS501010">
+			<Fields>
+				<Field name="ApprovalID" type="IntValue" />
+				<Field name="ExternalMeetingID" type="StringValue" />
+				<Field name="ExternalClientReferenceID" type="StringValue" />
+				<Field name="Status" type="StringValue" />
+				<Field name="MeetingDate" type="DateTimeValue" />
+				<Field name="MeetingTitle" type="StringValue" />
+				<Field name="Subject" type="StringValue" />
+				<Field name="MeetingSummary" type="StringValue" />
+				<Field name="TranscriptHtml" type="StringValue" />
+				<Field name="TranscriptUrl" type="StringValue" />
+				<Field name="OrganizerEmail" type="StringValue" />
+				<Field name="ParticipantEmails" type="StringValue" />
+				<Field name="BusinessAccountID" type="IntValue" />
+				<Field name="ContactID" type="IntValue" />
+				<Field name="SuggestedOpportunityID" type="StringValue" />
+				<Field name="ConfirmedOpportunityID" type="StringValue" />
+				<Field name="MatchDiagnostics" type="StringValue" />
+				<Field name="ErrorMessage" type="StringValue" />
+				<Field name="ActivityNoteID" type="GuidValue" />
+				<Field name="ApprovedByID" type="GuidValue" />
+				<Field name="ApprovedDateTime" type="DateTimeValue" />
+				<Field name="PostApprovalSyncStatus" type="StringValue" />
+				<Field name="PostApprovalSyncDateTime" type="DateTimeValue" />
+				<Field name="PostApprovalSyncError" type="StringValue" />
+				<Field name="Processed" type="BooleanValue" />
+				<Field name="NoteID" type="GuidValue" />
+				<Field name="CreatedDateTime" type="DateTimeValue" />
+				<Field name="LastModifiedDateTime" type="DateTimeValue" />
+			</Fields>
+			<Mappings>
+				<Mapping field="ApprovalID"><To object="Document" field="ApprovalID" /></Mapping>
+				<Mapping field="ExternalMeetingID"><To object="Document" field="ExternalMeetingID" /></Mapping>
+				<Mapping field="ExternalClientReferenceID"><To object="Document" field="ExternalClientReferenceID" /></Mapping>
+				<Mapping field="Status"><To object="Document" field="Status" /></Mapping>
+				<Mapping field="MeetingDate"><To object="Document" field="MeetingDate" /></Mapping>
+				<Mapping field="MeetingTitle"><To object="Document" field="MeetingTitle" /></Mapping>
+				<Mapping field="Subject"><To object="Document" field="Subject" /></Mapping>
+				<Mapping field="MeetingSummary"><To object="Document" field="MeetingSummary" /></Mapping>
+				<Mapping field="TranscriptHtml"><To object="Document" field="TranscriptHtml" /></Mapping>
+				<Mapping field="TranscriptUrl"><To object="Document" field="TranscriptUrl" /></Mapping>
+				<Mapping field="OrganizerEmail"><To object="Document" field="OrganizerEmail" /></Mapping>
+				<Mapping field="ParticipantEmails"><To object="Document" field="ParticipantEmails" /></Mapping>
+				<Mapping field="BusinessAccountID"><To object="Document" field="BusinessAccountID" /></Mapping>
+				<Mapping field="ContactID"><To object="Document" field="ContactID" /></Mapping>
+				<Mapping field="SuggestedOpportunityID"><To object="Document" field="SuggestedOpportunityID" /></Mapping>
+				<Mapping field="ConfirmedOpportunityID"><To object="Document" field="ConfirmedOpportunityID" /></Mapping>
+				<Mapping field="MatchDiagnostics"><To object="Document" field="MatchDiagnostics" /></Mapping>
+				<Mapping field="ErrorMessage"><To object="Document" field="ErrorMessage" /></Mapping>
+				<Mapping field="ActivityNoteID"><To object="Document" field="ActivityNoteID" /></Mapping>
+				<Mapping field="ApprovedByID"><To object="Document" field="ApprovedByID" /></Mapping>
+				<Mapping field="ApprovedDateTime"><To object="Document" field="ApprovedDateTime" /></Mapping>
+				<Mapping field="PostApprovalSyncStatus"><To object="Document" field="PostApprovalSyncStatus" /></Mapping>
+				<Mapping field="PostApprovalSyncDateTime"><To object="Document" field="PostApprovalSyncDateTime" /></Mapping>
+				<Mapping field="PostApprovalSyncError"><To object="Document" field="PostApprovalSyncError" /></Mapping>
+				<Mapping field="Processed"><To object="Document" field="Processed" /></Mapping>
+				<Mapping field="NoteID"><To object="Document" field="NoteID" /></Mapping>
+				<Mapping field="CreatedDateTime"><To object="Document" field="CreatedDateTime" /></Mapping>
+				<Mapping field="LastModifiedDateTime"><To object="Document" field="LastModifiedDateTime" /></Mapping>
+			</Mappings>
+		</TopLevelEntity>
+	</Endpoint>
+</EntityEndpoint>
