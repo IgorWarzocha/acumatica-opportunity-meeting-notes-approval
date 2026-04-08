@@ -28,6 +28,7 @@ This folder is intended for another developer to:
   - `EntityEndpoint_LSOpportunityNotes_25_200_001.xml`
 
 ### Build/package artifacts
+- `LSOpportunityMeetingNotesApproval.sln`
 - `LSOpportunityMeetingNotesApproval.csproj`
 - `Bin/`
 - `obj/`
@@ -93,5 +94,6 @@ The customization package includes:
 - backend source: `./App_RuntimeCode/LSOpportunityMeetingNotesApproval/`
 - frontend source: `./FrontendSources/screen/src/development/screens/LS/`
 - customization metadata: `./_project/`
+- Visual Studio solution: `./LSOpportunityMeetingNotesApproval.sln`
 - n8n assets: `./n8n/`
 

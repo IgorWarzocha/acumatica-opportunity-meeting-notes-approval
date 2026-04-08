@@ -1,20 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Acumatica-ERP\\development\\package\\ls-opportunity-meeting-notes-approval\\LSOpportunityMeetingNotesApproval.csproj": {}
+    "/home/igorw/Work/acumatica/development/package/ls-opportunity-meeting-notes-approval/LSOpportunityMeetingNotesApproval.csproj": {}
   },
   "projects": {
-    "C:\\Acumatica-ERP\\development\\package\\ls-opportunity-meeting-notes-approval\\LSOpportunityMeetingNotesApproval.csproj": {
+    "/home/igorw/Work/acumatica/development/package/ls-opportunity-meeting-notes-approval/LSOpportunityMeetingNotesApproval.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Acumatica-ERP\\development\\package\\ls-opportunity-meeting-notes-approval\\LSOpportunityMeetingNotesApproval.csproj",
+        "projectUniqueName": "/home/igorw/Work/acumatica/development/package/ls-opportunity-meeting-notes-approval/LSOpportunityMeetingNotesApproval.csproj",
         "projectName": "LSOpportunityMeetingNotesApproval",
-        "projectPath": "C:\\Acumatica-ERP\\development\\package\\ls-opportunity-meeting-notes-approval\\LSOpportunityMeetingNotesApproval.csproj",
-        "packagesPath": "C:\\Users\\igorw\\.nuget\\packages\\",
-        "outputPath": "C:\\Acumatica-ERP\\development\\package\\ls-opportunity-meeting-notes-approval\\obj\\",
+        "projectPath": "/home/igorw/Work/acumatica/development/package/ls-opportunity-meeting-notes-approval/LSOpportunityMeetingNotesApproval.csproj",
+        "packagesPath": "/home/igorw/.nuget/packages/",
+        "outputPath": "/home/igorw/Work/acumatica/development/package/ls-opportunity-meeting-notes-approval/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\igorw\\AppData\\Roaming\\NuGet\\NuGet.Config"
+          "/home/igorw/.nuget/NuGet/NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net48"
@@ -38,19 +38,25 @@
           "auditLevel": "low",
           "auditMode": "direct"
         },
-        "SdkAnalysisLevel": "9.0.300"
+        "SdkAnalysisLevel": "9.0.100"
       },
       "frameworks": {
         "net48": {
           "targetAlias": "net48",
           "dependencies": {
+            "Microsoft.NETFramework.ReferenceAssemblies": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[1.0.3, )",
+              "autoReferenced": true
+            },
             "Microsoft.NETFramework.ReferenceAssemblies.net48": {
               "suppressParent": "All",
               "target": "Package",
               "version": "[1.0.3, )"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.312\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "/usr/share/dotnet/sdk/9.0.115/RuntimeIdentifierGraph.json"
         }
       }
     }

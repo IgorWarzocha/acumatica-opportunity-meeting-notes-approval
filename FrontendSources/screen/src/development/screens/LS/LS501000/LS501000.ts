@@ -1,4 +1,3 @@
-import "client-controls/controls/simple/calendar/qp-calendar.html";
 import "client-controls/controls/simple/button/qp-button.html";
 import "client-controls/controls/simple/text-editor/qp-text-editor.html";
 import "client-controls/controls/simple/longrun-indicator/qp-longrun-indicator.html";
@@ -6,29 +5,6 @@ import "client-controls/controls/dialog/long-run/qp-long-run.html";
 import "client-controls/controls/dialog/quick-processing/qp-quick-processing.html";
 import "client-controls/controls/compound/grid/qp-grid.html";
 import "client-controls/controls/utility/options/qp-options";
-import { PLATFORM } from "aurelia-pal";
-
-// Force webpack to register the client-controls calendar template by its runtime module id.
-// Without this explicit import, Aurelia bootstrapping for the modern screen crashes on qp-calendar view resolution.
-// The bundled module key is source-relative, but Aurelia asks for the package-relative id at runtime.
-// Patch the loader for this exact id so the screen can boot cleanly until the upstream packaging is fixed.
-
-const QP_CALENDAR_TEMPLATE_ID = "client-controls/controls/simple/calendar/qp-calendar.html";
-const QP_CALENDAR_TEMPLATE_BUNDLE_ID = "./src/client-controls/controls/simple/calendar/qp-calendar.html";
-
-const loader = PLATFORM.Loader as { loadModule?: (moduleId: string, defaultHMR?: boolean) => Promise<unknown>; __lsPatchedQpCalendar?: boolean };
-
-if (loader?.loadModule && !loader.__lsPatchedQpCalendar) {
-	const originalLoadModule = loader.loadModule.bind(loader);
-	loader.loadModule = (moduleId: string, defaultHMR?: boolean) => {
-		if (moduleId === QP_CALENDAR_TEMPLATE_ID) {
-			return originalLoadModule(QP_CALENDAR_TEMPLATE_BUNDLE_ID, defaultHMR);
-		}
-
-		return originalLoadModule(moduleId, defaultHMR);
-	};
-	loader.__lsPatchedQpCalendar = true;
-}
 
 import {
 	createCollection,

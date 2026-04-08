@@ -2,6 +2,12 @@
   "version": 3,
   "targets": {
     ".NETFramework,Version=v4.8": {
+      "Microsoft.NETFramework.ReferenceAssemblies/1.0.3": {
+        "type": "package",
+        "dependencies": {
+          "Microsoft.NETFramework.ReferenceAssemblies.net48": "1.0.3"
+        }
+      },
       "Microsoft.NETFramework.ReferenceAssemblies.net48/1.0.3": {
         "type": "package",
         "build": {
@@ -11,6 +17,17 @@
     }
   },
   "libraries": {
+    "Microsoft.NETFramework.ReferenceAssemblies/1.0.3": {
+      "sha512": "vUc9Npcs14QsyOD01tnv/m8sQUnGTGOw1BCmKcv77LBJY7OxhJ+zJF7UD/sCL3lYNFuqmQEVlkfS4Quif6FyYg==",
+      "type": "package",
+      "path": "microsoft.netframework.referenceassemblies/1.0.3",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "microsoft.netframework.referenceassemblies.1.0.3.nupkg.sha512",
+        "microsoft.netframework.referenceassemblies.nuspec"
+      ]
+    },
     "Microsoft.NETFramework.ReferenceAssemblies.net48/1.0.3": {
       "sha512": "zMk4D+9zyiEWByyQ7oPImPN/Jhpj166Ky0Nlla4eXlNL8hI/BtSJsgR8Inldd4NNpIAH3oh8yym0W2DrhXdSLQ==",
       "type": "package",
@@ -394,23 +411,24 @@
   },
   "projectFileDependencyGroups": {
     ".NETFramework,Version=v4.8": [
+      "Microsoft.NETFramework.ReferenceAssemblies >= 1.0.3",
       "Microsoft.NETFramework.ReferenceAssemblies.net48 >= 1.0.3"
     ]
   },
   "packageFolders": {
-    "C:\\Users\\igorw\\.nuget\\packages\\": {}
+    "/home/igorw/.nuget/packages/": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Acumatica-ERP\\development\\package\\ls-opportunity-meeting-notes-approval\\LSOpportunityMeetingNotesApproval.csproj",
+      "projectUniqueName": "/home/igorw/Work/acumatica/development/package/ls-opportunity-meeting-notes-approval/LSOpportunityMeetingNotesApproval.csproj",
       "projectName": "LSOpportunityMeetingNotesApproval",
-      "projectPath": "C:\\Acumatica-ERP\\development\\package\\ls-opportunity-meeting-notes-approval\\LSOpportunityMeetingNotesApproval.csproj",
-      "packagesPath": "C:\\Users\\igorw\\.nuget\\packages\\",
-      "outputPath": "C:\\Acumatica-ERP\\development\\package\\ls-opportunity-meeting-notes-approval\\obj\\",
+      "projectPath": "/home/igorw/Work/acumatica/development/package/ls-opportunity-meeting-notes-approval/LSOpportunityMeetingNotesApproval.csproj",
+      "packagesPath": "/home/igorw/.nuget/packages/",
+      "outputPath": "/home/igorw/Work/acumatica/development/package/ls-opportunity-meeting-notes-approval/obj/",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "C:\\Users\\igorw\\AppData\\Roaming\\NuGet\\NuGet.Config"
+        "/home/igorw/.nuget/NuGet/NuGet.Config"
       ],
       "originalTargetFrameworks": [
         "net48"
@@ -434,19 +452,25 @@
         "auditLevel": "low",
         "auditMode": "direct"
       },
-      "SdkAnalysisLevel": "9.0.300"
+      "SdkAnalysisLevel": "9.0.100"
     },
     "frameworks": {
       "net48": {
         "targetAlias": "net48",
         "dependencies": {
+          "Microsoft.NETFramework.ReferenceAssemblies": {
+            "suppressParent": "All",
+            "target": "Package",
+            "version": "[1.0.3, )",
+            "autoReferenced": true
+          },
           "Microsoft.NETFramework.ReferenceAssemblies.net48": {
             "suppressParent": "All",
             "target": "Package",
             "version": "[1.0.3, )"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.312\\RuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "/usr/share/dotnet/sdk/9.0.115/RuntimeIdentifierGraph.json"
       }
     }
   }

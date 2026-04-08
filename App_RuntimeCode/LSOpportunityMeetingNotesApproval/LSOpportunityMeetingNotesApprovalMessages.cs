@@ -15,5 +15,6 @@ namespace PX.Objects.LS
 		public const string RecordAlreadyApproved = "The record is already approved.";
 		public const string RecordApproved = "Approved.";
 		public const string RecordRejected = "Rejected.";
+		public const string TranscriptAttachmentCouldNotBeCreated = "The transcript attachment could not be created.";
 	}
 }

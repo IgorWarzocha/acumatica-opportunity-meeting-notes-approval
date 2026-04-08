@@ -1,10 +1,11 @@
 {
   "version": 2,
-  "dgSpecHash": "TGKdw5zxqdA=",
+  "dgSpecHash": "fuRztHctQfM=",
   "success": true,
-  "projectFilePath": "C:\\Acumatica-ERP\\development\\package\\ls-opportunity-meeting-notes-approval\\LSOpportunityMeetingNotesApproval.csproj",
+  "projectFilePath": "/home/igorw/Work/acumatica/development/package/ls-opportunity-meeting-notes-approval/LSOpportunityMeetingNotesApproval.csproj",
   "expectedPackageFiles": [
-    "C:\\Users\\igorw\\.nuget\\packages\\microsoft.netframework.referenceassemblies.net48\\1.0.3\\microsoft.netframework.referenceassemblies.net48.1.0.3.nupkg.sha512"
+    "/home/igorw/.nuget/packages/microsoft.netframework.referenceassemblies/1.0.3/microsoft.netframework.referenceassemblies.1.0.3.nupkg.sha512",
+    "/home/igorw/.nuget/packages/microsoft.netframework.referenceassemblies.net48/1.0.3/microsoft.netframework.referenceassemblies.net48.1.0.3.nupkg.sha512"
   ],
   "logs": []
 }

@@ -155,7 +155,7 @@ namespace PX.Objects.LS
 			var file = new FileInfo(fileName, null, Encoding.UTF8.GetBytes(row.TranscriptHtml));
 			if (!uploadGraph.SaveFile(file, FileExistsAction.CreateVersion) || file.UID == null)
 			{
-				throw new PXException("The transcript attachment could not be created.");
+				throw new PXException(LSOpportunityMeetingNotesApprovalMessages.TranscriptAttachmentCouldNotBeCreated);
 			}
 
 			PXNoteAttribute.SetFileNotes(cache, row, new[] { file.UID.Value });
