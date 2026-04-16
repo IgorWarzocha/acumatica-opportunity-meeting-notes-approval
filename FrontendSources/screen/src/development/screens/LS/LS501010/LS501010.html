@@ -1,45 +1,65 @@
 <template>
-	<qp-template id="formDocument" name="1-1" wg-container="Document_form" class="label-size-m">
-		<div slot="A">
-			<qp-fieldset id="groupIdentity" caption="Identity" view.bind="Document">
-				<field name="ApprovalID"></field>
-				<field name="ExternalMeetingID"></field>
-				<field name="ExternalClientReferenceID"></field>
-				<field name="Status"></field>
-				<field name="MeetingDate"></field>
-				<field name="MeetingTitle"></field>
-				<field name="Subject"></field>
-			</qp-fieldset>
-			<qp-fieldset id="groupMatching" caption="Matching" view.bind="Document">
-				<field name="BusinessAccountID"></field>
-				<field name="ContactID"></field>
-				<field name="SuggestedOpportunityID"></field>
-				<field name="SuggestedOpportunitySubject"></field>
-				<field name="ConfirmedOpportunityID"></field>
-				<field name="ConfirmedOpportunitySubject"></field>
-			</qp-fieldset>
-			<qp-fieldset id="groupLinks" caption="Links & Status" view.bind="Document">
-				<field name="OrganizerEmail"></field>
-				<field name="TranscriptUrl"></field>
-				<field name="ActivityNoteID"></field>
-				<field name="ApprovedDateTime"></field>
-				<field name="PostApprovalSyncStatus"></field>
-				<field name="PostApprovalSyncDateTime"></field>
-				<field name="Processed"></field>
-				<field name="CreatedDateTime"></field>
-			</qp-fieldset>
-		</div>
-		<div slot="B">
-			<qp-fieldset id="groupTranscript" caption="Transcript & Summary" view.bind="Document">
-				<field name="ParticipantEmails"></field>
-				<field name="MeetingSummary"></field>
-				<field name="TranscriptHtml"></field>
-			</qp-fieldset>
-			<qp-fieldset id="groupDiagnostics" caption="Diagnostics" view.bind="Document">
-				<field name="MatchDiagnostics"></field>
-				<field name="ErrorMessage"></field>
-				<field name="PostApprovalSyncError"></field>
-			</qp-fieldset>
-		</div>
+	<qp-template id="Document_template" name="7-10-7" class="equal-height" qp-collapsible wg-container="Document_form">
+		<qp-fieldset id="Document_formLeft" slot="A" view.bind="Document">
+			<field name="ApprovalID" pinned></field>
+			<field name="Status" pinned></field>
+			<field name="MeetingDate" pinned></field>
+			<field name="ApprovedDateTime"></field>
+		</qp-fieldset>
+		<qp-fieldset id="Document_formCenter" slot="B" view.bind="Document">
+			<field name="ExternalMeetingID" pinned></field>
+			<field name="ExternalClientReferenceID"></field>
+			<field name="MeetingTitle" pinned></field>
+			<field name="Subject" pinned="false"></field>
+		</qp-fieldset>
+		<qp-fieldset id="Document_formRight" slot="C" view.bind="Document">
+			<field name="OrganizerEmail"></field>
+			<field name="PostApprovalSyncStatus"></field>
+			<field name="PostApprovalSyncDateTime"></field>
+			<field name="CreatedDateTime"></field>
+		</qp-fieldset>
 	</qp-template>
+	<qp-tabbar id="Document_tab" wg-container>
+		<qp-tab id="matching_tab" caption="Matching">
+			<qp-template id="matching_template" name="1-1" class="label-size-m">
+				<qp-fieldset id="groupMatching" slot="A" view.bind="Document">
+					<field name="BAccountID"></field>
+					<field name="ContactID"></field>
+					<field name="SuggestedOpportunityID"></field>
+					<field name="SuggestedOpportunitySubject"></field>
+					<field name="ConfirmedOpportunityID"></field>
+					<field name="ConfirmedOpportunitySubject"></field>
+					<field name="TranscriptUrl"></field>
+					<field name="ActivityNoteID"></field>
+				</qp-fieldset>
+			</qp-template>
+		</qp-tab>
+		<qp-tab id="summary_tab" caption="Summary">
+			<qp-template id="summary_template" name="1-1" class="stretch label-size-m">
+				<qp-fieldset id="groupSummary" slot="A" view.bind="Document">
+					<field name="ParticipantEmails"></field>
+				</qp-fieldset>
+			</qp-template>
+			<qp-rich-text-editor id="edMeetingSummary" state.bind="Document.MeetingSummary" class="stretch" wg-field></qp-rich-text-editor>
+		</qp-tab>
+		<qp-tab id="transcript_tab" caption="Transcript">
+			<qp-rich-text-editor id="edTranscriptHtml" state.bind="Document.TranscriptHtml" class="stretch" wg-field></qp-rich-text-editor>
+		</qp-tab>
+		<qp-tab id="diagnostics_tab" caption="Diagnostics">
+			<qp-template id="diagnostics_template" name="1-1" class="label-size-m">
+				<qp-fieldset id="groupDiagnostics" slot="A" view.bind="Document">
+					<field name="MatchDiagnostics"></field>
+					<field name="ErrorMessage"></field>
+					<field name="PostApprovalSyncError"></field>
+				</qp-fieldset>
+			</qp-template>
+		</qp-tab>
+		<qp-tab id="processing_tab" caption="Processing">
+			<qp-template id="processing_template" name="1-1" class="label-size-m">
+				<qp-fieldset id="groupProcessing" slot="A" view.bind="Document">
+					<field name="Processed"></field>
+				</qp-fieldset>
+			</qp-template>
+		</qp-tab>
+	</qp-tabbar>
 </template>

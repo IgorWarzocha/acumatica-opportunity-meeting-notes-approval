@@ -15,7 +15,7 @@
 				<Field name="TranscriptUrl" type="StringValue" />
 				<Field name="OrganizerEmail" type="StringValue" />
 				<Field name="ParticipantEmails" type="StringValue" />
-				<Field name="BusinessAccountID" type="IntValue" />
+				<Field name="BAccountID" type="IntValue" />
 				<Field name="ContactID" type="IntValue" />
 				<Field name="SuggestedOpportunityID" type="StringValue" />
 				<Field name="ConfirmedOpportunityID" type="StringValue" />
@@ -45,7 +45,7 @@
 				<Mapping field="TranscriptUrl"><To object="Document" field="TranscriptUrl" /></Mapping>
 				<Mapping field="OrganizerEmail"><To object="Document" field="OrganizerEmail" /></Mapping>
 				<Mapping field="ParticipantEmails"><To object="Document" field="ParticipantEmails" /></Mapping>
-				<Mapping field="BusinessAccountID"><To object="Document" field="BusinessAccountID" /></Mapping>
+				<Mapping field="BAccountID"><To object="Document" field="BAccountID" /></Mapping>
 				<Mapping field="ContactID"><To object="Document" field="ContactID" /></Mapping>
 				<Mapping field="SuggestedOpportunityID"><To object="Document" field="SuggestedOpportunityID" /></Mapping>
 				<Mapping field="ConfirmedOpportunityID"><To object="Document" field="ConfirmedOpportunityID" /></Mapping>

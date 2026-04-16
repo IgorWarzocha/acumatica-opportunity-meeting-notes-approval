@@ -6,7 +6,7 @@
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <OutputPath>Bin\</OutputPath>
-    <RootNamespace>PX.Objects.LS</RootNamespace>
+    <RootNamespace>LSOpportunityMeetingNotesApproval</RootNamespace>
     <AssemblyName>LSOpportunityMeetingNotesApproval</AssemblyName>
   </PropertyGroup>
 
@@ -15,7 +15,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Include="App_RuntimeCode\LSOpportunityMeetingNotesApproval\*.cs" />
+    <Compile Include="DAC\**\*.cs" />
+    <Compile Include="Graph\**\*.cs" />
+    <Compile Include="Helper\**\*.cs" />
   </ItemGroup>
 
   <ItemGroup>

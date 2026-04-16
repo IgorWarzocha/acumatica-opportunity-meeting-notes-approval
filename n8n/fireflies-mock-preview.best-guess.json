@@ -59,7 +59,7 @@
 		"ParticipantEmails": {
 			"value": "skorosy@bpw.com;kyle@contou.com"
 		},
-		"BusinessAccountID": {
+		"BAccountID": {
 			"value": "610"
 		},
 		"ContactID": {
@@ -72,7 +72,7 @@
 			"value": ""
 		},
 		"MatchDiagnostics": {
-			"value": "{\"unmatchedEmails\":[],\"matchedContacts\":[{\"attendeeEmail\":\"kyle@contou.com\",\"contactID\":\"901\",\"businessAccountID\":\"610\",\"businessAccountCode\":\"CONTOU\",\"displayName\":\"Kyle Vanderstoep\"}],\"rankedCandidates\":[{\"opportunityID\":\"OPP000451\",\"subject\":\"Acumatica implementation for Contou Credit Union\",\"businessAccount\":\"CONTOU\",\"score\":40},{\"opportunityID\":\"OPP000452\",\"subject\":\"Corporate card reimbursement modernization\",\"businessAccount\":\"CONTOU\",\"score\":30}],\"ambiguousTopCandidates\":[]}"
+			"value": "{\"unmatchedEmails\":[],\"matchedContacts\":[{\"attendeeEmail\":\"kyle@contou.com\",\"contactID\":\"901\",\"bAccountID\":\"610\",\"businessAccountCode\":\"CONTOU\",\"displayName\":\"Kyle Vanderstoep\"}],\"rankedCandidates\":[{\"opportunityID\":\"OPP000451\",\"subject\":\"Acumatica implementation for Contou Credit Union\",\"businessAccount\":\"CONTOU\",\"score\":40},{\"opportunityID\":\"OPP000452\",\"subject\":\"Corporate card reimbursement modernization\",\"businessAccount\":\"CONTOU\",\"score\":30}],\"ambiguousTopCandidates\":[]}"
 		},
 		"Subject": {
 			"value": "kyle/steve"
@@ -84,7 +84,7 @@
 		{
 			"attendeeEmail": "kyle@contou.com",
 			"contactID": "901",
-			"businessAccountID": "610",
+			"bAccountID": "610",
 			"businessAccountCode": "CONTOU",
 			"displayName": "Kyle Vanderstoep"
 		}

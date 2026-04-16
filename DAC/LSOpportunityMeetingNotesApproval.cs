@@ -3,7 +3,7 @@ using PX.Data;
 using PX.Data.BQL;
 using PX.Objects.CR;
 
-namespace PX.Objects.LS
+namespace LSOpportunityMeetingNotesApproval
 {
 	public static class LSOpportunityMeetingNotesApprovalOpportunityStatus
 	{
@@ -152,8 +152,8 @@ namespace PX.Objects.LS
 		public virtual string ParticipantEmails { get; set; }
 		#endregion
 
-		#region BusinessAccountID
-		public abstract class businessAccountID : BqlInt.Field<businessAccountID> { }
+		#region BAccountID
+		public abstract class bAccountID : BqlInt.Field<bAccountID> { }
 
 		[PXDBInt]
 		[PXUIField(DisplayName = "Business Account", Visibility = PXUIVisibility.SelectorVisible)]
@@ -162,7 +162,7 @@ namespace PX.Objects.LS
 			DescriptionField = typeof(BAccount.acctName),
 			SelectorMode = PXSelectorMode.DisplayModeHint,
 			DirtyRead = true)]
-		public virtual int? BusinessAccountID { get; set; }
+		public virtual int? BAccountID { get; set; }
 		#endregion
 
 		#region ContactID

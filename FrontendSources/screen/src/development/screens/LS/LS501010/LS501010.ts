@@ -1,6 +1,9 @@
 import {
+	controlConfig,
 	createSingle,
 	graphInfo,
+	IDatetimeEditControlConfig,
+	ISelectorControlConfig,
 	linkCommand,
 	PXActionState,
 	PXFieldOptions,
@@ -8,11 +11,11 @@ import {
 	PXPageLoadBehavior,
 	PXScreen,
 	PXView,
-	controlConfig,
+	viewInfo,
 } from "client-controls";
 
 @graphInfo({
-	graphType: "PX.Objects.LS.LSOpportunityMeetingNotesApprovalEntry",
+	graphType: "LSOpportunityMeetingNotesApproval.LSOpportunityMeetingNotesApprovalEntry",
 	primaryView: "Document",
 	pageLoadBehavior: PXPageLoadBehavior.PopulateSavedValues,
 })
@@ -22,6 +25,7 @@ export class LS501010 extends PXScreen {
 	ViewSuggestedOpportunity: PXActionState;
 	ViewConfirmedOpportunity: PXActionState;
 
+	@viewInfo({ containerName: "Meeting Notes Approval" })
 	Document = createSingle(LSOpportunityMeetingNotesApprovalDocument);
 }
 
@@ -30,10 +34,13 @@ export class LSOpportunityMeetingNotesApprovalDocument extends PXView {
 	ExternalMeetingID: PXFieldState;
 	ExternalClientReferenceID: PXFieldState;
 	Status: PXFieldState;
+	@controlConfig<IDatetimeEditControlConfig>({ preserveTimezone: true })
 	MeetingDate: PXFieldState<PXFieldOptions.CommitChanges>;
 	MeetingTitle: PXFieldState<PXFieldOptions.CommitChanges>;
 	Subject: PXFieldState<PXFieldOptions.CommitChanges>;
-	BusinessAccountID: PXFieldState<PXFieldOptions.CommitChanges>;
+	@controlConfig<ISelectorControlConfig>({ allowEdit: true })
+	BAccountID: PXFieldState<PXFieldOptions.CommitChanges>;
+	@controlConfig<ISelectorControlConfig>({ allowEdit: true })
 	ContactID: PXFieldState<PXFieldOptions.CommitChanges>;
 
 	@linkCommand("ViewSuggestedOpportunity")
@@ -49,15 +56,18 @@ export class LSOpportunityMeetingNotesApprovalDocument extends PXView {
 	OrganizerEmail: PXFieldState;
 	TranscriptUrl: PXFieldState;
 	ActivityNoteID: PXFieldState<PXFieldOptions.Disabled>;
+	@controlConfig<IDatetimeEditControlConfig>({ preserveTimezone: true })
 	ApprovedDateTime: PXFieldState<PXFieldOptions.Disabled>;
 	PostApprovalSyncStatus: PXFieldState;
+	@controlConfig<IDatetimeEditControlConfig>({ preserveTimezone: true })
 	PostApprovalSyncDateTime: PXFieldState<PXFieldOptions.Disabled>;
 	Processed: PXFieldState;
+	@controlConfig<IDatetimeEditControlConfig>({ preserveTimezone: true })
 	CreatedDateTime: PXFieldState<PXFieldOptions.Disabled>;
-	ParticipantEmails: PXFieldState;
-	MeetingSummary: PXFieldState;
-	TranscriptHtml: PXFieldState;
-	MatchDiagnostics: PXFieldState;
-	ErrorMessage: PXFieldState;
-	PostApprovalSyncError: PXFieldState;
+	ParticipantEmails: PXFieldState<PXFieldOptions.Multiline>;
+	MeetingSummary: PXFieldState<PXFieldOptions.Multiline>;
+	TranscriptHtml: PXFieldState<PXFieldOptions.Multiline>;
+	MatchDiagnostics: PXFieldState<PXFieldOptions.Multiline>;
+	ErrorMessage: PXFieldState<PXFieldOptions.Multiline | PXFieldOptions.Disabled>;
+	PostApprovalSyncError: PXFieldState<PXFieldOptions.Multiline | PXFieldOptions.Disabled>;
 }

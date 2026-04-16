@@ -375,7 +375,7 @@ for (let index = 0; index < attendeeItems.length; index += 1) {
 	}
 
 	for (const contact of contacts) {
-		const businessAccount = readValue(contact, "BusinessAccount", "businessAccount", "BAccountID", "bAccountID", "BusinessAccountID");
+		const businessAccount = readValue(contact, "BusinessAccount", "businessAccount", "BAccountID", "bAccountID");
 		const contactID = readValue(contact, "id", "ContactID", "contactID");
 
 		if (businessAccount) {
@@ -432,11 +432,11 @@ const confirmedOpportunityID = null;
 const subject = (firstMeeting.title || "Meeting Notes Summary").slice(0, 255);
 const participantEmails = Array.isArray(firstMeeting.participantEmails) ? firstMeeting.participantEmails : [];
 const primaryContact = matchedContacts[0] ?? null;
-// Do not send BusinessAccountID / ContactID yet.
+// Do not send BAccountID / ContactID yet.
 // The runtime Default endpoint on this instance accepts opportunity suggestions,
 // but the contact/account identifiers derived from lookup responses are not yet
 // stable enough to post back safely across tenants.
-const primaryBusinessAccountID = null;
+const primaryBAccountID = null;
 const primaryContactID = null;
 
 const acumaticaApprovalPayload = {
@@ -470,8 +470,8 @@ const acumaticaApprovalPayload = {
 	Subject: { value: subject },
 };
 
-if (primaryBusinessAccountID != null) {
-	acumaticaApprovalPayload.BusinessAccountID = { value: primaryBusinessAccountID };
+if (primaryBAccountID != null) {
+	acumaticaApprovalPayload.BAccountID = { value: primaryBAccountID };
 }
 
 if (primaryContactID != null) {

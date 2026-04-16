@@ -154,7 +154,7 @@ The workflow currently uses deterministic matching inside a `Code` node:
   - business account alignment
   - keyword overlap between Fireflies title/summary and opportunity subject
 - always leaves `ConfirmedOpportunityID` blank so Acumatica can remain the human confirmation boundary
-- only sends numeric `BusinessAccountID` and `ContactID` values into Acumatica fields
+- only sends numeric `BAccountID` and `ContactID` values into Acumatica fields
 
 This is a practical dev-safe placeholder. It is not the final LLM-assisted ranking step described in the PRD.
 
@@ -184,7 +184,7 @@ The payload includes:
 - `TranscriptUrl`
 - `OrganizerEmail`
 - `ParticipantEmails`
-- `BusinessAccountID`
+- `BAccountID`
 - `ContactID`
 - `SuggestedOpportunityID`
 - `ConfirmedOpportunityID`

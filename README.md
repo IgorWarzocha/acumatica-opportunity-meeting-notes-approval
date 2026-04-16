@@ -12,8 +12,8 @@ This folder is intended for another developer to:
 ## What is in this repo
 
 ### Extension source
-- `App_RuntimeCode/LSOpportunityMeetingNotesApproval/`
-  - backend DAC/graph/service code
+- `DAC/`, `Graph/`, and `Helper/`
+  - backend DAC/graph/helper code
 - `FrontendSources/screen/src/development/screens/LS/`
   - modern UI screen source for:
     - `LS501000`
@@ -30,11 +30,11 @@ This folder is intended for another developer to:
 ### Build/package artifacts
 - `LSOpportunityMeetingNotesApproval.sln`
 - `LSOpportunityMeetingNotesApproval.csproj`
-- `Bin/`
-- `obj/`
-- `compile.rsp`
-- `project.xml`
 - `ls-opportunity-meeting-notes-approval.zip`
+
+### SQL review artifacts
+- `sql/001-LSOpportunityMeetingNotesApproval.table.sql`
+- `sql/002-LSOpportunityMeetingNotesApproval.indexes.sql`
 
 ### Mock n8n assets
 - `n8n/README.md`
@@ -49,6 +49,12 @@ This folder is intended for another developer to:
 Use this file for manual Acumatica customization import/publish:
 
 - `ls-opportunity-meeting-notes-approval.zip`
+
+The monorepo packaging script now builds from this standalone repo directly:
+
+- `Automation/Setup/build-ls-modern-package.ps1`
+
+It does **not** run the canonical-to-package sync helper unless explicitly told to do so.
 
 ## What the package contains
 
@@ -66,9 +72,10 @@ The customization package includes:
 ## Intended review flow
 
 ### 1. Review extension code
-- backend: `App_RuntimeCode/...`
+- backend: `DAC/...`, `Graph/...`, `Helper/...`
 - UI: `FrontendSources/...`
 - customization metadata: `_project/...`
+- SQL review scripts: `sql/...`
 
 ### 2. Review mock integration flow
 - start with `n8n/README.md`
@@ -85,15 +92,17 @@ The customization package includes:
 - This is a **modern UI** extension; there is no ASPX page for these LS screens.
 - `LS501000` is the queue/process screen.
 - `LS501010` is the hidden entry/detail screen.
+- generated build outputs such as `Bin/`, `obj/`, `project.xml`, and `compile.rsp` are intentionally not part of the refactored repo layout.
 - The mock n8n flow is intended to create pending approval rows and provide transcript data for review/testing.
 - OAuth details in `n8n/acumatica-oauth.dev.md` are included intentionally for this dev-only handoff.
 
 ## Quick file map
 
 - package to upload: `./ls-opportunity-meeting-notes-approval.zip`
-- backend source: `./App_RuntimeCode/LSOpportunityMeetingNotesApproval/`
+- backend source: `./DAC/`, `./Graph/`, `./Helper/`
 - frontend source: `./FrontendSources/screen/src/development/screens/LS/`
 - customization metadata: `./_project/`
 - Visual Studio solution: `./LSOpportunityMeetingNotesApproval.sln`
+- SQL review artifacts: `./sql/`
 - n8n assets: `./n8n/`
 

@@ -12,6 +12,8 @@ import {
 	linkCommand,
 	columnConfig,
 	gridConfig,
+	GridFilterBarVisibility,
+	GridPreset,
 	PXFieldOptions,
 	PXFieldState,
 	PXPageLoadBehavior,
@@ -22,7 +24,7 @@ import {
 } from "client-controls";
 
 @graphInfo({
-	graphType: "PX.Objects.LS.LSOpportunityMeetingNotesApprovalProcess",
+	graphType: "LSOpportunityMeetingNotesApproval.LSOpportunityMeetingNotesApprovalProcess",
 	primaryView: "Records",
 	pageLoadBehavior: PXPageLoadBehavior.PopulateSavedValues,
 })
@@ -38,10 +40,14 @@ export class LS501000 extends PXScreen {
 }
 
 @gridConfig({
+	preset: GridPreset.Processing,
+	showFilterBar: GridFilterBarVisibility.OnDemand,
 	adjustPageSize: true,
 	batchUpdate: true,
+	allowUpdate: false,
 })
 export class LSOpportunityMeetingNotesApproval extends PXView {
+	@columnConfig({ allowCheckAll: true, width: 35 })
 	Selected: PXFieldState<PXFieldOptions.CommitChanges>;
 	Status: PXFieldState;
 
@@ -52,7 +58,7 @@ export class LSOpportunityMeetingNotesApproval extends PXView {
 	@linkCommand("ViewDocument")
 	MeetingTitle: PXFieldState;
 	Subject: PXFieldState;
-	BusinessAccountID: PXFieldState;
+	BAccountID: PXFieldState;
 	ContactID: PXFieldState;
 
 	@linkCommand("ViewSuggestedOpportunity")

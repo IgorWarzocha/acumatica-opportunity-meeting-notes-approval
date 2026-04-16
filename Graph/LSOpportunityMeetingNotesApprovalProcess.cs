@@ -1,34 +1,67 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using PX.Data;
 using PX.Objects.CR;
 using PX.Objects.EP;
 
-namespace PX.Objects.LS
+namespace LSOpportunityMeetingNotesApproval
 {
 	public class LSOpportunityMeetingNotesApprovalProcess : PXGraph<LSOpportunityMeetingNotesApprovalProcess>
 	{
+		#region Views
 		public PXSave<LSOpportunityMeetingNotesApproval> Save;
 		public PXCancel<LSOpportunityMeetingNotesApproval> Cancel;
 
 		[PXFilterable]
 		public PXProcessing<LSOpportunityMeetingNotesApproval> Records;
+		#endregion
 
+		#region Ctor
 		public LSOpportunityMeetingNotesApprovalProcess()
 		{
 			Records.SetSelected<LSOpportunityMeetingNotesApproval.selected>();
 			Records.SetProcessCaption("Approve");
 			Records.SetProcessAllCaption("Approve All");
-			Records.SetProcessDelegate<LSOpportunityMeetingNotesApprovalProcess>(Approve);
+			Records.SetProcessDelegate(delegate(List<LSOpportunityMeetingNotesApproval> list)
+			{
+				LSOpportunityMeetingNotesApprovalEntry.ApproveMethod(list, true);
+			});
 		}
+		#endregion
 
+		#region Data Delegate
 		protected virtual IEnumerable records()
 		{
 			return PXSelect<
 					LSOpportunityMeetingNotesApproval,
 					Where<LSOpportunityMeetingNotesApproval.status, NotEqual<LSOpportunityMeetingNotesApprovalStatus.approved>>>
-				.Select(this)
-				.RowCast<LSOpportunityMeetingNotesApproval>();
+				.Select(this);
+		}
+		#endregion
+
+		#region Actions
+		public PXAction<LSOpportunityMeetingNotesApproval> Reject;
+		[PXButton(CommitChanges = true)]
+		[PXUIField(DisplayName = "Reject", MapEnableRights = PXCacheRights.Update, MapViewRights = PXCacheRights.Select)]
+		public virtual IEnumerable reject(PXAdapter adapter)
+		{
+			List<LSOpportunityMeetingNotesApproval> list = new List<LSOpportunityMeetingNotesApproval>();
+			foreach (LSOpportunityMeetingNotesApproval approvalRecord in adapter.Get<LSOpportunityMeetingNotesApproval>())
+			{
+				if (approvalRecord != null)
+				{
+					list.Add(approvalRecord);
+				}
+			}
+
+			bool massProcess = adapter.MassProcess;
+			PXLongOperation.StartOperation(this, () =>
+			{
+				LSOpportunityMeetingNotesApprovalEntry.RejectMethod(list, massProcess);
+			});
+
+			return adapter.Get();
 		}
 
 		public PXAction<LSOpportunityMeetingNotesApproval> ViewOpportunity;
@@ -55,14 +88,14 @@ namespace PX.Objects.LS
 		[PXEditDetailButton]
 		public virtual IEnumerable viewDocument(PXAdapter adapter)
 		{
-			var row = Records.Current;
-			if (row?.ApprovalID == null)
+			LSOpportunityMeetingNotesApproval approvalRecord = Records.Current;
+			if (approvalRecord?.ApprovalID == null)
 			{
 				return adapter.Get();
 			}
 
-			var graph = PXGraph.CreateInstance<LSOpportunityMeetingNotesApprovalEntry>();
-			var document = LSOpportunityMeetingNotesApproval.PK.Find(graph, row.ApprovalID);
+			LSOpportunityMeetingNotesApprovalEntry graph = PXGraph.CreateInstance<LSOpportunityMeetingNotesApprovalEntry>();
+			LSOpportunityMeetingNotesApproval document = LSOpportunityMeetingNotesApproval.PK.Find(graph, approvalRecord.ApprovalID);
 			if (document == null)
 			{
 				return adapter.Get();
@@ -78,79 +111,28 @@ namespace PX.Objects.LS
 		[PXEditDetailButton]
 		public virtual IEnumerable viewActivity(PXAdapter adapter)
 		{
-			var row = Records.Current;
-			if (row?.ActivityNoteID == null)
+			LSOpportunityMeetingNotesApproval approvalRecord = Records.Current;
+			if (approvalRecord?.ActivityNoteID == null)
 			{
 				return adapter.Get();
 			}
 
-			var graph = PXGraph.CreateInstance<CRActivityMaint>();
-			var activity = graph.Activities.Search<CRActivity.noteID>(row.ActivityNoteID);
-			if (activity != null)
+			CRActivityMaint graph = PXGraph.CreateInstance<CRActivityMaint>();
+			CRActivity activity = graph.Activities.Search<CRActivity.noteID>(approvalRecord.ActivityNoteID);
+			if (activity == null)
 			{
-				graph.Activities.Current = activity;
-
-				throw new PXRedirectRequiredException(graph, true, string.Empty)
-				{
-					Mode = PXBaseRedirectException.WindowMode.NewWindow,
-				};
+				return adapter.Get();
 			}
 
-			return adapter.Get();
+			graph.Activities.Current = activity;
+			throw new PXRedirectRequiredException(graph, true, string.Empty)
+			{
+				Mode = PXBaseRedirectException.WindowMode.NewWindow,
+			};
 		}
+		#endregion
 
-		public PXAction<LSOpportunityMeetingNotesApproval> Reject;
-		[PXButton(CommitChanges = true)]
-		[PXUIField(DisplayName = "Reject", MapEnableRights = PXCacheRights.Update, MapViewRights = PXCacheRights.Select)]
-		public virtual IEnumerable reject(PXAdapter adapter)
-		{
-			var rows = adapter.Get<LSOpportunityMeetingNotesApproval>();
-			foreach (LSOpportunityMeetingNotesApproval row in rows)
-			{
-				if (row?.ApprovalID == null)
-				{
-					continue;
-				}
-
-				PXProcessing<LSOpportunityMeetingNotesApproval>.SetCurrentItem(row);
-				LSOpportunityMeetingNotesApprovalApprovalService.Reject(this, row.ApprovalID);
-				PXProcessing<LSOpportunityMeetingNotesApproval>.SetInfo(LSOpportunityMeetingNotesApprovalMessages.RecordRejected);
-			}
-
-			return adapter.Get();
-		}
-
-		public static void Approve(LSOpportunityMeetingNotesApprovalProcess graph, LSOpportunityMeetingNotesApproval item)
-		{
-			graph.Approve(item);
-		}
-
-		public virtual void Approve(LSOpportunityMeetingNotesApproval item)
-		{
-			if (item?.ApprovalID == null)
-			{
-				return;
-			}
-
-			PXProcessing<LSOpportunityMeetingNotesApproval>.SetCurrentItem(item);
-
-			var row = LSOpportunityMeetingNotesApproval.PK.Find(this, item.ApprovalID);
-			if (row == null)
-			{
-				throw new PXException(LSOpportunityMeetingNotesApprovalMessages.ApprovalRecordNoLongerExists);
-			}
-
-			if (row.Status == LSOpportunityMeetingNotesApprovalStatus.Approved)
-			{
-				PXProcessing<LSOpportunityMeetingNotesApproval>.SetInfo(LSOpportunityMeetingNotesApprovalMessages.RecordAlreadyApproved);
-				return;
-			}
-
-			LSOpportunityMeetingNotesApprovalApprovalService.Approve(this, row.ApprovalID);
-			PXProcessing<LSOpportunityMeetingNotesApproval>.SetInfo(LSOpportunityMeetingNotesApprovalMessages.RecordApproved);
-		}
-
-
+		#region Helpers
 		private IEnumerable RedirectToOpportunity(PXAdapter adapter, string opportunityID)
 		{
 			if (string.IsNullOrWhiteSpace(opportunityID))
@@ -158,21 +140,19 @@ namespace PX.Objects.LS
 				return adapter.Get();
 			}
 
-			var graph = PXGraph.CreateInstance<OpportunityMaint>();
-			var opportunity = CROpportunity.PK.Find(graph, opportunityID);
+			OpportunityMaint graph = PXGraph.CreateInstance<OpportunityMaint>();
+			CROpportunity opportunity = CROpportunity.PK.Find(graph, opportunityID);
 			if (opportunity == null)
 			{
 				return adapter.Get();
 			}
 
 			graph.Opportunity.Current = opportunity;
-
 			throw new PXRedirectRequiredException(graph, true, string.Empty)
 			{
 				Mode = PXBaseRedirectException.WindowMode.NewWindow,
 			};
 		}
-
-
+		#endregion
 	}
 }

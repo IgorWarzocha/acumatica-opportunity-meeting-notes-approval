@@ -18,7 +18,7 @@
 		</layout>
 		<data>
 			<SiteMap>
-				<row Position="4.5" Title="Opportunity Meeting Notes Approval" Url="~/Scripts/Screens/LS501000.html" ScreenID="LS501000" NodeID="0dca852d-2c7f-4c49-b6da-f3cb3e74d793" ParentID="F98B9016-1A23-42BB-BB83-03B91C85234F" SelectedUI="D">
+				<row Position="4.5" Title="Opportunity Meeting Notes Queue" Url="~/Scripts/Screens/LS501000.html" ScreenID="LS501000" NodeID="0dca852d-2c7f-4c49-b6da-f3cb3e74d793" ParentID="F98B9016-1A23-42BB-BB83-03B91C85234F" SelectedUI="D">
 					<RolesInGraph Rolename="Customizer" ApplicationName="/" Accessrights="4" />
 					<RolesInGraph Rolename="Administrator" ApplicationName="/" Accessrights="4" />
 					<RolesInGraph Rolename="*" ApplicationName="/" Accessrights="0" />

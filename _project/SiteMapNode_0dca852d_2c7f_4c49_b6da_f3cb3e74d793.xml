@@ -25,7 +25,7 @@
 		</layout>
 		<data>
 			<SiteMap>
-				<row Position="4.5" Title="Opportunity Meeting Notes Approval" Url="~/Scripts/Screens/LS501000.html" ScreenID="LS501000" NodeID="0dca852d-2c7f-4c49-b6da-f3cb3e74d793" ParentID="F98B9016-1A23-42BB-BB83-03B91C85234F" SelectedUI="D">
+				<row Position="4.5" Title="Opportunity Meeting Notes Queue" Url="~/Scripts/Screens/LS501000.html" ScreenID="LS501000" NodeID="0dca852d-2c7f-4c49-b6da-f3cb3e74d793" ParentID="F98B9016-1A23-42BB-BB83-03B91C85234F" SelectedUI="D">
 					<MUIScreen IsPortal="0" WorkspaceID="BB6406AB-8BE6-432F-8830-8565E3B56897" Order="1.5" SubcategoryID="32130442-2305-4394-9389-CF915B191D2A">
 						<MUIPinnedScreen IsPortal="0" Username="" IsPinned="1" />
 					</MUIScreen>

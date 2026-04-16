@@ -185,9 +185,9 @@ for (const attendeeEmail of externalParticipantEmails) {
 	}
 
 	for (const contact of contacts) {
-		const businessAccountID = readValue(contact, "BusinessAccount", "businessAccount", "BusinessAccountID", "businessAccountID");
+		const bAccountID = readValue(contact, "BusinessAccount", "businessAccount", "BAccountID", "bAccountID");
 		const businessAccountCode = readValue(contact, "BusinessAccountCD", "businessAccountCD", "BAccountID", "bAccountID");
-		const businessAccountMatchValue = businessAccountCode ?? businessAccountID;
+		const businessAccountMatchValue = businessAccountCode ?? bAccountID;
 
 		if (businessAccountMatchValue) {
 			businessAccounts.add(String(businessAccountMatchValue).toLowerCase());
@@ -196,7 +196,7 @@ for (const attendeeEmail of externalParticipantEmails) {
 		matchedContacts.push({
 			attendeeEmail,
 			contactID: readValue(contact, "ContactID", "contactID", "id"),
-			businessAccountID,
+			bAccountID,
 			businessAccountCode,
 			displayName: readValue(contact, "DisplayName", "displayName", "FullName", "fullName"),
 		});
@@ -235,7 +235,7 @@ const preview = {
 		TranscriptUrl: { value: transcript.transcriptUrl || "" },
 		OrganizerEmail: { value: normalizeEmail(transcript.host) },
 		ParticipantEmails: { value: participantEmails.join(";") },
-		BusinessAccountID: { value: primaryContact?.businessAccountID ?? "" },
+		BAccountID: { value: primaryContact?.bAccountID ?? "" },
 		ContactID: { value: primaryContact?.contactID ?? "" },
 		SuggestedOpportunityID: { value: suggestedOpportunityID ?? "" },
 		ConfirmedOpportunityID: { value: confirmedOpportunityID ?? "" },

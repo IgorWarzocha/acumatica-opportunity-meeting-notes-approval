@@ -137,7 +137,7 @@ const contactsByEmail = {
 			ContactID: { value: "901" },
 			DisplayName: { value: "Kyle Vanderstoep" },
 			BusinessAccount: { value: "CONTOU" },
-			BusinessAccountID: { value: "610" },
+			BAccountID: { value: "610" },
 			Email: { value: "kyle@contou.com" },
 		},
 	],
@@ -269,7 +269,7 @@ for (let index = 0; index < attendeeItems.length; index += 1) {
 	}
 
 	for (const contact of contacts) {
-		const businessAccount = readValue(contact, "BusinessAccount", "businessAccount", "BAccountID", "bAccountID", "BusinessAccountID");
+		const businessAccount = readValue(contact, "BusinessAccount", "businessAccount", "BAccountID", "bAccountID");
 		const contactID = readValue(contact, "id", "ContactID", "contactID");
 
 		if (businessAccount) {
@@ -328,10 +328,10 @@ const externalClientReferenceID = ${JSON.stringify(webhookFixture.clientReferenc
 const subject = (firstMeeting.title || "Meeting Notes Summary").slice(0, 255);
 const participantEmails = Array.isArray(firstMeeting.participantEmails) ? firstMeeting.participantEmails : [];
 const primaryContact = matchedContacts[0] ?? null;
-// Do not send BusinessAccountID / ContactID yet.
+// Do not send BAccountID / ContactID yet.
 // The mock fixture uses lookup-style values that are not safe to round-trip into
 // this instance's Default endpoint contract.
-const primaryBusinessAccountID = null;
+const primaryBAccountID = null;
 const primaryContactID = null;
 
 const acumaticaApprovalPayload = {
@@ -365,8 +365,8 @@ const acumaticaApprovalPayload = {
 	Subject: { value: subject },
 };
 
-if (primaryBusinessAccountID != null) {
-	acumaticaApprovalPayload.BusinessAccountID = { value: primaryBusinessAccountID };
+if (primaryBAccountID != null) {
+	acumaticaApprovalPayload.BAccountID = { value: primaryBAccountID };
 }
 
 if (primaryContactID != null) {

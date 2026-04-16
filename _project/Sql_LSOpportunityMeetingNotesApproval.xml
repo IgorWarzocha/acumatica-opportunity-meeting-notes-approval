@@ -12,7 +12,7 @@
 	<col name="TranscriptUrl" type="NVarChar(2048)" nullable="true" />
 	<col name="OrganizerEmail" type="NVarChar(255)" nullable="true" />
 	<col name="ParticipantEmails" type="NText" nullable="true" />
-	<col name="BusinessAccountID" type="Int" nullable="true" />
+	<col name="BAccountID" type="Int" nullable="true" />
 	<col name="ContactID" type="Int" nullable="true" />
 	<col name="SuggestedOpportunityID" type="NVarChar(15)" nullable="true" />
 	<col name="ConfirmedOpportunityID" type="NVarChar(15)" nullable="true" />

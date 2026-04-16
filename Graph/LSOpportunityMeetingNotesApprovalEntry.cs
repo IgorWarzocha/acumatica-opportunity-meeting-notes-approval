@@ -1,0 +1,499 @@
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using PX.Common;
+using PX.Data;
+using PX.Objects.CR;
+using PX.Objects.EP;
+using PX.SM;
+
+namespace LSOpportunityMeetingNotesApproval
+{
+	public class LSOpportunityMeetingNotesApprovalEntry : PXGraph<LSOpportunityMeetingNotesApprovalEntry, LSOpportunityMeetingNotesApproval>
+	{
+		#region Fields
+		private bool _syncingTranscriptAttachments;
+		#endregion
+
+		#region Views
+		[PXCopyPasteHiddenFields(typeof(LSOpportunityMeetingNotesApproval.transcriptHtml), typeof(LSOpportunityMeetingNotesApproval.matchDiagnostics))]
+		public PXSelect<LSOpportunityMeetingNotesApproval> Document;
+
+		public new PXSave<LSOpportunityMeetingNotesApproval> Save;
+		public new PXCancel<LSOpportunityMeetingNotesApproval> Cancel;
+		#endregion
+
+		#region Actions
+		public PXAction<LSOpportunityMeetingNotesApproval> Approve;
+		[PXButton(CommitChanges = true)]
+		[PXUIField(DisplayName = "Approve", MapEnableRights = PXCacheRights.Update, MapViewRights = PXCacheRights.Select)]
+		public virtual IEnumerable approve(PXAdapter adapter)
+		{
+			List<LSOpportunityMeetingNotesApproval> list = new List<LSOpportunityMeetingNotesApproval>();
+			foreach (LSOpportunityMeetingNotesApproval approvalRecord in adapter.Get<LSOpportunityMeetingNotesApproval>())
+			{
+				if (approvalRecord != null)
+				{
+					list.Add(approvalRecord);
+				}
+			}
+
+			if (list.Count == 0 && Document.Current != null)
+			{
+				list.Add(Document.Current);
+			}
+
+			list = list.Where(approvalRecord => approvalRecord?.ApprovalID != null).ToList();
+			bool massProcess = adapter.MassProcess;
+
+			PXLongOperation.StartOperation(this, () =>
+			{
+				ApproveMethod(list, massProcess);
+			});
+
+			return adapter.Get();
+		}
+
+		public PXAction<LSOpportunityMeetingNotesApproval> Reject;
+		[PXButton(CommitChanges = true)]
+		[PXUIField(DisplayName = "Reject", MapEnableRights = PXCacheRights.Update, MapViewRights = PXCacheRights.Select)]
+		public virtual IEnumerable reject(PXAdapter adapter)
+		{
+			List<LSOpportunityMeetingNotesApproval> list = new List<LSOpportunityMeetingNotesApproval>();
+			foreach (LSOpportunityMeetingNotesApproval approvalRecord in adapter.Get<LSOpportunityMeetingNotesApproval>())
+			{
+				if (approvalRecord != null)
+				{
+					list.Add(approvalRecord);
+				}
+			}
+
+			if (list.Count == 0 && Document.Current != null)
+			{
+				list.Add(Document.Current);
+			}
+
+			list = list.Where(approvalRecord => approvalRecord?.ApprovalID != null).ToList();
+			bool massProcess = adapter.MassProcess;
+
+			PXLongOperation.StartOperation(this, () =>
+			{
+				RejectMethod(list, massProcess);
+			});
+
+			return adapter.Get();
+		}
+
+		public PXAction<LSOpportunityMeetingNotesApproval> ViewSuggestedOpportunity;
+		[PXButton]
+		[PXUIField(DisplayName = "View Suggested Opportunity", MapEnableRights = PXCacheRights.Select, MapViewRights = PXCacheRights.Select)]
+		public virtual IEnumerable viewSuggestedOpportunity(PXAdapter adapter)
+		{
+			return RedirectToOpportunity(adapter, Document.Current?.SuggestedOpportunityID);
+		}
+
+		public PXAction<LSOpportunityMeetingNotesApproval> ViewConfirmedOpportunity;
+		[PXButton]
+		[PXUIField(DisplayName = "View Confirmed Opportunity", MapEnableRights = PXCacheRights.Select, MapViewRights = PXCacheRights.Select)]
+		public virtual IEnumerable viewConfirmedOpportunity(PXAdapter adapter)
+		{
+			return RedirectToOpportunity(adapter, Document.Current?.ConfirmedOpportunityID);
+		}
+		#endregion
+
+		#region Overrides
+		public override void Persist()
+		{
+			if (_syncingTranscriptAttachments)
+			{
+				base.Persist();
+				return;
+			}
+
+			base.Persist();
+
+			bool transcriptAttached = false;
+			foreach (LSOpportunityMeetingNotesApproval approvalRecord in Document.Cache.Cached.OfType<LSOpportunityMeetingNotesApproval>())
+			{
+				transcriptAttached |= EnsureTranscriptAttachmentMethod(this, approvalRecord);
+			}
+
+			if (!transcriptAttached)
+			{
+				return;
+			}
+
+			_syncingTranscriptAttachments = true;
+			try
+			{
+				base.Persist();
+			}
+			finally
+			{
+				_syncingTranscriptAttachments = false;
+			}
+		}
+		#endregion
+
+		#region Events
+		protected virtual void _(Events.RowInserted<LSOpportunityMeetingNotesApproval> e)
+		{
+			if (e.Row == null)
+			{
+				return;
+			}
+
+			if (string.IsNullOrWhiteSpace(e.Row.Subject))
+			{
+				e.Row.Subject = e.Row.MeetingTitle;
+			}
+		}
+
+		protected virtual void _(Events.RowSelected<LSOpportunityMeetingNotesApproval> e)
+		{
+			if (e.Row == null)
+			{
+				return;
+			}
+
+			bool isApproved = e.Row.Status == LSOpportunityMeetingNotesApprovalStatus.Approved;
+			PXUIFieldAttribute.SetEnabled<LSOpportunityMeetingNotesApproval.confirmedOpportunityID>(e.Cache, e.Row, !isApproved);
+			PXUIFieldAttribute.SetEnabled<LSOpportunityMeetingNotesApproval.suggestedOpportunityID>(e.Cache, e.Row, !isApproved);
+		}
+
+		protected virtual void _(Events.RowPersisting<LSOpportunityMeetingNotesApproval> e)
+		{
+			if (e.Row == null || e.Operation.Command() == PXDBOperation.Delete)
+			{
+				return;
+			}
+
+			if (string.IsNullOrWhiteSpace(e.Row.Subject) && !string.IsNullOrWhiteSpace(e.Row.MeetingTitle))
+			{
+				e.Row.Subject = e.Row.MeetingTitle;
+			}
+
+			if (!string.IsNullOrWhiteSpace(e.Row.ExternalMeetingID))
+			{
+				LSOpportunityMeetingNotesApproval duplicate = PXSelectReadonly<
+						LSOpportunityMeetingNotesApproval,
+						Where<
+							LSOpportunityMeetingNotesApproval.externalMeetingID, Equal<Required<LSOpportunityMeetingNotesApproval.externalMeetingID>>,
+							And<LSOpportunityMeetingNotesApproval.approvalID, NotEqual<Required<LSOpportunityMeetingNotesApproval.approvalID>>>>>
+					.SelectWindowed(this, 0, 1, e.Row.ExternalMeetingID, e.Row.ApprovalID ?? -1)
+					.TopFirst;
+
+				if (duplicate != null)
+				{
+					throw new PXSetPropertyException<LSOpportunityMeetingNotesApproval.externalMeetingID>(LSOpportunityMeetingNotesApprovalMessages.ExternalMeetingIdMustBeUnique);
+				}
+			}
+		}
+		#endregion
+
+		#region Processing Methods
+		public static void ApproveMethod(List<LSOpportunityMeetingNotesApproval> list, bool massProcess)
+		{
+			for (int i = 0; i < list.Count; i++)
+			{
+				LSOpportunityMeetingNotesApproval approvalRecord = list[i];
+
+				try
+				{
+					using (PXTransactionScope scope = new PXTransactionScope())
+					{
+						LSOpportunityMeetingNotesApprovalEntry graph = PXGraph.CreateInstance<LSOpportunityMeetingNotesApprovalEntry>();
+						approvalRecord = LSOpportunityMeetingNotesApproval.PK.Find(graph, approvalRecord?.ApprovalID);
+
+						if (approvalRecord == null)
+						{
+							throw new PXException(LSOpportunityMeetingNotesApprovalMessages.ApprovalRecordNoLongerExists);
+						}
+
+						if (approvalRecord.Status == LSOpportunityMeetingNotesApprovalStatus.Approved)
+						{
+							if (massProcess)
+							{
+								PXProcessing<LSOpportunityMeetingNotesApproval>.SetInfo(i, LSOpportunityMeetingNotesApprovalMessages.RecordAlreadyApproved);
+							}
+							continue;
+						}
+
+						if (string.IsNullOrWhiteSpace(approvalRecord.ConfirmedOpportunityID))
+						{
+							throw new PXSetPropertyException<LSOpportunityMeetingNotesApproval.confirmedOpportunityID>(LSOpportunityMeetingNotesApprovalMessages.ConfirmedOpportunityIsRequired);
+						}
+
+						CROpportunity opportunity = FindOpportunity(graph, approvalRecord.ConfirmedOpportunityID);
+						if (opportunity == null)
+						{
+							throw new PXException(LSOpportunityMeetingNotesApprovalMessages.OpportunityNotFound, approvalRecord.ConfirmedOpportunityID);
+						}
+
+						CRActivityMaint activityGraph = PXGraph.CreateInstance<CRActivityMaint>();
+						CRActivity activity = activityGraph.Activities.Insert();
+						string activityBody = string.IsNullOrWhiteSpace(approvalRecord.TranscriptHtml)
+							? approvalRecord.MeetingSummary
+							: approvalRecord.TranscriptHtml;
+
+						activity.Subject = string.IsNullOrWhiteSpace(approvalRecord.Subject)
+							? string.IsNullOrWhiteSpace(approvalRecord.MeetingTitle)
+								? LSOpportunityMeetingNotesApprovalMessages.DefaultMeetingNotesSummarySubject
+								: approvalRecord.MeetingTitle
+							: approvalRecord.Subject;
+						activity.RefNoteID = opportunity.NoteID;
+						activity.BAccountID = opportunity.BAccountID ?? approvalRecord.BAccountID;
+						activity.ContactID = opportunity.ContactID ?? approvalRecord.ContactID;
+						activity.StartDate = approvalRecord.MeetingDate;
+						activity.EndDate = approvalRecord.MeetingDate;
+						activity.Body = activityBody;
+						activity = activityGraph.Activities.Update(activity);
+
+						EnsureTranscriptAttachmentMethod(graph, approvalRecord);
+						MoveFilesToActivity(graph.Document.Cache, approvalRecord, activityGraph.Activities.Cache, activity);
+
+						activityGraph.Actions.PressSave();
+
+						approvalRecord.Status = LSOpportunityMeetingNotesApprovalStatus.Approved;
+						approvalRecord.ActivityNoteID = activity.NoteID;
+						approvalRecord.ApprovedByID = graph.Accessinfo.UserID;
+						approvalRecord.ApprovedDateTime = PXTimeZoneInfo.Now;
+						approvalRecord.ErrorMessage = null;
+						approvalRecord.PostApprovalSyncStatus = LSOpportunityMeetingNotesApprovalSyncStatus.NotReady;
+						approvalRecord.PostApprovalSyncDateTime = null;
+						approvalRecord.PostApprovalSyncError = null;
+						approvalRecord.Processed = false;
+						approvalRecord.BAccountID = activity.BAccountID;
+						approvalRecord.ContactID = activity.ContactID;
+						graph.Document.Update(approvalRecord);
+						graph.Actions.PressSave();
+
+						scope.Complete();
+					}
+
+					if (massProcess)
+					{
+						PXProcessing<LSOpportunityMeetingNotesApproval>.SetInfo(i, LSOpportunityMeetingNotesApprovalMessages.RecordApproved);
+					}
+				}
+				catch (PXException ex)
+				{
+					MarkAsError(approvalRecord?.ApprovalID, ex.Message);
+					if (massProcess)
+					{
+						PXProcessing<LSOpportunityMeetingNotesApproval>.SetError(i, ex);
+					}
+					else
+					{
+						throw;
+					}
+				}
+				catch (Exception ex)
+				{
+					MarkAsError(approvalRecord?.ApprovalID, ex.Message);
+					if (massProcess)
+					{
+						PXProcessing<LSOpportunityMeetingNotesApproval>.SetError(i, ex);
+					}
+					else
+					{
+						throw;
+					}
+				}
+			}
+		}
+
+		public static void RejectMethod(List<LSOpportunityMeetingNotesApproval> list, bool massProcess)
+		{
+			for (int i = 0; i < list.Count; i++)
+			{
+				LSOpportunityMeetingNotesApproval approvalRecord = list[i];
+
+				try
+				{
+					using (PXTransactionScope scope = new PXTransactionScope())
+					{
+						LSOpportunityMeetingNotesApprovalEntry graph = PXGraph.CreateInstance<LSOpportunityMeetingNotesApprovalEntry>();
+						approvalRecord = LSOpportunityMeetingNotesApproval.PK.Find(graph, approvalRecord?.ApprovalID);
+
+						if (approvalRecord == null)
+						{
+							throw new PXException(LSOpportunityMeetingNotesApprovalMessages.ApprovalRecordNoLongerExists);
+						}
+
+						if (approvalRecord.Status == LSOpportunityMeetingNotesApprovalStatus.Approved)
+						{
+							throw new PXException(LSOpportunityMeetingNotesApprovalMessages.ApprovedRecordsCannotBeRejected);
+						}
+
+						approvalRecord.Status = LSOpportunityMeetingNotesApprovalStatus.Rejected;
+						approvalRecord.ErrorMessage = null;
+						approvalRecord.PostApprovalSyncStatus = LSOpportunityMeetingNotesApprovalSyncStatus.NotReady;
+						approvalRecord.PostApprovalSyncDateTime = PXTimeZoneInfo.Now;
+						approvalRecord.PostApprovalSyncError = null;
+						approvalRecord.Processed = true;
+						graph.Document.Update(approvalRecord);
+						graph.Actions.PressSave();
+
+						scope.Complete();
+					}
+
+					if (massProcess)
+					{
+						PXProcessing<LSOpportunityMeetingNotesApproval>.SetInfo(i, LSOpportunityMeetingNotesApprovalMessages.RecordRejected);
+					}
+				}
+				catch (PXException ex)
+				{
+					if (massProcess)
+					{
+						PXProcessing<LSOpportunityMeetingNotesApproval>.SetError(i, ex);
+					}
+					else
+					{
+						throw;
+					}
+				}
+			}
+		}
+		#endregion
+
+		#region Helpers
+		public static bool EnsureTranscriptAttachmentMethod(PXGraph context, LSOpportunityMeetingNotesApproval approvalRecord)
+		{
+			if (context == null)
+			{
+				throw new PXArgumentException(nameof(context));
+			}
+
+			if (approvalRecord?.NoteID == null || string.IsNullOrWhiteSpace(approvalRecord.TranscriptHtml))
+			{
+				return false;
+			}
+
+			PXCache cache = context.Caches<LSOpportunityMeetingNotesApproval>();
+			Guid[] existingFiles = PXNoteAttribute.GetFileNotes(cache, approvalRecord) ?? Array.Empty<Guid>();
+			if (existingFiles.Length > 0)
+			{
+				return false;
+			}
+
+			UploadFileMaintenance uploadGraph = PXGraph.CreateInstance<UploadFileMaintenance>();
+			string fileName = BuildTranscriptFileName(approvalRecord);
+			FileInfo file = new FileInfo(fileName, null, Encoding.UTF8.GetBytes(approvalRecord.TranscriptHtml));
+			if (!uploadGraph.SaveFile(file, FileExistsAction.CreateVersion) || file.UID == null)
+			{
+				throw new PXException(LSOpportunityMeetingNotesApprovalMessages.TranscriptAttachmentCouldNotBeCreated);
+			}
+
+			PXNoteAttribute.SetFileNotes(cache, approvalRecord, new[] { file.UID.Value });
+			cache.Update(approvalRecord);
+			return true;
+		}
+
+		public static void MoveFilesToActivity(PXCache sourceCache, object sourceRow, PXCache targetCache, object targetRow)
+		{
+			Guid[] files = PXNoteAttribute.GetFileNotes(sourceCache, sourceRow);
+			if (files == null || files.Length == 0)
+			{
+				return;
+			}
+
+			PXNoteAttribute.SetFileNotes(targetCache, targetRow, files);
+			PXNoteAttribute.SetFileNotes(sourceCache, sourceRow, Array.Empty<Guid>());
+		}
+
+		public static CROpportunity FindOpportunity(PXGraph graph, string opportunityID)
+		{
+			if (graph == null || string.IsNullOrWhiteSpace(opportunityID))
+			{
+				return null;
+			}
+
+			return PXSelectReadonly<
+					CROpportunity,
+					Where<
+						CROpportunity.opportunityID, Equal<Required<CROpportunity.opportunityID>>,
+						And<
+							CROpportunity.status, NotEqual<LSOpportunityMeetingNotesApprovalOpportunityStatus.lost>,
+							And<CROpportunity.status, NotEqual<LSOpportunityMeetingNotesApprovalOpportunityStatus.won>>>>>
+				.SelectWindowed(graph, 0, 1, opportunityID)
+				.TopFirst;
+		}
+
+		private static void MarkAsError(int? approvalID, string errorMessage)
+		{
+			if (approvalID == null)
+			{
+				return;
+			}
+
+			LSOpportunityMeetingNotesApprovalEntry graph = PXGraph.CreateInstance<LSOpportunityMeetingNotesApprovalEntry>();
+			LSOpportunityMeetingNotesApproval approvalRecord = LSOpportunityMeetingNotesApproval.PK.Find(graph, approvalID);
+			if (approvalRecord == null || approvalRecord.Status == LSOpportunityMeetingNotesApprovalStatus.Approved)
+			{
+				return;
+			}
+
+			approvalRecord.Status = LSOpportunityMeetingNotesApprovalStatus.Error;
+			approvalRecord.ErrorMessage = errorMessage;
+			approvalRecord.PostApprovalSyncStatus = LSOpportunityMeetingNotesApprovalSyncStatus.Error;
+			approvalRecord.PostApprovalSyncDateTime = PXTimeZoneInfo.Now;
+			approvalRecord.PostApprovalSyncError = errorMessage;
+			approvalRecord.Processed = false;
+			graph.Document.Update(approvalRecord);
+			graph.Actions.PressSave();
+		}
+
+		private static string BuildTranscriptFileName(LSOpportunityMeetingNotesApproval approvalRecord)
+		{
+			string seed = approvalRecord?.ExternalMeetingID;
+			if (string.IsNullOrWhiteSpace(seed))
+			{
+				seed = approvalRecord?.ApprovalID?.ToString();
+			}
+
+			if (string.IsNullOrWhiteSpace(seed))
+			{
+				seed = "meeting-notes";
+			}
+
+			string sanitized = new string(seed.Select(ch => char.IsLetterOrDigit(ch) || ch == '-' || ch == '_' ? ch : '-').ToArray()).Trim('-');
+			if (string.IsNullOrWhiteSpace(sanitized))
+			{
+				sanitized = "meeting-notes";
+			}
+
+			if (sanitized.Length > 80)
+			{
+				sanitized = sanitized.Substring(0, 80).Trim('-');
+			}
+
+			return sanitized + ".html";
+		}
+
+		private IEnumerable RedirectToOpportunity(PXAdapter adapter, string opportunityID)
+		{
+			if (string.IsNullOrWhiteSpace(opportunityID))
+			{
+				return adapter.Get();
+			}
+
+			OpportunityMaint graph = PXGraph.CreateInstance<OpportunityMaint>();
+			CROpportunity opportunity = CROpportunity.PK.Find(graph, opportunityID);
+			if (opportunity == null)
+			{
+				throw new PXException(LSOpportunityMeetingNotesApprovalMessages.OpportunityNotFound, opportunityID);
+			}
+
+			graph.Opportunity.Current = opportunity;
+			throw new PXRedirectRequiredException(graph, true, string.Empty)
+			{
+				Mode = PXBaseRedirectException.WindowMode.NewWindow,
+			};
+		}
+		#endregion
+	}
+}
