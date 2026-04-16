@@ -45,7 +45,8 @@ Use the March 27, 2026 client conversation as the authoritative contract when ol
 
 - Fireflies goes through `n8n` only.
 - `n8n` creates the pending `OpportunityNotesApproval` row.
-- `TranscriptHtml` is the pending-review source of truth.
+- the approval-row attached transcript `.html` file is the persisted pending-review source of truth.
+- `TranscriptHtml` is only a transient API/UI projection used to seed or edit that attachment.
 - Acumatica `Approve` creates the official `CRActivity` on the confirmed opportunity.
 - During `Approve`, Acumatica generates the transcript attachment onto the created `CRActivity`.
 - Matching scope for opportunities is `Status ne 'Lost' and Status ne 'Won'`.
@@ -163,6 +164,8 @@ The payload includes:
 
 `ConfirmedOpportunityID` is intentionally sent blank. n8n only proposes `SuggestedOpportunityID`; Stephen confirms or corrects the real opportunity inside Acumatica before approval.
 
+`TranscriptHtml` is accepted as transient input. Acumatica persists the canonical approval-row transcript as an attached `.html` file and renders the Transcript tab back from that file.
+
 ## Dev Execution Notes For This Workspace
 
 These are specific to the current local n8n container and are now part of the documented workflow because we hit them multiple times.
@@ -192,7 +195,7 @@ the mock workflow was executed successfully against the local instance and creat
 - `Status = Pending`
 - `NoteID = DC827F75-AB31-F111-B9AE-E014DE1E9F70`
 
-The created approval row keeps `TranscriptHtml` populated for review before approval. On approve, Acumatica creates the transcript attachment onto the resulting `CRActivity`.
+The created approval row keeps the transcript attached as an approval-row `.html` file for review before approval. The Transcript tab renders from that attachment. On approve, Acumatica creates the transcript attachment onto the resulting `CRActivity`.
 
 ## Import Commands
 

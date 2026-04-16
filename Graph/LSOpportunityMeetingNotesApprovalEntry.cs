@@ -13,6 +13,8 @@ namespace LSOpportunityMeetingNotesApproval
 {
 	public class LSOpportunityMeetingNotesApprovalEntry : PXGraph<LSOpportunityMeetingNotesApprovalEntry, LSOpportunityMeetingNotesApproval>
 	{
+		private bool _persistingTranscriptAttachments;
+
 		#region Views
 		[PXCopyPasteHiddenFields(typeof(LSOpportunityMeetingNotesApproval.transcriptHtml), typeof(LSOpportunityMeetingNotesApproval.matchDiagnostics))]
 		public PXSelect<LSOpportunityMeetingNotesApproval> Document;
@@ -118,6 +120,19 @@ namespace LSOpportunityMeetingNotesApproval
 			bool isApproved = e.Row.Status == LSOpportunityMeetingNotesApprovalStatus.Approved;
 			PXUIFieldAttribute.SetEnabled<LSOpportunityMeetingNotesApproval.confirmedOpportunityID>(e.Cache, e.Row, !isApproved);
 			PXUIFieldAttribute.SetEnabled<LSOpportunityMeetingNotesApproval.suggestedOpportunityID>(e.Cache, e.Row, !isApproved);
+			PXUIFieldAttribute.SetEnabled<LSOpportunityMeetingNotesApproval.transcriptHtml>(e.Cache, e.Row, !isApproved);
+		}
+
+		protected virtual void _(Events.FieldSelecting<LSOpportunityMeetingNotesApproval, LSOpportunityMeetingNotesApproval.transcriptHtml> e)
+		{
+			if (e.Row == null)
+			{
+				return;
+			}
+
+			e.ReturnValue = string.IsNullOrWhiteSpace(e.Row.TranscriptHtml)
+				? GetTranscriptAttachmentHtml(e.Cache.Graph, e.Row)
+				: e.Row.TranscriptHtml;
 		}
 
 		protected virtual void _(Events.RowPersisting<LSOpportunityMeetingNotesApproval> e)
@@ -141,6 +156,59 @@ namespace LSOpportunityMeetingNotesApproval
 				{
 					throw new PXSetPropertyException<LSOpportunityMeetingNotesApproval.externalMeetingID>(LSOpportunityMeetingNotesApprovalMessages.ExternalMeetingIdMustBeUnique);
 				}
+			}
+		}
+		#endregion
+
+		#region Persist
+		public override void Persist()
+		{
+			if (_persistingTranscriptAttachments)
+			{
+				base.Persist();
+				return;
+			}
+
+			List<(LSOpportunityMeetingNotesApproval Row, string TranscriptHtml)> transcriptRows = Document.Cache.Cached
+				.Cast<LSOpportunityMeetingNotesApproval>()
+				.Where(row => row != null)
+				.Select(row => (Row: row, TranscriptHtml: row.TranscriptHtml))
+				.Where(item => !string.IsNullOrWhiteSpace(item.TranscriptHtml))
+				.Where(item =>
+				{
+					PXEntryStatus status = Document.Cache.GetStatus(item.Row);
+					return status == PXEntryStatus.Inserted || status == PXEntryStatus.Updated;
+				})
+				.ToList();
+
+			using (PXTransactionScope scope = new PXTransactionScope())
+			{
+				base.Persist();
+
+				bool hasAttachmentChanges = false;
+				foreach ((LSOpportunityMeetingNotesApproval row, string transcriptHtml) in transcriptRows)
+				{
+					if (PersistTranscriptAttachment(Document.Cache, row, transcriptHtml))
+					{
+						Document.Update(row);
+						hasAttachmentChanges = true;
+					}
+				}
+
+				if (hasAttachmentChanges)
+				{
+					_persistingTranscriptAttachments = true;
+					try
+					{
+						base.Persist();
+					}
+					finally
+					{
+						_persistingTranscriptAttachments = false;
+					}
+				}
+
+				scope.Complete();
 			}
 		}
 		#endregion
@@ -184,7 +252,7 @@ namespace LSOpportunityMeetingNotesApproval
 							throw new PXException(LSOpportunityMeetingNotesApprovalMessages.OpportunityNotFound, approvalRecord.ConfirmedOpportunityID);
 						}
 
-						string transcriptHtml = approvalRecord.TranscriptHtml;
+						string transcriptHtml = GetTranscriptAttachmentHtml(graph, approvalRecord);
 						if (string.IsNullOrWhiteSpace(transcriptHtml))
 						{
 							throw new PXException(LSOpportunityMeetingNotesApprovalMessages.TranscriptHtmlIsRequiredForApproval);
@@ -303,6 +371,63 @@ namespace LSOpportunityMeetingNotesApproval
 		#endregion
 
 		#region Helpers
+		public static string GetTranscriptAttachmentHtml(PXGraph graph, LSOpportunityMeetingNotesApproval approvalRecord)
+		{
+			UploadFile file = GetTranscriptAttachment(graph, approvalRecord);
+ 
+			if (file?.Data == null || file.Data.Length == 0)
+			{
+				return null;
+			}
+
+			return Encoding.UTF8.GetString(file.Data);
+		}
+
+		public static bool PersistTranscriptAttachment(PXCache targetCache, LSOpportunityMeetingNotesApproval approvalRecord, string transcriptHtml)
+		{
+			if (targetCache == null)
+			{
+				throw new PXArgumentException(nameof(targetCache));
+			}
+
+			if (approvalRecord == null || string.IsNullOrWhiteSpace(transcriptHtml))
+			{
+				return false;
+			}
+
+			UploadFile existingFile = GetTranscriptAttachment(targetCache.Graph, approvalRecord);
+			byte[] transcriptBytes = Encoding.UTF8.GetBytes(transcriptHtml);
+			if (existingFile?.Data != null && existingFile.Data.SequenceEqual(transcriptBytes))
+			{
+				return false;
+			}
+
+			UploadFileMaintenance uploadGraph = PXGraph.CreateInstance<UploadFileMaintenance>();
+			string fileName = existingFile?.Name;
+			if (string.IsNullOrWhiteSpace(fileName))
+			{
+				fileName = BuildTranscriptFileName(approvalRecord);
+			}
+
+			FileInfo file = existingFile?.FileID != null
+				? new FileInfo(existingFile.FileID.Value, fileName, null, transcriptBytes)
+				: new FileInfo(fileName, null, transcriptBytes);
+
+			if (!uploadGraph.SaveFile(file, FileExistsAction.CreateVersion) || file.UID == null)
+			{
+				throw new PXException(LSOpportunityMeetingNotesApprovalMessages.TranscriptAttachmentCouldNotBeCreated);
+			}
+
+			Guid[] fileNotes = PXNoteAttribute.GetFileNotes(targetCache, approvalRecord) ?? Array.Empty<Guid>();
+			Guid[] updatedFileNotes = fileNotes.Contains(file.UID.Value)
+				? fileNotes
+				: fileNotes.Concat(new[] { file.UID.Value }).ToArray();
+
+			PXNoteAttribute.SetFileNotes(targetCache, approvalRecord, updatedFileNotes);
+			PXNoteAttribute.ResetFileListCache(targetCache);
+			return true;
+		}
+
 		public static bool EnsureTranscriptAttachmentOnActivity(PXCache targetCache, object targetRow, LSOpportunityMeetingNotesApproval approvalRecord, string transcriptHtml)
 		{
 			if (targetCache == null)
@@ -332,6 +457,52 @@ namespace LSOpportunityMeetingNotesApproval
 			PXNoteAttribute.SetFileNotes(targetCache, targetRow, new[] { file.UID.Value });
 			targetCache.Update(targetRow);
 			return true;
+		}
+
+		public static UploadFile GetTranscriptAttachment(PXGraph graph, LSOpportunityMeetingNotesApproval approvalRecord)
+		{
+			if (graph == null || approvalRecord == null)
+			{
+				return null;
+			}
+
+			PXCache cache = graph.Caches[typeof(LSOpportunityMeetingNotesApproval)];
+			Guid[] fileNotes = PXNoteAttribute.GetFileNotes(cache, approvalRecord) ?? Array.Empty<Guid>();
+			if (fileNotes.Length == 0)
+			{
+				return null;
+			}
+
+			string expectedFileName = BuildTranscriptFileName(approvalRecord);
+			UploadFile[] files = fileNotes
+				.Select(fileID => GetFile(graph, fileID))
+				.Where(file => file?.Name != null)
+				.ToArray();
+
+			return files.FirstOrDefault(file => string.Equals(file.Name, expectedFileName, StringComparison.OrdinalIgnoreCase))
+				?? files.FirstOrDefault(file => file.Name.EndsWith(".html", StringComparison.OrdinalIgnoreCase))
+				?? files.FirstOrDefault();
+		}
+
+		public static UploadFile GetFile(PXGraph graph, Guid fileID)
+		{
+			PXResult<UploadFile, UploadFileRevision> result = (PXResult<UploadFile, UploadFileRevision>)PXSelectJoin<
+				UploadFile,
+				InnerJoin<UploadFileRevision,
+					On<UploadFile.fileID, Equal<UploadFileRevision.fileID>,
+					And<UploadFile.lastRevisionID, Equal<UploadFileRevision.fileRevisionID>>>>,
+				Where<UploadFile.fileID, Equal<Required<UploadFile.fileID>>>>
+				.Select(graph, fileID);
+
+			if (result == null)
+			{
+				return null;
+			}
+
+			UploadFile file = result;
+			UploadFileRevision revision = result;
+			file.Data = revision.Data;
+			return file;
 		}
 
 		public static CROpportunity FindOpportunity(PXGraph graph, string opportunityID)

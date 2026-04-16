@@ -115,7 +115,7 @@ namespace LSOpportunityMeetingNotesApproval
 		#region TranscriptHtml
 		public abstract class transcriptHtml : BqlString.Field<transcriptHtml> { }
 
-		[PXDBText(IsUnicode = true)]
+		[PXString(IsUnicode = true)]
 		[PXUIField(DisplayName = "Transcript HTML")]
 		public virtual string TranscriptHtml { get; set; }
 		#endregion

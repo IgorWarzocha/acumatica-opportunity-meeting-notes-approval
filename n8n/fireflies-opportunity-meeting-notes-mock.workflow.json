@@ -1,10 +1,10 @@
 [
 	{
-		"updatedAt": "2026-04-16T20:11:19.064Z",
-		"createdAt": "2026-04-16T20:11:19.065Z",
+		"updatedAt": "2026-04-16T20:42:52.350Z",
+		"createdAt": "2026-04-16T20:42:52.350Z",
 		"id": "c7d3a9e3-3d37-4dc5-bb52-f4c390c409ea",
 		"name": "Fireflies Opportunity Meeting Notes Mock",
-		"description": "Manual mock workflow that emits best-guess Fireflies webhook and transcript payloads, builds the downstream Acumatica approval payload, and creates a pending approval record through the LSOpportunityNotes endpoint. TranscriptHtml is the pending-review source of truth; Acumatica creates the activity attachment during approval.",
+		"description": "Manual mock workflow that emits best-guess Fireflies webhook and transcript payloads, builds the downstream Acumatica approval payload, and creates a pending approval record through the LSOpportunityNotes endpoint. Acumatica persists the pending-review transcript as an approval-row .html attachment and renders TranscriptHtml from that file; approval creates the downstream CRActivity attachment.",
 		"active": false,
 		"isArchived": false,
 		"nodes": [

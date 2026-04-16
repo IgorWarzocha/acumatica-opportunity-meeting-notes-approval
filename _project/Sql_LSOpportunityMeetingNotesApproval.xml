@@ -7,7 +7,6 @@
 	<col name="MeetingDate" type="DateTime" nullable="true" />
 	<col name="MeetingTitle" type="NVarChar(255)" nullable="true" />
 	<col name="MeetingSummary" type="NText" nullable="true" />
-	<col name="TranscriptHtml" type="NText" nullable="true" />
 	<col name="TranscriptUrl" type="NVarChar(2048)" nullable="true" />
 	<col name="OrganizerEmail" type="NVarChar(255)" nullable="true" />
 	<col name="ParticipantEmails" type="NText" nullable="true" />

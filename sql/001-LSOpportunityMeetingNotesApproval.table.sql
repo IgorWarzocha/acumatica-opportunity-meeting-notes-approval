@@ -6,7 +6,6 @@ CREATE TABLE [dbo].[LSOpportunityMeetingNotesApproval](
 	[MeetingDate] [datetime] NULL,
 	[MeetingTitle] [nvarchar](255) NULL,
 	[MeetingSummary] [ntext] NULL,
-	[TranscriptHtml] [ntext] NULL,
 	[TranscriptUrl] [nvarchar](2048) NULL,
 	[OrganizerEmail] [nvarchar](255) NULL,
 	[ParticipantEmails] [ntext] NULL,

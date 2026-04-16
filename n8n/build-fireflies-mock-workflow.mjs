@@ -415,7 +415,7 @@ const workflow = [
 		createdAt: new Date().toISOString(),
 		id: workflowId,
 		name: "Fireflies Opportunity Meeting Notes Mock",
-		description: "Manual mock workflow that emits best-guess Fireflies webhook and transcript payloads, builds the downstream Acumatica approval payload, and creates a pending approval record through the LSOpportunityNotes endpoint. TranscriptHtml is the pending-review source of truth; Acumatica creates the activity attachment during approval.",
+		description: "Manual mock workflow that emits best-guess Fireflies webhook and transcript payloads, builds the downstream Acumatica approval payload, and creates a pending approval record through the LSOpportunityNotes endpoint. Acumatica persists the pending-review transcript as an approval-row .html attachment and renders TranscriptHtml from that file; approval creates the downstream CRActivity attachment.",
 		active: false,
 		isArchived: false,
 		nodes: [

@@ -498,7 +498,7 @@ const workflow = [
 		createdAt: new Date().toISOString(),
 		id: workflowId,
 		name: "Fireflies Opportunity Meeting Notes Approval",
-		description: "Receives Fireflies webhook events, fetches transcript data, suggests an Acumatica opportunity, and creates a pending approval record through the LSOpportunityNotes endpoint. TranscriptHtml is the pending-review source of truth; Acumatica creates the activity attachment during approval.",
+		description: "Receives Fireflies webhook events, fetches transcript data, suggests an Acumatica opportunity, and creates a pending approval record through the LSOpportunityNotes endpoint. Acumatica persists the pending-review transcript as an approval-row .html attachment and renders TranscriptHtml from that file; approval creates the downstream CRActivity attachment.",
 		active: false,
 		isArchived: false,
 		nodes: [
