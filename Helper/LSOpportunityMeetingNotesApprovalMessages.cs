@@ -16,5 +16,6 @@ namespace LSOpportunityMeetingNotesApproval
 		public const string RecordApproved = "Approved.";
 		public const string RecordRejected = "Rejected.";
 		public const string TranscriptAttachmentCouldNotBeCreated = "The transcript attachment could not be created.";
+		public const string TranscriptHtmlIsRequiredForApproval = "Transcript HTML is required before approval.";
 	}
 }

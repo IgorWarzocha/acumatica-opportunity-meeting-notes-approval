@@ -229,8 +229,8 @@ const keywordSet = (value) => new Set(
 
 const scoreOpportunity = (opportunity, matchCorpus, businessAccounts) => {
 	let score = 0;
-	const subject = String(readValue(opportunity, "Subject", "subject") ?? "");
-	const subjectKeywords = keywordSet(subject);
+	const opportunitySubject = String(readValue(opportunity, "Subject", "subject") ?? "");
+	const subjectKeywords = keywordSet(opportunitySubject);
 	const corpusKeywords = keywordSet(matchCorpus);
 
 	for (const word of subjectKeywords) {
@@ -324,15 +324,7 @@ const confirmedOpportunityID = null;
 const executionSuffix = new Date().toISOString().replace(/[^0-9]/g, "").slice(0, 14);
 const externalMeetingID = firstMeeting.meetingId + "-mock-" + executionSuffix;
 const externalClientReferenceID = ${JSON.stringify(webhookFixture.clientReferenceId ?? "fireflies-sample")} + "-" + executionSuffix;
-
-const subject = (firstMeeting.title || "Meeting Notes Summary").slice(0, 255);
 const participantEmails = Array.isArray(firstMeeting.participantEmails) ? firstMeeting.participantEmails : [];
-const primaryContact = matchedContacts[0] ?? null;
-// Do not send BAccountID / ContactID yet.
-// The mock fixture uses lookup-style values that are not safe to round-trip into
-// this instance's Default endpoint contract.
-const primaryBAccountID = null;
-const primaryContactID = null;
 
 const acumaticaApprovalPayload = {
 	ExternalMeetingID: { value: externalMeetingID },
@@ -362,16 +354,7 @@ const acumaticaApprovalPayload = {
 			})),
 		}),
 	},
-	Subject: { value: subject },
 };
-
-if (primaryBAccountID != null) {
-	acumaticaApprovalPayload.BAccountID = { value: primaryBAccountID };
-}
-
-if (primaryContactID != null) {
-	acumaticaApprovalPayload.ContactID = { value: primaryContactID };
-}
 
 if (suggestedOpportunityID) {
 	acumaticaApprovalPayload.SuggestedOpportunityID = { value: suggestedOpportunityID };
@@ -390,9 +373,6 @@ return [
 			meetingTitle: firstMeeting.title,
 			meetingSummary: firstMeeting.summaryText || "Meeting Notes Summary",
 			transcriptHtml: firstMeeting.transcriptHtml,
-			// Deferred: swap this generated HTML file for the original Fireflies transcript file
-			// if the production integration exposes a stable downloadable artifact.
-			transcriptFileText: firstMeeting.transcriptHtml,
 			transcriptFileName: firstMeeting.transcriptFileName,
 			transcriptUrl: firstMeeting.transcriptUrl,
 			organizerEmail: firstMeeting.organizerEmail,
@@ -429,97 +409,13 @@ return [
 ];
 `;
 
-const prepareAttachmentUploadCode = String.raw`
-const createResponse = $input.first()?.json ?? {};
-const fileSource = $('Build Transcript File').first();
-
-const readValue = (record, ...keys) => {
-	if (!record || typeof record !== "object") {
-		return null;
-	}
-
-	for (const key of keys) {
-		if (!(key in record)) {
-			continue;
-		}
-
-		const value = record[key];
-		if (value && typeof value === "object" && "value" in value) {
-			return value.value;
-		}
-		if (value !== undefined) {
-			return value;
-		}
-	}
-
-	return null;
-};
-
-const approvalId = readValue(
-	createResponse,
-	"ApprovalID",
-	"id",
-	"ID",
-	"NoteID",
-);
-
-if (!approvalId) {
-	throw new Error("Create Approval Record response did not include an approval identifier");
-}
-
-const candidateFileHref =
-	createResponse?._links?.["files:put"]?.href ||
-	createResponse?._links?.["files:upload"]?.href ||
-	createResponse?._links?.files?.href ||
-	createResponse?._links?.Files?.href ||
-	null;
-
-const baseUrl = $env.ACU_BASE_URL || "https://localhost:443";
-const instanceName = $env.ACU_INSTANCE_NAME || "demo";
-const approvalEndpointName = $env.ACU_APPROVAL_ENDPOINT_NAME || "LSOpportunityNotes";
-const approvalEndpointVersion = $env.ACU_APPROVAL_ENDPOINT_VERSION || "25.200.001";
-const fileName = fileSource?.json?.transcriptFileName || "meeting-notes.html";
-
-let uploadUrl;
-if (candidateFileHref) {
-	uploadUrl = candidateFileHref
-		.replaceAll("{fileName}", encodeURIComponent(fileName))
-		.replaceAll("{filename}", encodeURIComponent(fileName))
-		.replaceAll("{name}", encodeURIComponent(fileName));
-
-	if (/^\//.test(uploadUrl)) {
-		uploadUrl = baseUrl + uploadUrl;
-	}
-} else if ($env.ACU_APPROVAL_FILE_URL_TEMPLATE) {
-	uploadUrl = $env.ACU_APPROVAL_FILE_URL_TEMPLATE
-		.replaceAll("{baseUrl}", baseUrl)
-		.replaceAll("{instance}", instanceName)
-		.replaceAll("{id}", encodeURIComponent(String(approvalId)))
-		.replaceAll("{fileName}", encodeURIComponent(fileName));
-} else {
-	uploadUrl = baseUrl + "/" + instanceName + "/entity/" + approvalEndpointName + "/" + approvalEndpointVersion + "/OpportunityNotesApproval/" + encodeURIComponent(String(approvalId)) + "/files/" + encodeURIComponent(fileName);
-}
-
-return [
-	{
-		json: {
-			approvalId: String(approvalId),
-			fileName,
-			uploadUrl,
-			createResponse,
-		},
-		binary: fileSource?.binary ?? {},
-	},
-];
-`;
-
 const workflow = [
 	{
 		updatedAt: new Date().toISOString(),
 		createdAt: new Date().toISOString(),
 		id: workflowId,
 		name: "Fireflies Opportunity Meeting Notes Mock",
-		description: "Manual mock workflow that emits best-guess Fireflies webhook and transcript payloads, builds the downstream Acumatica approval payload, and can create the approval row plus transcript attachment through the Default endpoint using an n8n OAuth2 API credential.",
+		description: "Manual mock workflow that emits best-guess Fireflies webhook and transcript payloads, builds the downstream Acumatica approval payload, and creates a pending approval record through the LSOpportunityNotes endpoint. TranscriptHtml is the pending-review source of truth; Acumatica creates the activity attachment during approval.",
 		active: false,
 		isArchived: false,
 		nodes: [
@@ -592,26 +488,11 @@ const workflow = [
 				},
 			},
 			{
-				id: "7",
-				name: "Build Transcript File",
-				type: "n8n-nodes-base.convertToFile",
-				typeVersion: 1.1,
-				position: [1820, 300],
-				parameters: {
-					operation: "toText",
-					sourceProperty: "transcriptFileText",
-					binaryPropertyName: "transcriptFile",
-					options: {
-						fileName: '={{ $json.transcriptFileName }}',
-					},
-				},
-			},
-			{
 				id: "8",
 				name: "Build Mock Preview",
 				type: "n8n-nodes-base.code",
 				typeVersion: 2,
-				position: [2080, 120],
+				position: [1820, 120],
 				parameters: {
 					mode: "runOnceForAllItems",
 					language: "javaScript",
@@ -623,7 +504,7 @@ const workflow = [
 				name: "Create Approval Record",
 				type: "n8n-nodes-base.httpRequest",
 				typeVersion: 4.4,
-				position: [2080, 320],
+				position: [1820, 320],
 				parameters: {
 					method: "PUT",
 					url: '={{ ($env.ACU_BASE_URL || "https://localhost:443") + "/" + ($env.ACU_INSTANCE_NAME || "demo") + "/entity/" + ($env.ACU_APPROVAL_ENDPOINT_NAME || "LSOpportunityNotes") + "/" + ($env.ACU_APPROVAL_ENDPOINT_VERSION || "25.200.001") + "/OpportunityNotesApproval" }}',
@@ -634,7 +515,6 @@ const workflow = [
 					specifyBody: "json",
 					jsonBody: '={{ $("Aggregate And Build Payload").first().json.acumaticaApprovalPayload }}',
 					options: {
-						allowUnauthorizedCerts: true,
 						timeout: 60000,
 						response: {
 							response: {
@@ -703,17 +583,6 @@ const workflow = [
 				],
 			},
 			"Aggregate And Build Payload": {
-				main: [
-					[
-						{
-							node: "Build Transcript File",
-							type: "main",
-							index: 0,
-						},
-					],
-				],
-			},
-			"Build Transcript File": {
 				main: [
 					[
 						{

@@ -104,14 +104,6 @@ namespace LSOpportunityMeetingNotesApproval
 		public virtual string MeetingTitle { get; set; }
 		#endregion
 
-		#region Subject
-		public abstract class subject : BqlString.Field<subject> { }
-
-		[PXDBString(255, IsUnicode = true)]
-		[PXUIField(DisplayName = "Activity Subject")]
-		public virtual string Subject { get; set; }
-		#endregion
-
 		#region MeetingSummary
 		public abstract class meetingSummary : BqlString.Field<meetingSummary> { }
 
@@ -150,31 +142,6 @@ namespace LSOpportunityMeetingNotesApproval
 		[PXDBText(IsUnicode = true)]
 		[PXUIField(DisplayName = "Participant Emails")]
 		public virtual string ParticipantEmails { get; set; }
-		#endregion
-
-		#region BAccountID
-		public abstract class bAccountID : BqlInt.Field<bAccountID> { }
-
-		[PXDBInt]
-		[PXUIField(DisplayName = "Business Account", Visibility = PXUIVisibility.SelectorVisible)]
-		[PXSelector(typeof(Search<BAccount.bAccountID>),
-			SubstituteKey = typeof(BAccount.acctCD),
-			DescriptionField = typeof(BAccount.acctName),
-			SelectorMode = PXSelectorMode.DisplayModeHint,
-			DirtyRead = true)]
-		public virtual int? BAccountID { get; set; }
-		#endregion
-
-		#region ContactID
-		public abstract class contactID : BqlInt.Field<contactID> { }
-
-		[PXDBInt]
-		[PXUIField(DisplayName = "Contact")]
-		[PXSelector(typeof(Contact.contactID),
-			DescriptionField = typeof(Contact.displayName),
-			SelectorMode = PXSelectorMode.DisplayModeText,
-			DirtyRead = true)]
-		public virtual int? ContactID { get; set; }
 		#endregion
 
 		#region SuggestedOpportunityID
@@ -307,41 +274,6 @@ namespace LSOpportunityMeetingNotesApproval
 		public virtual DateTime? ApprovedDateTime { get; set; }
 		#endregion
 
-		#region PostApprovalSyncStatus
-		public abstract class postApprovalSyncStatus : BqlString.Field<postApprovalSyncStatus> { }
-
-		[PXDBString(1, IsFixed = true)]
-		[PXDefault(LSOpportunityMeetingNotesApprovalSyncStatus.NotReady)]
-		[LSOpportunityMeetingNotesApprovalSyncStatus.List]
-		[PXUIField(DisplayName = "Post-Approval Sync Status")]
-		public virtual string PostApprovalSyncStatus { get; set; }
-		#endregion
-
-		#region PostApprovalSyncDateTime
-		public abstract class postApprovalSyncDateTime : BqlDateTime.Field<postApprovalSyncDateTime> { }
-
-		[PXDBDateAndTime(PreserveTime = true)]
-		[PXUIField(DisplayName = "Post-Approval Sync Date", Enabled = false)]
-		public virtual DateTime? PostApprovalSyncDateTime { get; set; }
-		#endregion
-
-		#region PostApprovalSyncError
-		public abstract class postApprovalSyncError : BqlString.Field<postApprovalSyncError> { }
-
-		[PXDBText(IsUnicode = true)]
-		[PXUIField(DisplayName = "Post-Approval Sync Error")]
-		public virtual string PostApprovalSyncError { get; set; }
-		#endregion
-
-		#region Processed
-		public abstract class processed : BqlBool.Field<processed> { }
-
-		[PXDBBool]
-		[PXDefault(false)]
-		[PXUIField(DisplayName = "Post-Approval Processed", Enabled = false)]
-		public virtual bool? Processed { get; set; }
-		#endregion
-
 		#region NoteID
 		public abstract class noteID : BqlGuid.Field<noteID> { }
 
@@ -437,41 +369,4 @@ namespace LSOpportunityMeetingNotesApproval
 		}
 	}
 
-	public static class LSOpportunityMeetingNotesApprovalSyncStatus
-	{
-		public const string NotReady = "N";
-		public const string Pending = "P";
-		public const string Synced = "S";
-		public const string Error = "E";
-
-		public class notReady : BqlString.Constant<notReady>
-		{
-			public notReady() : base(NotReady) { }
-		}
-
-		public class pending : BqlString.Constant<pending>
-		{
-			public pending() : base(Pending) { }
-		}
-
-		public class synced : BqlString.Constant<synced>
-		{
-			public synced() : base(Synced) { }
-		}
-
-		public class error : BqlString.Constant<error>
-		{
-			public error() : base(Error) { }
-		}
-
-		public class ListAttribute : PXStringListAttribute
-		{
-			public ListAttribute()
-				: base(
-					new[] { NotReady, Pending, Synced, Error },
-					new[] { "Not Ready", "Pending", "Synced", "Error" })
-			{
-			}
-		}
-	}
 }

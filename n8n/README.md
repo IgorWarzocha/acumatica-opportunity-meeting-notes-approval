@@ -10,11 +10,7 @@
 - `build-fireflies-mock-workflow.mjs`
   - Generates the manual mock workflow JSON artifact.
 - `fireflies-opportunity-meeting-notes-mock.workflow.json`
-  - Importable mock workflow export that produces best-guess Fireflies and Acumatica payloads without calling Fireflies, and can post the approval row plus transcript attachment into Acumatica once an OAuth2 credential is attached.
-- `build-opportunity-summary-sync-workflow.mjs`
-  - Legacy builder for the earlier post-approval summary-sync concept.
-- `opportunity-summary-sync.workflow.json`
-  - Legacy workflow export retained for reference only; current direction is to keep approval-side business logic in Acumatica.
+  - Importable mock workflow export that produces best-guess Fireflies and Acumatica payloads without calling Fireflies, and can post the pending approval row into Acumatica once an OAuth2 credential is attached.
 - `fireflies-webhook.best-guess.json`
   - Best-guess minimal Fireflies webhook event payload.
 - `fireflies-transcript.best-guess.json`
@@ -43,17 +39,15 @@ Workflow details:
 - workflow name: `Fireflies Opportunity Meeting Notes Approval`
 - mock workflow ID: `c7d3a9e3-3d37-4dc5-bb52-f4c390c409ea`
 - mock workflow name: `Fireflies Opportunity Meeting Notes Mock`
-- summary sync workflow ID: `f251dd7b-9f0d-4cb1-bd6e-2d8a68c00d46`
-- summary sync workflow name: `Opportunity Summary Sync` (legacy / not current target)
-
 ## Current Source of Truth
 
 Use the March 27, 2026 client conversation as the authoritative contract when older repo notes disagree.
 
 - Fireflies goes through `n8n` only.
-- `n8n` creates the pending `OpportunityNotesApproval` row and uploads the generated HTML transcript.
+- `n8n` creates the pending `OpportunityNotesApproval` row.
+- `TranscriptHtml` is the pending-review source of truth.
 - Acumatica `Approve` creates the official `CRActivity` on the confirmed opportunity.
-- After approval, the transcript should live on the created `CRActivity`, not remain on the approval row.
+- During `Approve`, Acumatica generates the transcript attachment onto the created `CRActivity`.
 - Matching scope for opportunities is `Status ne 'Lost' and Status ne 'Won'`.
 - If multiple candidates are plausible, `SuggestedOpportunityID` may be populated but `ConfirmedOpportunityID` must remain blank for Stephen.
 - The client answer `Approve button + manual editing is fine.` confirms the approve flow is sufficient, but it does not explicitly ban a reject action.
@@ -93,20 +87,6 @@ These are runtime/deployment values for n8n and external connectivity. They are 
 - `ACU_APPROVAL_ENDPOINT_VERSION`
   - Optional.
   - Defaults to `25.200.001`.
-- `ACU_APPROVAL_FILE_URL_TEMPLATE`
-  - Optional override for the approval-record attachment upload route.
-  - Supported placeholders:
-    - `{baseUrl}`
-    - `{instance}`
-    - `{id}`
-    - `{fileName}`
-
-Example:
-
-```text
-{baseUrl}/{instance}/entity/LSOpportunityNotes/25.200.001/OpportunityNotesApproval/{id}/files/{fileName}
-```
-
 ## Acumatica Auth
 
 Use OAuth on the Acumatica HTTP Request nodes.
@@ -138,9 +118,6 @@ For Acumatica's built-in OAuth and n8n's generic OAuth2 credential, the best-gue
 The mock workflow JSON cannot embed the credential itself; attach your n8n Acumatica OAuth credential to these nodes after import:
 
 - `Create Approval Record`
-- `Upload Transcript Attachment`
-
-If you use self-signed HTTPS in dev, keep `allowUnauthorizedCerts = true` on the HTTP Request nodes.
 
 ## Current Matching Behavior
 
@@ -154,7 +131,7 @@ The workflow currently uses deterministic matching inside a `Code` node:
   - business account alignment
   - keyword overlap between Fireflies title/summary and opportunity subject
 - always leaves `ConfirmedOpportunityID` blank so Acumatica can remain the human confirmation boundary
-- only sends numeric `BAccountID` and `ContactID` values into Acumatica fields
+- only sends `SuggestedOpportunityID`; Acumatica derives account/contact from `ConfirmedOpportunityID` during approval
 
 This is a practical dev-safe placeholder. It is not the final LLM-assisted ranking step described in the PRD.
 
@@ -168,10 +145,6 @@ The target contract is the custom `LSOpportunityNotes` endpoint:
   - `GET /entity/Default/25.200.001/Opportunity`
 - create approval row:
   - `PUT /entity/LSOpportunityNotes/25.200.001/OpportunityNotesApproval`
-- upload transcript attachment:
-  - `PUT /entity/LSOpportunityNotes/25.200.001/OpportunityNotesApproval/{approvalId}/files/{fileName}`
-
-The workflow now prefers the create response file-upload link in `_links` and falls back to the configured template only if that link is absent.
 
 The payload includes:
 
@@ -184,12 +157,9 @@ The payload includes:
 - `TranscriptUrl`
 - `OrganizerEmail`
 - `ParticipantEmails`
-- `BAccountID`
-- `ContactID`
 - `SuggestedOpportunityID`
 - `ConfirmedOpportunityID`
 - `MatchDiagnostics`
-- `Subject`
 
 `ConfirmedOpportunityID` is intentionally sent blank. n8n only proposes `SuggestedOpportunityID`; Stephen confirms or corrects the real opportunity inside Acumatica before approval.
 
@@ -222,50 +192,26 @@ the mock workflow was executed successfully against the local instance and creat
 - `Status = Pending`
 - `NoteID = DC827F75-AB31-F111-B9AE-E014DE1E9F70`
 
-The created approval row also has a linked file note entry in `NoteDoc`, confirming transcript attachment creation on the pending approval record before approval.
-
-## Legacy Post-Approval Sync Workflow
-
-The second workflow is retained only as a reference artifact from an earlier design. The current direction is:
-
-- n8n feeds the pending approval record
-- Acumatica owns `Approve`
-- Acumatica owns the final official CRM activity creation
-- approved rows should not remain in the processing grid
-
-## Current Dev Assumptions
-
-The Acumatica HTTP nodes currently have `allowUnauthorizedCerts = true` because the dev environment is expected to use local or self-signed HTTPS.
-
-For production:
-
-- remove or disable that behavior
-- move auth into proper n8n credentials or deployment-managed secrets
-- confirm the final `Default` entity exposure and file-upload path against the implemented Acumatica extension
-- finalize the remaining deferred transcript-file policy from `development/docs/deferred.md`
+The created approval row keeps `TranscriptHtml` populated for review before approval. On approve, Acumatica creates the transcript attachment onto the resulting `CRActivity`.
 
 ## Import Commands
 
 Regenerate workflow JSON:
 
 ```bash
-node /home/igorw/Work/acumatica/development/n8n/build-fireflies-opportunity-workflow.mjs
-node /home/igorw/Work/acumatica/development/n8n/build-fireflies-mock-workflow.mjs
-node /home/igorw/Work/acumatica/development/n8n/build-opportunity-summary-sync-workflow.mjs
-node /home/igorw/Work/acumatica/development/n8n/simulate-fireflies-flow.mjs --output fireflies-mock-preview.best-guess.json
+node /home/igorw/Work/acumatica/development/package/ls-opportunity-meeting-notes-approval/n8n/build-fireflies-opportunity-workflow.mjs
+node /home/igorw/Work/acumatica/development/package/ls-opportunity-meeting-notes-approval/n8n/build-fireflies-mock-workflow.mjs
+node /home/igorw/Work/acumatica/development/package/ls-opportunity-meeting-notes-approval/n8n/simulate-fireflies-flow.mjs --output fireflies-mock-preview.best-guess.json
 ```
 
 Import into local Dockerized n8n:
 
 ```bash
-docker cp /home/igorw/Work/acumatica/development/n8n/fireflies-opportunity-meeting-notes-approval.workflow.json n8n:/tmp/fireflies-opportunity.workflow.json
+docker cp /home/igorw/Work/acumatica/development/package/ls-opportunity-meeting-notes-approval/n8n/fireflies-opportunity-meeting-notes-approval.workflow.json n8n:/tmp/fireflies-opportunity.workflow.json
 docker exec n8n sh -lc 'n8n import:workflow --input=/tmp/fireflies-opportunity.workflow.json --projectId=DNPLHdu0cQi68Md0'
 
-docker cp /home/igorw/Work/acumatica/development/n8n/fireflies-opportunity-meeting-notes-mock.workflow.json n8n:/tmp/fireflies-opportunity-mock.workflow.json
+docker cp /home/igorw/Work/acumatica/development/package/ls-opportunity-meeting-notes-approval/n8n/fireflies-opportunity-meeting-notes-mock.workflow.json n8n:/tmp/fireflies-opportunity-mock.workflow.json
 docker exec n8n sh -lc 'n8n import:workflow --input=/tmp/fireflies-opportunity-mock.workflow.json --projectId=DNPLHdu0cQi68Md0'
-
-docker cp /home/igorw/Work/acumatica/development/n8n/opportunity-summary-sync.workflow.json n8n:/tmp/opportunity-summary-sync.workflow.json
-docker exec n8n sh -lc 'n8n import:workflow --input=/tmp/opportunity-summary-sync.workflow.json --projectId=DNPLHdu0cQi68Md0'
 ```
 
 Export all workflows:
@@ -293,7 +239,7 @@ What it does:
 - starts from a manual trigger
 - loads the checked-in current client Fireflies payload fixture
 - runs the same normalization and opportunity-matching logic shape as the main workflow
-- can call Acumatica to create the approval row and upload the generated `.html` transcript once the OAuth2 credential is attached
+- can call Acumatica to create the approval row once the OAuth2 credential is attached
 - emits:
   - `firefliesWebhookPayload`
   - `firefliesTranscriptResponse`
@@ -305,7 +251,7 @@ This lets you continue work on:
 
 - Acumatica endpoint field mapping
 - approval-record schema validation
-- transcript attachment handling
+- activity attachment generation during approval
 - downstream payload inspection
 
 without needing a live Fireflies tenant yet.
@@ -317,7 +263,7 @@ Use the simulator when you want a deterministic output without depending on the 
 Command:
 
 ```bash
-node /home/igorw/Work/acumatica/development/n8n/simulate-fireflies-flow.mjs --output fireflies-mock-preview.best-guess.json
+node /home/igorw/Work/acumatica/development/package/ls-opportunity-meeting-notes-approval/n8n/simulate-fireflies-flow.mjs --output fireflies-mock-preview.best-guess.json
 ```
 
 What it does:
@@ -342,4 +288,3 @@ That means browser inspection is still useful for confirming the environment beh
 
 1. The workflows are imported and structurally valid in n8n, but they have not yet been end-to-end executed against real Fireflies and live Acumatica credentials because the dev tenant still intermittently trips API-seat/session limits during automated login attempts.
 2. The opportunity ranking step is still deterministic. If you want LLM-assisted ranking in v1, that still needs to replace or augment the current scoring node.
-3. The downstream summary destination is intentionally generic. `OPPORTUNITY_SUMMARY_UPSERT_URL` still needs to point at the real RAG-summary writer once that service contract is finalized.

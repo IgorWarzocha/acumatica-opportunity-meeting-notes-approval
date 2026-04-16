@@ -37,11 +37,6 @@ export class LSOpportunityMeetingNotesApprovalDocument extends PXView {
 	@controlConfig<IDatetimeEditControlConfig>({ preserveTimezone: true })
 	MeetingDate: PXFieldState<PXFieldOptions.CommitChanges>;
 	MeetingTitle: PXFieldState<PXFieldOptions.CommitChanges>;
-	Subject: PXFieldState<PXFieldOptions.CommitChanges>;
-	@controlConfig<ISelectorControlConfig>({ allowEdit: true })
-	BAccountID: PXFieldState<PXFieldOptions.CommitChanges>;
-	@controlConfig<ISelectorControlConfig>({ allowEdit: true })
-	ContactID: PXFieldState<PXFieldOptions.CommitChanges>;
 
 	@linkCommand("ViewSuggestedOpportunity")
 	@controlConfig({ allowEdit: true })
@@ -58,10 +53,6 @@ export class LSOpportunityMeetingNotesApprovalDocument extends PXView {
 	ActivityNoteID: PXFieldState<PXFieldOptions.Disabled>;
 	@controlConfig<IDatetimeEditControlConfig>({ preserveTimezone: true })
 	ApprovedDateTime: PXFieldState<PXFieldOptions.Disabled>;
-	PostApprovalSyncStatus: PXFieldState;
-	@controlConfig<IDatetimeEditControlConfig>({ preserveTimezone: true })
-	PostApprovalSyncDateTime: PXFieldState<PXFieldOptions.Disabled>;
-	Processed: PXFieldState;
 	@controlConfig<IDatetimeEditControlConfig>({ preserveTimezone: true })
 	CreatedDateTime: PXFieldState<PXFieldOptions.Disabled>;
 	ParticipantEmails: PXFieldState<PXFieldOptions.Multiline>;
@@ -69,5 +60,4 @@ export class LSOpportunityMeetingNotesApprovalDocument extends PXView {
 	TranscriptHtml: PXFieldState<PXFieldOptions.Multiline>;
 	MatchDiagnostics: PXFieldState<PXFieldOptions.Multiline>;
 	ErrorMessage: PXFieldState<PXFieldOptions.Multiline | PXFieldOptions.Disabled>;
-	PostApprovalSyncError: PXFieldState<PXFieldOptions.Multiline | PXFieldOptions.Disabled>;
 }

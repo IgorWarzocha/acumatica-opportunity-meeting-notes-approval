@@ -9,14 +9,11 @@
 				<Field name="Status" type="StringValue" />
 				<Field name="MeetingDate" type="DateTimeValue" />
 				<Field name="MeetingTitle" type="StringValue" />
-				<Field name="Subject" type="StringValue" />
 				<Field name="MeetingSummary" type="StringValue" />
 				<Field name="TranscriptHtml" type="StringValue" />
 				<Field name="TranscriptUrl" type="StringValue" />
 				<Field name="OrganizerEmail" type="StringValue" />
 				<Field name="ParticipantEmails" type="StringValue" />
-				<Field name="BAccountID" type="IntValue" />
-				<Field name="ContactID" type="IntValue" />
 				<Field name="SuggestedOpportunityID" type="StringValue" />
 				<Field name="ConfirmedOpportunityID" type="StringValue" />
 				<Field name="MatchDiagnostics" type="StringValue" />
@@ -24,10 +21,6 @@
 				<Field name="ActivityNoteID" type="GuidValue" />
 				<Field name="ApprovedByID" type="GuidValue" />
 				<Field name="ApprovedDateTime" type="DateTimeValue" />
-				<Field name="PostApprovalSyncStatus" type="StringValue" />
-				<Field name="PostApprovalSyncDateTime" type="DateTimeValue" />
-				<Field name="PostApprovalSyncError" type="StringValue" />
-				<Field name="Processed" type="BooleanValue" />
 				<Field name="NoteID" type="GuidValue" />
 				<Field name="CreatedDateTime" type="DateTimeValue" />
 				<Field name="LastModifiedDateTime" type="DateTimeValue" />
@@ -39,14 +32,11 @@
 				<Mapping field="Status"><To object="Document" field="Status" /></Mapping>
 				<Mapping field="MeetingDate"><To object="Document" field="MeetingDate" /></Mapping>
 				<Mapping field="MeetingTitle"><To object="Document" field="MeetingTitle" /></Mapping>
-				<Mapping field="Subject"><To object="Document" field="Subject" /></Mapping>
 				<Mapping field="MeetingSummary"><To object="Document" field="MeetingSummary" /></Mapping>
 				<Mapping field="TranscriptHtml"><To object="Document" field="TranscriptHtml" /></Mapping>
 				<Mapping field="TranscriptUrl"><To object="Document" field="TranscriptUrl" /></Mapping>
 				<Mapping field="OrganizerEmail"><To object="Document" field="OrganizerEmail" /></Mapping>
 				<Mapping field="ParticipantEmails"><To object="Document" field="ParticipantEmails" /></Mapping>
-				<Mapping field="BAccountID"><To object="Document" field="BAccountID" /></Mapping>
-				<Mapping field="ContactID"><To object="Document" field="ContactID" /></Mapping>
 				<Mapping field="SuggestedOpportunityID"><To object="Document" field="SuggestedOpportunityID" /></Mapping>
 				<Mapping field="ConfirmedOpportunityID"><To object="Document" field="ConfirmedOpportunityID" /></Mapping>
 				<Mapping field="MatchDiagnostics"><To object="Document" field="MatchDiagnostics" /></Mapping>
@@ -54,10 +44,6 @@
 				<Mapping field="ActivityNoteID"><To object="Document" field="ActivityNoteID" /></Mapping>
 				<Mapping field="ApprovedByID"><To object="Document" field="ApprovedByID" /></Mapping>
 				<Mapping field="ApprovedDateTime"><To object="Document" field="ApprovedDateTime" /></Mapping>
-				<Mapping field="PostApprovalSyncStatus"><To object="Document" field="PostApprovalSyncStatus" /></Mapping>
-				<Mapping field="PostApprovalSyncDateTime"><To object="Document" field="PostApprovalSyncDateTime" /></Mapping>
-				<Mapping field="PostApprovalSyncError"><To object="Document" field="PostApprovalSyncError" /></Mapping>
-				<Mapping field="Processed"><To object="Document" field="Processed" /></Mapping>
 				<Mapping field="NoteID"><To object="Document" field="NoteID" /></Mapping>
 				<Mapping field="CreatedDateTime"><To object="Document" field="CreatedDateTime" /></Mapping>
 				<Mapping field="LastModifiedDateTime"><To object="Document" field="LastModifiedDateTime" /></Mapping>

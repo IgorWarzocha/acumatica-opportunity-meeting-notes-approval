@@ -13,10 +13,6 @@ namespace LSOpportunityMeetingNotesApproval
 {
 	public class LSOpportunityMeetingNotesApprovalEntry : PXGraph<LSOpportunityMeetingNotesApprovalEntry, LSOpportunityMeetingNotesApproval>
 	{
-		#region Fields
-		private bool _syncingTranscriptAttachments;
-		#endregion
-
 		#region Views
 		[PXCopyPasteHiddenFields(typeof(LSOpportunityMeetingNotesApproval.transcriptHtml), typeof(LSOpportunityMeetingNotesApproval.matchDiagnostics))]
 		public PXSelect<LSOpportunityMeetingNotesApproval> Document;
@@ -103,51 +99,12 @@ namespace LSOpportunityMeetingNotesApproval
 		}
 		#endregion
 
-		#region Overrides
-		public override void Persist()
-		{
-			if (_syncingTranscriptAttachments)
-			{
-				base.Persist();
-				return;
-			}
-
-			base.Persist();
-
-			bool transcriptAttached = false;
-			foreach (LSOpportunityMeetingNotesApproval approvalRecord in Document.Cache.Cached.OfType<LSOpportunityMeetingNotesApproval>())
-			{
-				transcriptAttached |= EnsureTranscriptAttachmentMethod(this, approvalRecord);
-			}
-
-			if (!transcriptAttached)
-			{
-				return;
-			}
-
-			_syncingTranscriptAttachments = true;
-			try
-			{
-				base.Persist();
-			}
-			finally
-			{
-				_syncingTranscriptAttachments = false;
-			}
-		}
-		#endregion
-
 		#region Events
 		protected virtual void _(Events.RowInserted<LSOpportunityMeetingNotesApproval> e)
 		{
 			if (e.Row == null)
 			{
 				return;
-			}
-
-			if (string.IsNullOrWhiteSpace(e.Row.Subject))
-			{
-				e.Row.Subject = e.Row.MeetingTitle;
 			}
 		}
 
@@ -168,11 +125,6 @@ namespace LSOpportunityMeetingNotesApproval
 			if (e.Row == null || e.Operation.Command() == PXDBOperation.Delete)
 			{
 				return;
-			}
-
-			if (string.IsNullOrWhiteSpace(e.Row.Subject) && !string.IsNullOrWhiteSpace(e.Row.MeetingTitle))
-			{
-				e.Row.Subject = e.Row.MeetingTitle;
 			}
 
 			if (!string.IsNullOrWhiteSpace(e.Row.ExternalMeetingID))
@@ -232,27 +184,27 @@ namespace LSOpportunityMeetingNotesApproval
 							throw new PXException(LSOpportunityMeetingNotesApprovalMessages.OpportunityNotFound, approvalRecord.ConfirmedOpportunityID);
 						}
 
+						string transcriptHtml = approvalRecord.TranscriptHtml;
+						if (string.IsNullOrWhiteSpace(transcriptHtml))
+						{
+							throw new PXException(LSOpportunityMeetingNotesApprovalMessages.TranscriptHtmlIsRequiredForApproval);
+						}
+
 						CRActivityMaint activityGraph = PXGraph.CreateInstance<CRActivityMaint>();
 						CRActivity activity = activityGraph.Activities.Insert();
-						string activityBody = string.IsNullOrWhiteSpace(approvalRecord.TranscriptHtml)
-							? approvalRecord.MeetingSummary
-							: approvalRecord.TranscriptHtml;
 
-						activity.Subject = string.IsNullOrWhiteSpace(approvalRecord.Subject)
-							? string.IsNullOrWhiteSpace(approvalRecord.MeetingTitle)
-								? LSOpportunityMeetingNotesApprovalMessages.DefaultMeetingNotesSummarySubject
-								: approvalRecord.MeetingTitle
-							: approvalRecord.Subject;
+						activity.Subject = string.IsNullOrWhiteSpace(approvalRecord.MeetingTitle)
+							? LSOpportunityMeetingNotesApprovalMessages.DefaultMeetingNotesSummarySubject
+							: approvalRecord.MeetingTitle;
 						activity.RefNoteID = opportunity.NoteID;
-						activity.BAccountID = opportunity.BAccountID ?? approvalRecord.BAccountID;
-						activity.ContactID = opportunity.ContactID ?? approvalRecord.ContactID;
+						activity.BAccountID = opportunity.BAccountID;
+						activity.ContactID = opportunity.ContactID;
 						activity.StartDate = approvalRecord.MeetingDate;
 						activity.EndDate = approvalRecord.MeetingDate;
-						activity.Body = activityBody;
+						activity.Body = transcriptHtml;
 						activity = activityGraph.Activities.Update(activity);
 
-						EnsureTranscriptAttachmentMethod(graph, approvalRecord);
-						MoveFilesToActivity(graph.Document.Cache, approvalRecord, activityGraph.Activities.Cache, activity);
+						EnsureTranscriptAttachmentOnActivity(activityGraph.Activities.Cache, activity, approvalRecord, transcriptHtml);
 
 						activityGraph.Actions.PressSave();
 
@@ -261,12 +213,6 @@ namespace LSOpportunityMeetingNotesApproval
 						approvalRecord.ApprovedByID = graph.Accessinfo.UserID;
 						approvalRecord.ApprovedDateTime = PXTimeZoneInfo.Now;
 						approvalRecord.ErrorMessage = null;
-						approvalRecord.PostApprovalSyncStatus = LSOpportunityMeetingNotesApprovalSyncStatus.NotReady;
-						approvalRecord.PostApprovalSyncDateTime = null;
-						approvalRecord.PostApprovalSyncError = null;
-						approvalRecord.Processed = false;
-						approvalRecord.BAccountID = activity.BAccountID;
-						approvalRecord.ContactID = activity.ContactID;
 						graph.Document.Update(approvalRecord);
 						graph.Actions.PressSave();
 
@@ -330,10 +276,6 @@ namespace LSOpportunityMeetingNotesApproval
 
 						approvalRecord.Status = LSOpportunityMeetingNotesApprovalStatus.Rejected;
 						approvalRecord.ErrorMessage = null;
-						approvalRecord.PostApprovalSyncStatus = LSOpportunityMeetingNotesApprovalSyncStatus.NotReady;
-						approvalRecord.PostApprovalSyncDateTime = PXTimeZoneInfo.Now;
-						approvalRecord.PostApprovalSyncError = null;
-						approvalRecord.Processed = true;
 						graph.Document.Update(approvalRecord);
 						graph.Actions.PressSave();
 
@@ -361,20 +303,19 @@ namespace LSOpportunityMeetingNotesApproval
 		#endregion
 
 		#region Helpers
-		public static bool EnsureTranscriptAttachmentMethod(PXGraph context, LSOpportunityMeetingNotesApproval approvalRecord)
+		public static bool EnsureTranscriptAttachmentOnActivity(PXCache targetCache, object targetRow, LSOpportunityMeetingNotesApproval approvalRecord, string transcriptHtml)
 		{
-			if (context == null)
+			if (targetCache == null)
 			{
-				throw new PXArgumentException(nameof(context));
+				throw new PXArgumentException(nameof(targetCache));
 			}
 
-			if (approvalRecord?.NoteID == null || string.IsNullOrWhiteSpace(approvalRecord.TranscriptHtml))
+			if (targetRow == null || string.IsNullOrWhiteSpace(transcriptHtml))
 			{
 				return false;
 			}
 
-			PXCache cache = context.Caches<LSOpportunityMeetingNotesApproval>();
-			Guid[] existingFiles = PXNoteAttribute.GetFileNotes(cache, approvalRecord) ?? Array.Empty<Guid>();
+			Guid[] existingFiles = PXNoteAttribute.GetFileNotes(targetCache, targetRow) ?? Array.Empty<Guid>();
 			if (existingFiles.Length > 0)
 			{
 				return false;
@@ -382,27 +323,15 @@ namespace LSOpportunityMeetingNotesApproval
 
 			UploadFileMaintenance uploadGraph = PXGraph.CreateInstance<UploadFileMaintenance>();
 			string fileName = BuildTranscriptFileName(approvalRecord);
-			FileInfo file = new FileInfo(fileName, null, Encoding.UTF8.GetBytes(approvalRecord.TranscriptHtml));
+			FileInfo file = new FileInfo(fileName, null, Encoding.UTF8.GetBytes(transcriptHtml));
 			if (!uploadGraph.SaveFile(file, FileExistsAction.CreateVersion) || file.UID == null)
 			{
 				throw new PXException(LSOpportunityMeetingNotesApprovalMessages.TranscriptAttachmentCouldNotBeCreated);
 			}
 
-			PXNoteAttribute.SetFileNotes(cache, approvalRecord, new[] { file.UID.Value });
-			cache.Update(approvalRecord);
+			PXNoteAttribute.SetFileNotes(targetCache, targetRow, new[] { file.UID.Value });
+			targetCache.Update(targetRow);
 			return true;
-		}
-
-		public static void MoveFilesToActivity(PXCache sourceCache, object sourceRow, PXCache targetCache, object targetRow)
-		{
-			Guid[] files = PXNoteAttribute.GetFileNotes(sourceCache, sourceRow);
-			if (files == null || files.Length == 0)
-			{
-				return;
-			}
-
-			PXNoteAttribute.SetFileNotes(targetCache, targetRow, files);
-			PXNoteAttribute.SetFileNotes(sourceCache, sourceRow, Array.Empty<Guid>());
 		}
 
 		public static CROpportunity FindOpportunity(PXGraph graph, string opportunityID)
@@ -439,10 +368,6 @@ namespace LSOpportunityMeetingNotesApproval
 
 			approvalRecord.Status = LSOpportunityMeetingNotesApprovalStatus.Error;
 			approvalRecord.ErrorMessage = errorMessage;
-			approvalRecord.PostApprovalSyncStatus = LSOpportunityMeetingNotesApprovalSyncStatus.Error;
-			approvalRecord.PostApprovalSyncDateTime = PXTimeZoneInfo.Now;
-			approvalRecord.PostApprovalSyncError = errorMessage;
-			approvalRecord.Processed = false;
 			graph.Document.Update(approvalRecord);
 			graph.Actions.PressSave();
 		}

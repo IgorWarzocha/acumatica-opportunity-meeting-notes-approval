@@ -335,8 +335,8 @@ const keywordSet = (value) => new Set(
 
 const scoreOpportunity = (opportunity, matchCorpus, businessAccounts) => {
 	let score = 0;
-	const subject = String(readValue(opportunity, "Subject", "subject") ?? "");
-	const subjectKeywords = keywordSet(subject);
+	const opportunitySubject = String(readValue(opportunity, "Subject", "subject") ?? "");
+	const subjectKeywords = keywordSet(opportunitySubject);
 	const corpusKeywords = keywordSet(matchCorpus);
 
 	for (const word of subjectKeywords) {
@@ -428,16 +428,7 @@ const suggestedOpportunityID = hasUniqueBestCandidate ? bestCandidate.opportunit
 // Acumatica owns final confirmation. n8n may suggest a candidate, but Stephen must
 // explicitly confirm or correct ConfirmedOpportunityID before approval.
 const confirmedOpportunityID = null;
-
-const subject = (firstMeeting.title || "Meeting Notes Summary").slice(0, 255);
 const participantEmails = Array.isArray(firstMeeting.participantEmails) ? firstMeeting.participantEmails : [];
-const primaryContact = matchedContacts[0] ?? null;
-// Do not send BAccountID / ContactID yet.
-// The runtime Default endpoint on this instance accepts opportunity suggestions,
-// but the contact/account identifiers derived from lookup responses are not yet
-// stable enough to post back safely across tenants.
-const primaryBAccountID = null;
-const primaryContactID = null;
 
 const acumaticaApprovalPayload = {
 	ExternalMeetingID: { value: firstMeeting.meetingId },
@@ -467,16 +458,7 @@ const acumaticaApprovalPayload = {
 			})),
 		}),
 	},
-	Subject: { value: subject },
 };
-
-if (primaryBAccountID != null) {
-	acumaticaApprovalPayload.BAccountID = { value: primaryBAccountID };
-}
-
-if (primaryContactID != null) {
-	acumaticaApprovalPayload.ContactID = { value: primaryContactID };
-}
 
 if (suggestedOpportunityID) {
 	acumaticaApprovalPayload.SuggestedOpportunityID = { value: suggestedOpportunityID };
@@ -495,9 +477,6 @@ return [
 			meetingTitle: firstMeeting.title,
 			meetingSummary: firstMeeting.summaryText || "Meeting Notes Summary",
 			transcriptHtml: firstMeeting.transcriptHtml,
-			// Deferred: if Fireflies exposes a durable downloadable original transcript artifact,
-			// prefer attaching that original file instead of this generated HTML transcript.
-			transcriptFileText: firstMeeting.transcriptHtml,
 			transcriptFileName: firstMeeting.transcriptFileName,
 			transcriptUrl: firstMeeting.transcriptUrl,
 			organizerEmail: firstMeeting.organizerEmail,
@@ -513,97 +492,13 @@ return [
 ];
 `;
 
-const prepareAttachmentUploadCode = String.raw`
-const createResponse = $input.first()?.json ?? {};
-const fileSource = $('Build Transcript File').first();
-
-const readValue = (record, ...keys) => {
-	if (!record || typeof record !== "object") {
-		return null;
-	}
-
-	for (const key of keys) {
-		if (!(key in record)) {
-			continue;
-		}
-
-		const value = record[key];
-		if (value && typeof value === "object" && "value" in value) {
-			return value.value;
-		}
-		if (value !== undefined) {
-			return value;
-		}
-	}
-
-	return null;
-};
-
-const approvalId = readValue(
-	createResponse,
-	"ApprovalID",
-	"id",
-	"ID",
-	"NoteID",
-);
-
-if (!approvalId) {
-	throw new Error("Create Approval Record response did not include an approval identifier");
-}
-
-const candidateFileHref =
-	createResponse?._links?.["files:put"]?.href ||
-	createResponse?._links?.["files:upload"]?.href ||
-	createResponse?._links?.files?.href ||
-	createResponse?._links?.Files?.href ||
-	null;
-
-const baseUrl = $env.ACU_BASE_URL || "https://localhost:443";
-const instanceName = $env.ACU_INSTANCE_NAME || "demo";
-const approvalEndpointName = $env.ACU_APPROVAL_ENDPOINT_NAME || "LSOpportunityNotes";
-const approvalEndpointVersion = $env.ACU_APPROVAL_ENDPOINT_VERSION || "25.200.001";
-const fileName = fileSource?.json?.transcriptFileName || "meeting-notes.html";
-
-let uploadUrl;
-if (candidateFileHref) {
-	uploadUrl = candidateFileHref
-		.replaceAll("{fileName}", encodeURIComponent(fileName))
-		.replaceAll("{filename}", encodeURIComponent(fileName))
-		.replaceAll("{name}", encodeURIComponent(fileName));
-
-	if (/^\//.test(uploadUrl)) {
-		uploadUrl = baseUrl + uploadUrl;
-	}
-} else if ($env.ACU_APPROVAL_FILE_URL_TEMPLATE) {
-	uploadUrl = $env.ACU_APPROVAL_FILE_URL_TEMPLATE
-		.replaceAll("{baseUrl}", baseUrl)
-		.replaceAll("{instance}", instanceName)
-		.replaceAll("{id}", encodeURIComponent(String(approvalId)))
-		.replaceAll("{fileName}", encodeURIComponent(fileName));
-} else {
-	uploadUrl = baseUrl + "/" + instanceName + "/entity/" + approvalEndpointName + "/" + approvalEndpointVersion + "/OpportunityNotesApproval/" + encodeURIComponent(String(approvalId)) + "/files/" + encodeURIComponent(fileName);
-}
-
-return [
-	{
-		json: {
-			approvalId: String(approvalId),
-			fileName,
-			uploadUrl,
-			createResponse,
-		},
-		binary: fileSource?.binary ?? {},
-	},
-];
-`;
-
 const workflow = [
 	{
 		updatedAt: new Date().toISOString(),
 		createdAt: new Date().toISOString(),
 		id: workflowId,
 		name: "Fireflies Opportunity Meeting Notes Approval",
-		description: "Receives Fireflies webhook events, fetches transcript data, suggests an Acumatica opportunity, creates a pending approval record through the Default endpoint, and uploads the transcript attachment. Dev-safe defaults use env vars so prod can override endpoints and auth.",
+		description: "Receives Fireflies webhook events, fetches transcript data, suggests an Acumatica opportunity, and creates a pending approval record through the LSOpportunityNotes endpoint. TranscriptHtml is the pending-review source of truth; Acumatica creates the activity attachment during approval.",
 		active: false,
 		isArchived: false,
 		nodes: [
@@ -719,7 +614,6 @@ const workflow = [
 						],
 					},
 					options: {
-						allowUnauthorizedCerts: true,
 						timeout: 60000,
 						response: {
 							response: {
@@ -755,9 +649,6 @@ const workflow = [
 						],
 					},
 					options: {
-						// Deferred: tighten this to the final client-approved definition of
-						// scope if business-account-specific filtering is later required.
-						allowUnauthorizedCerts: true,
 						timeout: 60000,
 						response: {
 							response: {
@@ -781,26 +672,11 @@ const workflow = [
 				},
 			},
 			{
-				id: "9",
-				name: "Build Transcript File",
-				type: "n8n-nodes-base.convertToFile",
-				typeVersion: 1.1,
-				position: [2080, 300],
-				parameters: {
-					operation: "toText",
-					sourceProperty: "transcriptFileText",
-					binaryPropertyName: "transcriptFile",
-					options: {
-						fileName: '={{ $json.transcriptFileName }}',
-					},
-				},
-			},
-			{
 				id: "10",
 				name: "Create Approval Record",
 				type: "n8n-nodes-base.httpRequest",
 				typeVersion: 4.4,
-				position: [2340, 300],
+				position: [2080, 300],
 				parameters: {
 					method: "PUT",
 					url: '={{ ($env.ACU_BASE_URL || "https://localhost:443") + "/" + ($env.ACU_INSTANCE_NAME || "demo") + "/entity/" + ($env.ACU_APPROVAL_ENDPOINT_NAME || "LSOpportunityNotes") + "/" + ($env.ACU_APPROVAL_ENDPOINT_VERSION || "25.200.001") + "/OpportunityNotesApproval" }}',
@@ -811,7 +687,6 @@ const workflow = [
 					specifyBody: "json",
 					jsonBody: '={{ $("Aggregate And Build Payload").first().json.acumaticaApprovalPayload }}',
 					options: {
-						allowUnauthorizedCerts: true,
 						timeout: 60000,
 						response: {
 							response: {
@@ -902,17 +777,6 @@ const workflow = [
 				],
 			},
 			"Aggregate And Build Payload": {
-				main: [
-					[
-						{
-							node: "Build Transcript File",
-							type: "main",
-							index: 0,
-						},
-					],
-				],
-			},
-			"Build Transcript File": {
 				main: [
 					[
 						{

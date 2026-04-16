@@ -219,8 +219,6 @@ const topCandidates = bestCandidate
 const hasUniqueBestCandidate = topCandidates.length === 1;
 const suggestedOpportunityID = hasUniqueBestCandidate ? bestCandidate.opportunityID : null;
 const confirmedOpportunityID = null;
-const primaryContact = matchedContacts[0] ?? null;
-const subject = meetingTitle.slice(0, 255);
 
 const preview = {
 	firefliesWebhookPayload: webhookFixture,
@@ -235,8 +233,6 @@ const preview = {
 		TranscriptUrl: { value: transcript.transcriptUrl || "" },
 		OrganizerEmail: { value: normalizeEmail(transcript.host) },
 		ParticipantEmails: { value: participantEmails.join(";") },
-		BAccountID: { value: primaryContact?.bAccountID ?? "" },
-		ContactID: { value: primaryContact?.contactID ?? "" },
 		SuggestedOpportunityID: { value: suggestedOpportunityID ?? "" },
 		ConfirmedOpportunityID: { value: confirmedOpportunityID ?? "" },
 		MatchDiagnostics: {
@@ -247,7 +243,6 @@ const preview = {
 				ambiguousTopCandidates: hasUniqueBestCandidate ? [] : topCandidates,
 			}),
 		},
-		Subject: { value: subject },
 	},
 	suggestedOpportunityID,
 	confirmedOpportunityID,

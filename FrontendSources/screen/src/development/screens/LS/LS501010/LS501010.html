@@ -10,12 +10,11 @@
 			<field name="ExternalMeetingID" pinned></field>
 			<field name="ExternalClientReferenceID"></field>
 			<field name="MeetingTitle" pinned></field>
-			<field name="Subject" pinned="false"></field>
 		</qp-fieldset>
 		<qp-fieldset id="Document_formRight" slot="C" view.bind="Document">
 			<field name="OrganizerEmail"></field>
-			<field name="PostApprovalSyncStatus"></field>
-			<field name="PostApprovalSyncDateTime"></field>
+			<field name="TranscriptUrl"></field>
+			<field name="ActivityNoteID"></field>
 			<field name="CreatedDateTime"></field>
 		</qp-fieldset>
 	</qp-template>
@@ -23,14 +22,10 @@
 		<qp-tab id="matching_tab" caption="Matching">
 			<qp-template id="matching_template" name="1-1" class="label-size-m">
 				<qp-fieldset id="groupMatching" slot="A" view.bind="Document">
-					<field name="BAccountID"></field>
-					<field name="ContactID"></field>
 					<field name="SuggestedOpportunityID"></field>
 					<field name="SuggestedOpportunitySubject"></field>
 					<field name="ConfirmedOpportunityID"></field>
 					<field name="ConfirmedOpportunitySubject"></field>
-					<field name="TranscriptUrl"></field>
-					<field name="ActivityNoteID"></field>
 				</qp-fieldset>
 			</qp-template>
 		</qp-tab>
@@ -50,14 +45,6 @@
 				<qp-fieldset id="groupDiagnostics" slot="A" view.bind="Document">
 					<field name="MatchDiagnostics"></field>
 					<field name="ErrorMessage"></field>
-					<field name="PostApprovalSyncError"></field>
-				</qp-fieldset>
-			</qp-template>
-		</qp-tab>
-		<qp-tab id="processing_tab" caption="Processing">
-			<qp-template id="processing_template" name="1-1" class="label-size-m">
-				<qp-fieldset id="groupProcessing" slot="A" view.bind="Document">
-					<field name="Processed"></field>
 				</qp-fieldset>
 			</qp-template>
 		</qp-tab>

@@ -57,9 +57,6 @@ export class LSOpportunityMeetingNotesApproval extends PXView {
 
 	@linkCommand("ViewDocument")
 	MeetingTitle: PXFieldState;
-	Subject: PXFieldState;
-	BAccountID: PXFieldState;
-	ContactID: PXFieldState;
 
 	@linkCommand("ViewSuggestedOpportunity")
 	SuggestedOpportunityID: PXFieldState;
