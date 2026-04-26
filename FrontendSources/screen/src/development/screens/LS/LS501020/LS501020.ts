@@ -34,7 +34,7 @@ export class LS501020 extends PXScreen {
 	Context = createSingle(LSOpportunityChatContext);
 
 	@viewInfo({ containerName: "Messages" })
-	Messages = createCollection(LSOpportunityChatMessage);
+	ChatMessages = createCollection(LSOpportunityChatMessage);
 }
 
 export class LSOpportunityChatSession extends PXView {
