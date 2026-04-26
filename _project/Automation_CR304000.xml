@@ -1,0 +1,11 @@
+<Automation screen="CR304000">
+	<Actions ScreenID="CR304000">
+		<Action IsActive="True" IsSystem="False" IsCustomized="True" IsCustomizedRecursive="False" ActionName="OpenOpportunityChat" ActionType="P" After="Last" PlacementInCategory="0" DestinationScreenID="LS501020" DisplayName="Opportunity Chat" BatchMode="False" WindowMode="L" MapEnableRights="1" MapViewRights="1" ExposedToMobile="False">
+			<Param IsActive="True" IsSystem="False" IsCustomized="True" IsCustomizedRecursive="False" Value="[opportunityID]" ActionName="OpenOpportunityChat" Name="OpportunityID" FromSchema="False" />
+			<StateActionFields />
+			<StateActionParams />
+			<NextActions />
+			<ActionSequenceFormFieldValues />
+		</Action>
+	</Actions>
+</Automation>

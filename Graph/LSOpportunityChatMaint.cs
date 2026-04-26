@@ -26,6 +26,40 @@ namespace LSOpportunityMeetingNotesApproval
 		public new PXCancel<LSOpportunityChatSession> Cancel;
 		#endregion
 
+		#region View Delegates
+		protected virtual IEnumerable document()
+		{
+			string opportunityID = Document.Current?.OpportunityID ?? Context.Current?.OpportunityID ?? Prompt.Current?.OpportunityID;
+			if (!string.IsNullOrWhiteSpace(opportunityID))
+			{
+				LSOpportunityChatSession session = FindSession(this, opportunityID);
+				if (session != null)
+				{
+					yield return session;
+					yield break;
+				}
+
+				CROpportunity opportunity = FindOpportunity(this, opportunityID);
+				if (opportunity == null)
+				{
+					throw new PXException(LSOpportunityMeetingNotesApprovalMessages.OpportunityNotFound, opportunityID);
+				}
+
+				yield return new LSOpportunityChatSession
+				{
+					OpportunityID = opportunity.OpportunityID,
+					Subject = opportunity.Subject,
+				};
+				yield break;
+			}
+
+			foreach (LSOpportunityChatSession session in PXSelect<LSOpportunityChatSession>.Select(this))
+			{
+				yield return session;
+			}
+		}
+		#endregion
+
 		#region Actions
 		public PXAction<LSOpportunityChatSession> Send;
 		[PXButton(CommitChanges = true)]
@@ -89,7 +123,7 @@ namespace LSOpportunityMeetingNotesApproval
 			LSOpportunityChatMaint graph = PXGraph.CreateInstance<LSOpportunityChatMaint>();
 			LSOpportunityChatSession session = graph.EnsureSession(opportunityID);
 			graph.Document.Current = session;
-			throw new PXRedirectRequiredException(graph, LSOpportunityChatMessages.OpportunityChat) { Mode = PXBaseRedirectException.WindowMode.NewWindow };
+			throw new PXRedirectRequiredException(graph, LSOpportunityChatMessages.OpportunityChat) { Mode = PXBaseRedirectException.WindowMode.InlineWindow };
 		}
 
 		protected virtual LSOpportunityChatSession EnsureSession(string opportunityID)
@@ -99,10 +133,7 @@ namespace LSOpportunityMeetingNotesApproval
 				throw new PXException(LSOpportunityChatMessages.OpportunityIsRequired);
 			}
 
-			LSOpportunityChatSession session = PXSelect<LSOpportunityChatSession,
-				Where<LSOpportunityChatSession.opportunityID, Equal<Required<LSOpportunityChatSession.opportunityID>>>>
-				.SelectWindowed(this, 0, 1, opportunityID)
-				.TopFirst;
+			LSOpportunityChatSession session = FindSession(this, opportunityID);
 
 			if (session != null)
 			{
@@ -136,6 +167,14 @@ namespace LSOpportunityMeetingNotesApproval
 				MessageText = messageText,
 				MessageDateTime = PXTimeZoneInfo.Now,
 			});
+		}
+
+		protected static LSOpportunityChatSession FindSession(PXGraph graph, string opportunityID)
+		{
+			return PXSelect<LSOpportunityChatSession,
+				Where<LSOpportunityChatSession.opportunityID, Equal<Required<LSOpportunityChatSession.opportunityID>>>>
+				.SelectWindowed(graph, 0, 1, opportunityID)
+				.TopFirst;
 		}
 
 		protected virtual string SendToWebhook(LSOpportunityChatSession session, string userMessageText)
