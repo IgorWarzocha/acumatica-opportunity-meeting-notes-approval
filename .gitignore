@@ -2,3 +2,5 @@ compile.rsp
 Bin/
 obj/
 project.xml
+
+n8n/acumatica-oauth.dev.md

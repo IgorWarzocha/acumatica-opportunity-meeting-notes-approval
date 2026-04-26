@@ -18,13 +18,21 @@ This folder is intended for another developer to:
   - modern UI screen source for:
     - `LS501000`
     - `LS501010`
+    - `LS501020`
+    - `LS501030`
+- `FrontendSources/screen/src/screens/CR/CR304000/extensions/`
+  - modern UI extension source for Opportunity side-panel action
 
 ### Customization project metadata
 - `_project/`
   - `ProjectMetadata.xml`
   - `SiteMapNode_*.xml`
   - `ScreenWithRights_*.xml`
+  - `Automation_CR304000.xml`
   - `Sql_LSOpportunityMeetingNotesApproval.xml`
+  - `Sql_LSOpportunityChatSetup.xml`
+  - `Sql_LSOpportunityChatSession.xml`
+  - `Sql_LSOpportunityChatMessage.xml`
   - `EntityEndpoint_LSOpportunityNotes_25_200_001.xml`
 
 ### Build/package artifacts
@@ -34,7 +42,7 @@ This folder is intended for another developer to:
 
 ### SQL review artifacts
 - `sql/001-LSOpportunityMeetingNotesApproval.table.sql`
-- `sql/002-LSOpportunityMeetingNotesApproval.indexes.sql`
+- `sql/003-LSOpportunityChat.table.sql`
 
 ### Mock n8n assets
 - `n8n/README.md`
@@ -42,7 +50,7 @@ This folder is intended for another developer to:
 - `n8n/*.workflow.json`
 - `n8n/*.json`
 - `n8n/fixtures/`
-- `n8n/acumatica-oauth.dev.md`
+- configure OAuth credentials outside git; use `n8n/fireflies-acumatica.env.example` as the committed template
 
 ## Uploadable package
 
@@ -61,13 +69,14 @@ It does **not** run the canonical-to-package sync helper unless explicitly told 
 The customization package includes:
 
 - backend assembly: `LSOpportunityMeetingNotesApproval.dll`
-- modern UI screen files for `LS501000` and `LS501010`
+- modern UI screen files for `LS501000`, `LS501010`, `LS501020`, and `LS501030`
+- CR304000 modern UI extension file for the Opportunity Chat side-panel action
 - packaged site map/workspace registration
 - packaged screen rights
-- packaged table schema
+- packaged table schemas for approval queue and chat history/setup
 - packaged endpoint extension:
   - `LSOpportunityNotes/25.200.001`
-  - top-level entity: `OpportunityNotesApproval`
+  - top-level entities: `OpportunityNotesApproval` and `OpportunityChatContext`
 
 ## Intended review flow
 
@@ -94,7 +103,7 @@ The customization package includes:
 - `LS501010` is the hidden entry/detail screen.
 - generated build outputs such as `Bin/`, `obj/`, `project.xml`, and `compile.rsp` are intentionally not part of the refactored repo layout.
 - The mock n8n flow is intended to create pending approval rows and provide transcript data for review/testing.
-- OAuth details in `n8n/acumatica-oauth.dev.md` are included intentionally for this dev-only handoff.
+- OAuth/client-secret details are intentionally not committed; configure them locally or in n8n credentials.
 
 ## Quick file map
 
