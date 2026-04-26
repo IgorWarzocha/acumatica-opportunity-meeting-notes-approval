@@ -29,21 +29,7 @@ namespace LSOpportunityMeetingNotesApproval
 		[PXUIField(DisplayName = "Approve", MapEnableRights = PXCacheRights.Update, MapViewRights = PXCacheRights.Select)]
 		public virtual IEnumerable approve(PXAdapter adapter)
 		{
-			List<LSOpportunityMeetingNotesApproval> list = new List<LSOpportunityMeetingNotesApproval>();
-			foreach (LSOpportunityMeetingNotesApproval approvalRecord in adapter.Get<LSOpportunityMeetingNotesApproval>())
-			{
-				if (approvalRecord != null)
-				{
-					list.Add(approvalRecord);
-				}
-			}
-
-			if (list.Count == 0 && Document.Current != null)
-			{
-				list.Add(Document.Current);
-			}
-
-			list = list.Where(approvalRecord => approvalRecord?.ApprovalID != null).ToList();
+			List<LSOpportunityMeetingNotesApproval> list = adapter.Get<LSOpportunityMeetingNotesApproval>().ToList();
 			bool massProcess = adapter.MassProcess;
 
 			PXLongOperation.StartOperation(this, () =>
@@ -51,7 +37,7 @@ namespace LSOpportunityMeetingNotesApproval
 				ApproveMethod(list, massProcess);
 			});
 
-			return adapter.Get();
+			return list;
 		}
 
 		public PXAction<LSOpportunityMeetingNotesApproval> Reject;
@@ -59,21 +45,7 @@ namespace LSOpportunityMeetingNotesApproval
 		[PXUIField(DisplayName = "Reject", MapEnableRights = PXCacheRights.Update, MapViewRights = PXCacheRights.Select)]
 		public virtual IEnumerable reject(PXAdapter adapter)
 		{
-			List<LSOpportunityMeetingNotesApproval> list = new List<LSOpportunityMeetingNotesApproval>();
-			foreach (LSOpportunityMeetingNotesApproval approvalRecord in adapter.Get<LSOpportunityMeetingNotesApproval>())
-			{
-				if (approvalRecord != null)
-				{
-					list.Add(approvalRecord);
-				}
-			}
-
-			if (list.Count == 0 && Document.Current != null)
-			{
-				list.Add(Document.Current);
-			}
-
-			list = list.Where(approvalRecord => approvalRecord?.ApprovalID != null).ToList();
+			List<LSOpportunityMeetingNotesApproval> list = adapter.Get<LSOpportunityMeetingNotesApproval>().ToList();
 			bool massProcess = adapter.MassProcess;
 
 			PXLongOperation.StartOperation(this, () =>
@@ -81,7 +53,7 @@ namespace LSOpportunityMeetingNotesApproval
 				RejectMethod(list, massProcess);
 			});
 
-			return adapter.Get();
+			return list;
 		}
 
 		public PXAction<LSOpportunityMeetingNotesApproval> ViewSuggestedOpportunity;
@@ -102,14 +74,6 @@ namespace LSOpportunityMeetingNotesApproval
 		#endregion
 
 		#region Events
-		protected virtual void _(Events.RowInserted<LSOpportunityMeetingNotesApproval> e)
-		{
-			if (e.Row == null)
-			{
-				return;
-			}
-		}
-
 		protected virtual void _(Events.RowSelected<LSOpportunityMeetingNotesApproval> e)
 		{
 			if (e.Row == null)
