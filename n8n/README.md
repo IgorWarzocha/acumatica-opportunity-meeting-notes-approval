@@ -291,3 +291,69 @@ That means browser inspection is still useful for confirming the environment beh
 
 1. The workflows are imported and structurally valid in n8n, but they have not yet been end-to-end executed against real Fireflies and live Acumatica credentials because the dev tenant still intermittently trips API-seat/session limits during automated login attempts.
 2. The opportunity ranking step is still deterministic. If you want LLM-assisted ranking in v1, that still needs to replace or augment the current scoring node.
+
+## Opportunity Chat Side Panel Backend
+
+The Opportunity chatbot is read-only. Chat history is persisted in Acumatica custom tables:
+
+- `LSOpportunityChatSession`
+- `LSOpportunityChatMessage`
+
+The side-panel screen posts the user's message plus the current Opportunity FK context to the n8n webhook configured in `LSOpportunityChatSetup`.
+
+n8n workflow artifact:
+
+- `n8n/opportunity-chat-claude.workflow.json`
+- builder: `n8n/build-opportunity-chat-workflow.mjs`
+
+Required n8n environment variables:
+
+- `ACUMATICA_BASE_URL`
+- `LS_N8N_CLIENT_SECRET`
+- `ANTHROPIC_API_KEY`
+- `ANTHROPIC_MODEL` optional
+
+Runtime contract from Acumatica to n8n:
+
+```json
+{
+  "clientSecret": "shared n8n external app client secret",
+  "chatSessionID": 123,
+  "message": "user question",
+  "opportunity": {
+    "opportunityID": "OP000123",
+    "classID": "DEFAULT",
+    "opportunityAddressID": 1,
+    "opportunityContactID": 2,
+    "shipAddressID": 3,
+    "shipContactID": 4,
+    "billAddressID": 5,
+    "billContactID": 6,
+    "contactID": 7,
+    "bAccountID": 8,
+    "parentBAccountID": 9,
+    "locationID": 10,
+    "taxZoneID": "DEFAULT",
+    "curyID": "USD",
+    "curyInfoID": 11,
+    "ownerID": 12,
+    "workgroupID": 13,
+    "salesTerritoryID": "WEST"
+  }
+}
+```
+
+n8n validates `clientSecret`, then uses OAuth credentials to perform **GET-only** calls to Acumatica:
+
+- `GET /entity/LSOpportunityNotes/25.200.001/OpportunityChatContext/{OpportunityID}`
+- `GET /entity/LSOpportunityNotes/25.200.001/OpportunityNotesApproval?$filter=ConfirmedOpportunityID eq '{OpportunityID}'`
+
+The second call is where transcript content comes from. Fireflies remains the ingestion source only; after ingestion, Acumatica is the system of record. The transcript is read from the approval-row attachment-backed `TranscriptHtml` projection.
+
+The workflow calls Claude through Anthropic's `/v1/messages` endpoint and returns:
+
+```json
+{ "answer": "assistant response" }
+```
+
+No POST, PUT, or DELETE Acumatica tools are included in the chat workflow.

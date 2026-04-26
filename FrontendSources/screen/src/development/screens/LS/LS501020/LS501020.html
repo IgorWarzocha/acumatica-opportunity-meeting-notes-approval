@@ -1,0 +1,47 @@
+<template>
+	<qp-template id="Document_template" name="1-1" class="label-size-m" qp-collapsible wg-container="Document_form">
+		<qp-fieldset id="Document_fields" slot="A" view.bind="Document">
+			<field name="OpportunityID" pinned></field>
+			<field name="Subject"></field>
+			<field name="LastMessageDateTime"></field>
+		</qp-fieldset>
+	</qp-template>
+
+	<qp-tabbar id="Chat_tabs" wg-container>
+		<qp-tab id="chat_tab" caption="Chat">
+			<qp-grid id="Messages_grid" view.bind="Messages"></qp-grid>
+			<qp-template id="Prompt_template" name="1" class="label-size-m">
+				<qp-fieldset id="Prompt_fields" slot="A" view.bind="Prompt">
+					<field name="MessageText"></field>
+				</qp-fieldset>
+			</qp-template>
+		</qp-tab>
+		<qp-tab id="context_tab" caption="Context">
+			<qp-template id="Context_template" name="1-1" class="label-size-m">
+				<qp-fieldset id="Context_fields" slot="A" view.bind="Context">
+					<field name="OpportunityID"></field>
+					<field name="Subject"></field>
+					<field name="Status"></field>
+					<field name="StageID"></field>
+					<field name="ClassID"></field>
+					<field name="OpportunityAddressID"></field>
+					<field name="OpportunityContactID"></field>
+					<field name="ShipAddressID"></field>
+					<field name="ShipContactID"></field>
+					<field name="BillAddressID"></field>
+					<field name="BillContactID"></field>
+					<field name="ContactID"></field>
+					<field name="BAccountID"></field>
+					<field name="ParentBAccountID"></field>
+					<field name="LocationID"></field>
+					<field name="TaxZoneID"></field>
+					<field name="CuryID"></field>
+					<field name="CuryInfoID"></field>
+					<field name="OwnerID"></field>
+					<field name="WorkgroupID"></field>
+					<field name="SalesTerritoryID"></field>
+				</qp-fieldset>
+			</qp-template>
+		</qp-tab>
+	</qp-tabbar>
+</template>

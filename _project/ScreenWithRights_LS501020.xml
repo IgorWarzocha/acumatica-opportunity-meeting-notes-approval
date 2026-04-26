@@ -1,0 +1,23 @@
+<ScreenWithRights AccessRightsMergeRule="CopyFromTenant">
+	<data-set>
+		<relations format-version="4" relations-version="20250701" main-table="SiteMap">
+			<link from="RolesInCache (ScreenID)" to="SiteMap (ScreenID)" />
+			<link from="RolesInGraph (ScreenID)" to="SiteMap (ScreenID)" />
+			<link from="RolesInMember (ScreenID)" to="SiteMap (ScreenID)" />
+			<link from="Roles (Rolename, ApplicationName)" to="RolesInCache (Rolename, ApplicationName)" type="FromMaster" updateable="False" />
+			<link from="Roles (Rolename, ApplicationName)" to="RolesInGraph (Rolename, ApplicationName)" type="FromMaster" updateable="False" />
+			<link from="Roles (Rolename, ApplicationName)" to="RolesInMember (Rolename, ApplicationName)" type="FromMaster" updateable="False" />
+		</relations>
+		<layout><table name="SiteMap"><table name="RolesInCache" uplink="(ScreenID) = (ScreenID)" /><table name="RolesInGraph" uplink="(ScreenID) = (ScreenID)" /><table name="RolesInMember" uplink="(ScreenID) = (ScreenID)" /></table><table name="Roles" /></layout>
+		<data>
+			<SiteMap>
+				<row Position="2503" Title="Opportunity Chat" Url="~/Scripts/Screens/LS501020.html" ScreenID="LS501020" NodeID="8f4e7a49-6762-48fc-9e37-c07611d9c5b6" ParentID="00000000-0000-0000-0000-000000000000" SelectedUI="D">
+					<RolesInGraph Rolename="Customizer" ApplicationName="/" Accessrights="4" />
+					<RolesInGraph Rolename="Administrator" ApplicationName="/" Accessrights="4" />
+					<RolesInGraph Rolename="*" ApplicationName="/" Accessrights="0" />
+				</row>
+			</SiteMap>
+			<Roles><row Rolename="Customizer" ApplicationName="/" Descr="Customizer" Guest="0" /><row Rolename="Administrator" ApplicationName="/" Descr="System Administrator" Guest="0" /></Roles>
+		</data>
+	</data-set>
+</ScreenWithRights>

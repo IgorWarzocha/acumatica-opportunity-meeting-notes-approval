@@ -49,5 +49,54 @@
 				<Mapping field="LastModifiedDateTime"><To object="Document" field="LastModifiedDateTime" /></Mapping>
 			</Mappings>
 		</TopLevelEntity>
+
+		<TopLevelEntity name="OpportunityChatContext" screen="CR304000">
+			<Fields>
+				<Field name="OpportunityID" type="StringValue" />
+				<Field name="Subject" type="StringValue" />
+				<Field name="Status" type="StringValue" />
+				<Field name="StageID" type="StringValue" />
+				<Field name="ClassID" type="StringValue" />
+				<Field name="OpportunityAddressID" type="IntValue" />
+				<Field name="OpportunityContactID" type="IntValue" />
+				<Field name="ShipAddressID" type="IntValue" />
+				<Field name="ShipContactID" type="IntValue" />
+				<Field name="BillAddressID" type="IntValue" />
+				<Field name="BillContactID" type="IntValue" />
+				<Field name="ContactID" type="IntValue" />
+				<Field name="BAccountID" type="IntValue" />
+				<Field name="ParentBAccountID" type="IntValue" />
+				<Field name="LocationID" type="IntValue" />
+				<Field name="TaxZoneID" type="StringValue" />
+				<Field name="CuryID" type="StringValue" />
+				<Field name="CuryInfoID" type="LongValue" />
+				<Field name="OwnerID" type="IntValue" />
+				<Field name="WorkgroupID" type="IntValue" />
+				<Field name="SalesTerritoryID" type="StringValue" />
+			</Fields>
+			<Mappings>
+				<Mapping field="OpportunityID"><To object="Opportunity" field="OpportunityID" /></Mapping>
+				<Mapping field="Subject"><To object="Opportunity" field="Subject" /></Mapping>
+				<Mapping field="Status"><To object="Opportunity" field="Status" /></Mapping>
+				<Mapping field="StageID"><To object="Opportunity" field="StageID" /></Mapping>
+				<Mapping field="ClassID"><To object="Opportunity" field="ClassID" /></Mapping>
+				<Mapping field="OpportunityAddressID"><To object="OpportunityCurrent" field="OpportunityAddressID" /></Mapping>
+				<Mapping field="OpportunityContactID"><To object="OpportunityCurrent" field="OpportunityContactID" /></Mapping>
+				<Mapping field="ShipAddressID"><To object="OpportunityCurrent" field="ShipAddressID" /></Mapping>
+				<Mapping field="ShipContactID"><To object="OpportunityCurrent" field="ShipContactID" /></Mapping>
+				<Mapping field="BillAddressID"><To object="OpportunityCurrent" field="BillAddressID" /></Mapping>
+				<Mapping field="BillContactID"><To object="OpportunityCurrent" field="BillContactID" /></Mapping>
+				<Mapping field="ContactID"><To object="Opportunity" field="ContactID" /></Mapping>
+				<Mapping field="BAccountID"><To object="Opportunity" field="BAccountID" /></Mapping>
+				<Mapping field="ParentBAccountID"><To object="OpportunityCurrent" field="ParentBAccountID" /></Mapping>
+				<Mapping field="LocationID"><To object="Opportunity" field="LocationID" /></Mapping>
+				<Mapping field="TaxZoneID"><To object="OpportunityCurrent" field="TaxZoneID" /></Mapping>
+				<Mapping field="CuryID"><To object="Opportunity" field="CuryID" /></Mapping>
+				<Mapping field="CuryInfoID"><To object="OpportunityCurrent" field="CuryInfoID" /></Mapping>
+				<Mapping field="OwnerID"><To object="Opportunity" field="OwnerID" /></Mapping>
+				<Mapping field="WorkgroupID"><To object="OpportunityCurrent" field="WorkgroupID" /></Mapping>
+				<Mapping field="SalesTerritoryID"><To object="OpportunityCurrent" field="SalesTerritoryID" /></Mapping>
+			</Mappings>
+		</TopLevelEntity>
 	</Endpoint>
 </EntityEndpoint>

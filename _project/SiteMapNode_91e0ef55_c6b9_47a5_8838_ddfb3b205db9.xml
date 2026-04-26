@@ -1,0 +1,24 @@
+<SiteMapNode>
+	<data-set>
+		<relations format-version="4" relations-version="20250701" main-table="SiteMap">
+			<link from="MUIScreen (NodeID)" to="SiteMap (NodeID)" />
+			<link from="MUIWorkspace (WorkspaceID)" to="MUIScreen (WorkspaceID)" type="FromMaster" linkname="workspaceToScreen" split-location="yes" updateable="True" />
+			<link from="MUISubcategory (SubcategoryID)" to="MUIScreen (SubcategoryID)" type="FromMaster" updateable="True" />
+			<link from="MUITile (ScreenID)" to="SiteMap (ScreenID)" />
+			<link from="MUIWorkspace (WorkspaceID)" to="MUITile (WorkspaceID)" type="FromMaster" linkname="workspaceToTile" split-location="yes" updateable="True" />
+			<link from="MUIArea (AreaID)" to="MUIWorkspace (AreaID)" type="FromMaster" updateable="True" />
+			<link from="MUIPinnedScreen (NodeID, WorkspaceID)" to="MUIScreen (NodeID, WorkspaceID)" type="WeakIfEmpty" isEmpty="Username" />
+			<link from="MUIFavoriteWorkspace (WorkspaceID)" to="MUIWorkspace (WorkspaceID)" type="WeakIfEmpty" isEmpty="Username" />
+		</relations>
+		<layout><table name="SiteMap"><table name="MUIScreen" uplink="(NodeID) = (NodeID)"><table name="MUIPinnedScreen" uplink="(NodeID, WorkspaceID) = (NodeID, WorkspaceID)" /></table><table name="MUITile" uplink="(ScreenID) = (ScreenID)" /></table><table name="MUIWorkspace"><table name="MUIFavoriteWorkspace" uplink="(WorkspaceID) = (WorkspaceID)" /></table><table name="MUISubcategory" /><table name="MUIArea" /></layout>
+		<data>
+			<SiteMap>
+				<row Position="4.6" Title="Opportunity Chat Setup" Url="~/Scripts/Screens/LS501030.html" ScreenID="LS501030" NodeID="91e0ef55-c6b9-47a5-8838-ddfb3b205db9" ParentID="F98B9016-1A23-42BB-BB83-03B91C85234F" SelectedUI="D">
+					<MUIScreen IsPortal="0" WorkspaceID="BB6406AB-8BE6-432F-8830-8565E3B56897" Order="1.6" SubcategoryID="32130442-2305-4394-9389-CF915B191D2A" />
+				</row>
+			</SiteMap>
+			<MUIWorkspace><row IsPortal="0" WorkspaceID="BB6406AB-8BE6-432F-8830-8565E3B56897" Order="324" Title="Opportunities" Icon="local_offer" AreaID="62CFD5DC-8EB9-4E92-BBCD-E0A99EB5E5DF" ScreenID="WSSO0000" IsSystem="0" LayoutMode="0" /></MUIWorkspace>
+			<MUISubcategory><row IsPortal="0" SubcategoryID="32130442-2305-4394-9389-CF915B191D2A" Order="820" Name="Processes" Icon="" IsSystem="0" /></MUISubcategory>
+		</data>
+	</data-set>
+</SiteMapNode>
