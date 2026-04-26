@@ -47,7 +47,7 @@ export class LSOpportunityChatSession extends PXView {
 
 export class LSOpportunityChatPrompt extends PXView {
 	OpportunityID: PXFieldState<PXFieldOptions.Disabled>;
-	@controlConfig({ rows: 4 })
+	@controlConfig({ rows: 6 })
 	MessageText: PXFieldState<PXFieldOptions.Multiline | PXFieldOptions.CommitChanges>;
 }
 
@@ -83,9 +83,10 @@ export class LSOpportunityChatContext extends PXView {
 	adjustPageSize: true,
 })
 export class LSOpportunityChatMessage extends PXView {
-	@columnConfig({ textAlign: TextAlign.Right, width: 160 })
-	MessageDateTime: PXFieldState<PXFieldOptions.Disabled>;
-	@columnConfig({ width: 100 })
-	Role: PXFieldState<PXFieldOptions.Disabled>;
-	MessageText: PXFieldState<PXFieldOptions.Multiline | PXFieldOptions.Disabled>;
+	@columnConfig({ textAlign: TextAlign.Left, width: 90 })
+	Role: PXFieldState;
+	@columnConfig({ width: 520 })
+	MessageText: PXFieldState<PXFieldOptions.Multiline>;
+	@columnConfig({ textAlign: TextAlign.Right, width: 140 })
+	MessageDateTime: PXFieldState;
 }

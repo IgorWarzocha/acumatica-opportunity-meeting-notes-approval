@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Text;
@@ -192,7 +193,8 @@ namespace LSOpportunityMeetingNotesApproval
 
 			CROpportunity opportunity = FindOpportunity(this, session.OpportunityID);
 			LSOpportunityChatContext context = BuildContext(opportunity);
-			string payload = BuildWebhookPayload(session, userMessageText, context, setup.N8nClientSecret);
+			List<LSOpportunityChatMessage> chatHistory = GetRecentChatHistory(session.ChatSessionID);
+			string payload = BuildWebhookPayload(session, userMessageText, context, setup.N8nClientSecret, chatHistory);
 			byte[] payloadBytes = Encoding.UTF8.GetBytes(payload);
 
 			HttpWebRequest request = (HttpWebRequest)WebRequest.Create(setup.N8nWebhookUrl);
@@ -260,13 +262,42 @@ namespace LSOpportunityMeetingNotesApproval
 			};
 		}
 
-		protected static string BuildWebhookPayload(LSOpportunityChatSession session, string userMessageText, LSOpportunityChatContext context, string clientSecret)
+		protected virtual List<LSOpportunityChatMessage> GetRecentChatHistory(int? chatSessionID)
+		{
+			List<LSOpportunityChatMessage> result = new List<LSOpportunityChatMessage>();
+			foreach (LSOpportunityChatMessage message in PXSelect<LSOpportunityChatMessage,
+				Where<LSOpportunityChatMessage.chatSessionID, Equal<Required<LSOpportunityChatMessage.chatSessionID>>>,
+				OrderBy<Desc<LSOpportunityChatMessage.messageDateTime, Desc<LSOpportunityChatMessage.chatMessageID>>>>
+				.SelectWindowed(this, 0, 12, chatSessionID))
+			{
+				result.Add(message);
+			}
+
+			result.Reverse();
+			return result;
+		}
+
+		protected static string BuildWebhookPayload(LSOpportunityChatSession session, string userMessageText, LSOpportunityChatContext context, string clientSecret, List<LSOpportunityChatMessage> chatHistory)
 		{
 			StringBuilder sb = new StringBuilder();
 			sb.Append('{');
 			AppendJson(sb, "clientSecret", clientSecret).Append(',');
 			AppendJson(sb, "chatSessionID", session.ChatSessionID).Append(',');
 			AppendJson(sb, "message", userMessageText).Append(',');
+			sb.Append("\"chatHistory\":[");
+			for (int i = 0; i < chatHistory.Count; i++)
+			{
+				if (i > 0)
+				{
+					sb.Append(',');
+				}
+
+				sb.Append('{');
+				AppendJson(sb, "role", GetHistoryRole(chatHistory[i].Role)).Append(',');
+				AppendJson(sb, "message", chatHistory[i].MessageText);
+				sb.Append('}');
+			}
+			sb.Append("],");
 			sb.Append("\"opportunity\":{");
 			AppendJson(sb, "opportunityID", context.OpportunityID).Append(',');
 			AppendJson(sb, "subject", context.Subject).Append(',');
@@ -291,6 +322,11 @@ namespace LSOpportunityMeetingNotesApproval
 			AppendJson(sb, "salesTerritoryID", context.SalesTerritoryID);
 			sb.Append("}} ");
 			return sb.ToString().TrimEnd();
+		}
+
+		protected static string GetHistoryRole(string role)
+		{
+			return role == LSOpportunityChatMessageRole.Assistant ? "assistant" : role == LSOpportunityChatMessageRole.System ? "system" : "user";
 		}
 
 		protected static StringBuilder AppendJson(StringBuilder sb, string name, object value)

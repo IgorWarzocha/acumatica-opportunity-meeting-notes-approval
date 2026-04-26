@@ -1,50 +1,96 @@
 <template>
-	<qp-template id="Document_template" name="1-1" class="label-size-m" qp-collapsible wg-container="Document_form">
-		<qp-fieldset id="Document_fields" slot="A" view.bind="Document">
-			<field name="OpportunityID" pinned></field>
-			<field name="Subject"></field>
-			<field name="LastMessageDateTime"></field>
-		</qp-fieldset>
-	</qp-template>
+	<style>
+		.ls-chat-shell {
+			display: flex;
+			flex-direction: column;
+			gap: 12px;
+			padding: 8px 10px 12px;
+		}
 
-	<qp-tabbar id="Chat_tabs" wg-container>
-		<qp-tab id="chat_tab" caption="Chat">
-			<qp-grid id="Messages_grid" view.bind="ChatMessages"></qp-grid>
-			<qp-template id="Prompt_template" name="1-1" class="label-size-m">
-				<qp-fieldset id="Prompt_fields" slot="A" view.bind="Prompt">
-					<field name="MessageText"></field>
-				</qp-fieldset>
-				<div slot="B" style="display: flex; align-items: end; padding: 8px 0 0 12px;">
-					<qp-button id="SendMessageButton" state.bind="Send" caption="Send"></qp-button>
-				</div>
-			</qp-template>
-		</qp-tab>
-		<qp-tab id="context_tab" caption="Context">
-			<qp-template id="Context_template" name="1-1" class="label-size-m">
-				<qp-fieldset id="Context_fields" slot="A" view.bind="Context">
-					<field name="OpportunityID"></field>
+		.ls-chat-header {
+			border: 1px solid rgba(0, 0, 0, 0.10);
+			border-radius: 10px;
+			background: #f8fafc;
+			padding: 10px 12px;
+		}
+
+		.ls-chat-transcript {
+			min-height: 360px;
+			border: 1px solid rgba(0, 0, 0, 0.10);
+			border-radius: 12px;
+			background: linear-gradient(180deg, #ffffff 0%, #f7f9fb 100%);
+			overflow: hidden;
+		}
+
+		.ls-chat-prompt {
+			border: 1px solid rgba(0, 0, 0, 0.12);
+			border-radius: 12px;
+			background: #ffffff;
+			padding: 10px 12px 12px;
+			box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+		}
+
+		.ls-chat-prompt-actions {
+			display: flex;
+			justify-content: flex-end;
+			padding-top: 8px;
+		}
+	</style>
+
+	<div class="ls-chat-shell">
+		<div class="ls-chat-header">
+			<qp-template id="Document_template" name="1-1" class="label-size-s" qp-collapsible wg-container="Document_form">
+				<qp-fieldset id="Document_fields" slot="A" view.bind="Document">
+					<field name="OpportunityID" pinned></field>
 					<field name="Subject"></field>
-					<field name="Status"></field>
-					<field name="StageID"></field>
-					<field name="ClassID"></field>
-					<field name="OpportunityAddressID"></field>
-					<field name="OpportunityContactID"></field>
-					<field name="ShipAddressID"></field>
-					<field name="ShipContactID"></field>
-					<field name="BillAddressID"></field>
-					<field name="BillContactID"></field>
-					<field name="ContactID"></field>
-					<field name="BAccountID"></field>
-					<field name="ParentBAccountID"></field>
-					<field name="LocationID"></field>
-					<field name="TaxZoneID"></field>
-					<field name="CuryID"></field>
-					<field name="CuryInfoID"></field>
-					<field name="OwnerID"></field>
-					<field name="WorkgroupID"></field>
-					<field name="SalesTerritoryID"></field>
 				</qp-fieldset>
 			</qp-template>
-		</qp-tab>
-	</qp-tabbar>
+		</div>
+
+		<qp-tabbar id="Chat_tabs" wg-container>
+			<qp-tab id="chat_tab" caption="Chat">
+				<div class="ls-chat-transcript">
+					<qp-grid id="Messages_grid" view.bind="ChatMessages"></qp-grid>
+				</div>
+
+				<div class="ls-chat-prompt">
+					<qp-template id="Prompt_template" name="1-1" class="label-size-s">
+						<qp-fieldset id="Prompt_fields" slot="A" view.bind="Prompt">
+							<field name="MessageText"></field>
+						</qp-fieldset>
+					</qp-template>
+					<div class="ls-chat-prompt-actions">
+						<qp-button id="SendMessageButton" state.bind="Send" caption="Send"></qp-button>
+					</div>
+				</div>
+			</qp-tab>
+			<qp-tab id="context_tab" caption="Context">
+				<qp-template id="Context_template" name="1-1" class="label-size-m">
+					<qp-fieldset id="Context_fields" slot="A" view.bind="Context">
+						<field name="OpportunityID"></field>
+						<field name="Subject"></field>
+						<field name="Status"></field>
+						<field name="StageID"></field>
+						<field name="ClassID"></field>
+						<field name="OpportunityAddressID"></field>
+						<field name="OpportunityContactID"></field>
+						<field name="ShipAddressID"></field>
+						<field name="ShipContactID"></field>
+						<field name="BillAddressID"></field>
+						<field name="BillContactID"></field>
+						<field name="ContactID"></field>
+						<field name="BAccountID"></field>
+						<field name="ParentBAccountID"></field>
+						<field name="LocationID"></field>
+						<field name="TaxZoneID"></field>
+						<field name="CuryID"></field>
+						<field name="CuryInfoID"></field>
+						<field name="OwnerID"></field>
+						<field name="WorkgroupID"></field>
+						<field name="SalesTerritoryID"></field>
+					</qp-fieldset>
+				</qp-template>
+			</qp-tab>
+		</qp-tabbar>
+	</div>
 </template>

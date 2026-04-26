@@ -11,7 +11,7 @@ const workflow = [
 				"parameters": {
 					"httpMethod": "POST",
 					"path": "ls-opportunity-chat",
-					"responseMode": "lastNode",
+					"responseMode": "responseNode",
 					"options": {}
 				},
 				"id": "a828d3c3-ed2f-48f7-841d-def7d2dc8b54",
@@ -26,10 +26,10 @@ const workflow = [
 			},
 			{
 				"parameters": {
-					"jsCode": "const body = $json.body ?? $json;\nconst configuredSecret = $vars.LS_N8N_CLIENT_SECRET;\nif (!configuredSecret) throw new Error('LS_N8N_CLIENT_SECRET is not configured');\nif (!body.clientSecret || body.clientSecret !== configuredSecret) throw new Error('Invalid client secret');\nconst opportunityID = body.opportunity?.opportunityID ?? body.opportunityID;\nif (!opportunityID) throw new Error('opportunity.opportunityID is required');\nif (!body.message || !String(body.message).trim()) throw new Error('message is required');\nconst configuredBaseUrl = $vars.ACUMATICA_BASE_URL || 'http://172.17.0.3/AcumaticaERP';\nconst acumaticaBaseUrl = String(configuredBaseUrl).replace(/\\/$/, '');\nconst endpointBase = acumaticaBaseUrl + '/entity/LSOpportunityNotes/25.200.001';\nconst escapedOpportunityID = String(opportunityID).replace(/'/g, \"''\");\nconst notesFilter = \"ConfirmedOpportunityID eq '\" + escapedOpportunityID + \"'\";\nreturn [{ json: {\n  chatInput: 'User question: ' + String(body.message).trim() + '\\n\\nCurrent opportunity context supplied by Acumatica side panel:\\n' + JSON.stringify(body.opportunity ?? { opportunityID }, null, 2) + '\\n\\nUse the connected tools to fetch current OpportunityChatContext and related OpportunityNotesApproval transcripts for opportunity ' + opportunityID + '. Answer conversationally for the Acumatica side-panel chat. Do not mutate Acumatica data.',\n  chatSessionID: body.chatSessionID,\n  opportunity: body.opportunity ?? { opportunityID },\n  opportunityID,\n  contextUrl: endpointBase + '/OpportunityChatContext/' + encodeURIComponent(opportunityID),\n  notesUrl: endpointBase + '/OpportunityNotesApproval?$filter=' + encodeURIComponent(notesFilter),\n}}];"
+					"jsCode": "const body = $json.body ?? $json;\nconst secret = $vars.LS_N8N_CLIENT_SECRET;\nif (!secret) throw new Error('LS_N8N_CLIENT_SECRET is not configured');\nif (body.clientSecret !== secret) throw new Error('Invalid client secret');\nconst opportunityID = body.opportunity?.opportunityID ?? body.opportunityID;\nconst message = String(body.message ?? '').trim();\nif (!opportunityID) throw new Error('opportunityID is required');\nif (!message) throw new Error('message is required');\nconst baseUrl = String($vars.ACUMATICA_BASE_URL || 'http://172.17.0.3/AcumaticaERP').replace(/\\/$/, '');\nconst endpoint = baseUrl + '/entity/LSOpportunityNotes/25.200.001';\nconst filter = \"ConfirmedOpportunityID eq '\" + String(opportunityID).replace(/'/g, \"''\") + \"'\";\nreturn [{ json: {\n  chatSessionID: body.chatSessionID,\n  sessionId: String(body.chatSessionID ?? opportunityID),\n  opportunityID,\n  message,\n  chatInput: 'Question:\\n' + message + '\\n\\nRecent conversation:\\n' + JSON.stringify(Array.isArray(body.chatHistory) ? body.chatHistory : [], null, 2) + '\\n\\nOpportunity snapshot:\\n' + JSON.stringify(body.opportunity ?? { opportunityID }, null, 2) + '\\n\\nUse the tools for current Acumatica data when useful. Answer the question directly.',\n  opportunity: body.opportunity ?? { opportunityID },\n  chatHistory: Array.isArray(body.chatHistory) ? body.chatHistory : [],\n  contextUrl: endpoint + '/OpportunityChatContext/' + encodeURIComponent(opportunityID),\n  notesUrl: endpoint + '/OpportunityNotesApproval?$filter=' + encodeURIComponent(filter),\n}}];"
 				},
 				"id": "b82fffab-3b63-4450-b8bc-8d83d83569d4",
-				"name": "Validate Secret and Normalize Request",
+				"name": "Authorize Request",
 				"type": "n8n-nodes-base.code",
 				"typeVersion": 2,
 				"position": [
@@ -44,7 +44,7 @@ const workflow = [
 					"hasOutputParser": false,
 					"needsFallback": false,
 					"options": {
-						"systemMessage": "You are an Acumatica Opportunity chat assistant. You are strictly read-only. You have exactly two Acumatica GET tools: get_opportunity_context and get_related_meeting_notes. Use them when answering opportunity-specific questions. Never claim that you created, updated, deleted, approved, rejected, or posted anything in Acumatica. If data is missing, say what is missing. Return a concise chat answer only.",
+						"systemMessage": "You are a read-only CRM opportunity analyst. Answer from the provided conversation, opportunity snapshot, and GET-only Acumatica tools. Use tools when current opportunity fields or related meeting notes are needed. Do not create, update, delete, approve, reject, or post records. If required data is missing, say what is missing. Be concise.",
 						"maxIterations": 4,
 						"returnIntermediateSteps": false,
 						"enableStreaming": false
@@ -149,12 +149,16 @@ const workflow = [
 			},
 			{
 				"parameters": {
-					"jsCode": "const answer = $json.output ?? $json.text ?? $json.response ?? $json.result ?? JSON.stringify($json);\nreturn [{ json: { answer: String(answer).trim() } }];"
+					"respondWith": "json",
+					"responseBody": "={{ { \"answer\": String($json.output ?? $json.text ?? $json.response ?? $json.result ?? \"\").trim() } }}",
+					"options": {
+						"responseCode": 200
+					}
 				},
 				"id": "cf593b68-a9be-47cb-ab76-b6f94581d7d8",
 				"name": "Return Answer",
-				"type": "n8n-nodes-base.code",
-				"typeVersion": 2,
+				"type": "n8n-nodes-base.respondToWebhook",
+				"typeVersion": 1.5,
 				"position": [
 					900,
 					0
@@ -166,14 +170,14 @@ const workflow = [
 				"main": [
 					[
 						{
-							"node": "Validate Secret and Normalize Request",
+							"node": "Authorize Request",
 							"type": "main",
 							"index": 0
 						}
 					]
 				]
 			},
-			"Validate Secret and Normalize Request": {
+			"Authorize Request": {
 				"main": [
 					[
 						{
