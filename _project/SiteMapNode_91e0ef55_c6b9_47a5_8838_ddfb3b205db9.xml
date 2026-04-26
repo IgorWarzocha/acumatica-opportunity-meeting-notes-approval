@@ -14,11 +14,11 @@
 		<data>
 			<SiteMap>
 				<row Position="4.6" Title="Opportunity Chat Setup" Url="~/Scripts/Screens/LS501030.html" ScreenID="LS501030" NodeID="91e0ef55-c6b9-47a5-8838-ddfb3b205db9" ParentID="F98B9016-1A23-42BB-BB83-03B91C85234F" SelectedUI="D">
-					<MUIScreen IsPortal="0" WorkspaceID="BB6406AB-8BE6-432F-8830-8565E3B56897" Order="1.6" SubcategoryID="32130442-2305-4394-9389-CF915B191D2A" />
+					<MUIScreen IsPortal="0" WorkspaceID="BB6406AB-8BE6-432F-8830-8565E3B56897" Order="1391.9" SubcategoryID="8A93637D-B507-4667-A739-ADAF6FB5F7EA" />
 				</row>
 			</SiteMap>
 			<MUIWorkspace><row IsPortal="0" WorkspaceID="BB6406AB-8BE6-432F-8830-8565E3B56897" Order="324" Title="Opportunities" Icon="local_offer" AreaID="62CFD5DC-8EB9-4E92-BBCD-E0A99EB5E5DF" ScreenID="WSSO0000" IsSystem="0" LayoutMode="0" /></MUIWorkspace>
-			<MUISubcategory><row IsPortal="0" SubcategoryID="32130442-2305-4394-9389-CF915B191D2A" Order="820" Name="Processes" Icon="" IsSystem="0" /></MUISubcategory>
+			<MUISubcategory><row IsPortal="0" SubcategoryID="8A93637D-B507-4667-A739-ADAF6FB5F7EA" Order="1391.813" Name="Preferences" Icon="" IsSystem="0" /></MUISubcategory>
 		</data>
 	</data-set>
 </SiteMapNode>
