@@ -59,15 +59,3 @@ BEGIN
 		CONSTRAINT PK_LSOpportunityChatMessage PRIMARY KEY CLUSTERED (CompanyID, ChatMessageID)
 	);
 END;
-
-IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'IX_LSOpportunityChatSession_OpportunityID' AND object_id = OBJECT_ID(N'dbo.LSOpportunityChatSession'))
-BEGIN
-	CREATE UNIQUE NONCLUSTERED INDEX IX_LSOpportunityChatSession_OpportunityID
-	ON dbo.LSOpportunityChatSession (CompanyID, OpportunityID);
-END;
-
-IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'IX_LSOpportunityChatMessage_Session' AND object_id = OBJECT_ID(N'dbo.LSOpportunityChatMessage'))
-BEGIN
-	CREATE NONCLUSTERED INDEX IX_LSOpportunityChatMessage_Session
-	ON dbo.LSOpportunityChatMessage (CompanyID, ChatSessionID, MessageDateTime, ChatMessageID);
-END;

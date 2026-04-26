@@ -1,5 +1,6 @@
 <Sql TableName="LSOpportunityChatMessage" TableSchemaXml="#CDATA">
 	<CDATA name="TableSchemaXml"><![CDATA[<table name="LSOpportunityChatMessage">
+	<col name="CompanyID" type="Int" />
 	<col name="ChatMessageID" type="Int" identity="true" />
 	<col name="ChatSessionID" type="Int" />
 	<col name="MessageDateTime" type="DateTime" nullable="true" />
@@ -12,13 +13,5 @@
 	<col name="LastModifiedByScreenID" type="Char(8)" nullable="true" />
 	<col name="LastModifiedDateTime" type="DateTime" nullable="true" />
 	<col name="tstamp" type="Timestamp" />
-	<index name="PK_LSOpportunityChatMessage" clustered="true" primary="true" unique="true">
-		<col name="ChatMessageID" />
-	</index>
-	<index name="IX_LSOpportunityChatMessage_Session">
-		<col name="ChatSessionID" />
-		<col name="MessageDateTime" />
-		<col name="ChatMessageID" />
-	</index>
 </table>]]></CDATA>
 </Sql>
