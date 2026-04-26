@@ -16,8 +16,13 @@ namespace LSOpportunityMeetingNotesApproval
 		public PXSelect<LSOpportunityChatSession> Document;
 
 		public PXSelect<LSOpportunityChatMessage,
-			Where<LSOpportunityChatMessage.chatSessionID, Equal<Current<LSOpportunityChatSession.chatSessionID>>>,
+			Where<LSOpportunityChatMessage.chatSessionID, Equal<Current<LSOpportunityChatSession.chatSessionID>>,
+				And<LSOpportunityChatMessage.role, NotEqual<LSOpportunityChatMessageRole.system>>>,
 			OrderBy<Asc<LSOpportunityChatMessage.messageDateTime, Asc<LSOpportunityChatMessage.chatMessageID>>>> ChatMessages;
+
+		public PXSelect<LSOpportunityChatMessage,
+			Where<LSOpportunityChatMessage.chatSessionID, Equal<Current<LSOpportunityChatSession.chatSessionID>>>,
+			OrderBy<Asc<LSOpportunityChatMessage.messageDateTime, Asc<LSOpportunityChatMessage.chatMessageID>>>> ConversationMessages;
 
 		public PXFilter<LSOpportunityChatPrompt> Prompt;
 		public PXFilter<LSOpportunityChatContext> Context;
@@ -33,7 +38,7 @@ namespace LSOpportunityMeetingNotesApproval
 			string opportunityID = Document.Current?.OpportunityID ?? Context.Current?.OpportunityID ?? Prompt.Current?.OpportunityID;
 			if (!string.IsNullOrWhiteSpace(opportunityID))
 			{
-				LSOpportunityChatSession session = FindSession(this, opportunityID);
+				LSOpportunityChatSession session = FindLatestSession(this, opportunityID);
 				if (session != null)
 				{
 					yield return session;
@@ -94,6 +99,27 @@ namespace LSOpportunityMeetingNotesApproval
 
 			return adapter.Get();
 		}
+
+		public PXAction<LSOpportunityChatSession> NewChat;
+		[PXButton(CommitChanges = true)]
+		[PXUIField(DisplayName = "New Chat", MapEnableRights = PXCacheRights.Update, MapViewRights = PXCacheRights.Select)]
+		public virtual IEnumerable newChat(PXAdapter adapter)
+		{
+			string opportunityID = Document.Current?.OpportunityID ?? Prompt.Current?.OpportunityID ?? Context.Current?.OpportunityID;
+			if (string.IsNullOrWhiteSpace(opportunityID))
+			{
+				throw new PXException(LSOpportunityChatMessages.OpportunityIsRequired);
+			}
+
+			Document.Current = CreateSession(opportunityID);
+			if (Prompt.Current != null)
+			{
+				Prompt.Current.MessageText = null;
+				Prompt.Current.OpportunityID = opportunityID;
+			}
+
+			return adapter.Get();
+		}
 		#endregion
 
 		#region Events
@@ -134,7 +160,7 @@ namespace LSOpportunityMeetingNotesApproval
 				throw new PXException(LSOpportunityChatMessages.OpportunityIsRequired);
 			}
 
-			LSOpportunityChatSession session = FindSession(this, opportunityID);
+			LSOpportunityChatSession session = FindLatestSession(this, opportunityID);
 
 			if (session != null)
 			{
@@ -142,13 +168,18 @@ namespace LSOpportunityMeetingNotesApproval
 				return session;
 			}
 
+			return CreateSession(opportunityID);
+		}
+
+		protected virtual LSOpportunityChatSession CreateSession(string opportunityID)
+		{
 			CROpportunity opportunity = FindOpportunity(this, opportunityID);
 			if (opportunity == null)
 			{
 				throw new PXException(LSOpportunityMeetingNotesApprovalMessages.OpportunityNotFound, opportunityID);
 			}
 
-			session = Document.Insert(new LSOpportunityChatSession
+			LSOpportunityChatSession session = Document.Insert(new LSOpportunityChatSession
 			{
 				OpportunityID = opportunity.OpportunityID,
 				Subject = opportunity.Subject,
@@ -156,12 +187,14 @@ namespace LSOpportunityMeetingNotesApproval
 			});
 			Actions.PressSave();
 			Document.Current = session;
+			InsertMessage(session.ChatSessionID, LSOpportunityChatMessageRole.System, BuildInitialContextMessage(BuildContext(opportunity), false));
+			Actions.PressSave();
 			return session;
 		}
 
 		protected virtual void InsertMessage(int? chatSessionID, string role, string messageText)
 		{
-			ChatMessages.Insert(new LSOpportunityChatMessage
+			ConversationMessages.Insert(new LSOpportunityChatMessage
 			{
 				ChatSessionID = chatSessionID,
 				Role = role,
@@ -170,10 +203,29 @@ namespace LSOpportunityMeetingNotesApproval
 			});
 		}
 
-		protected static LSOpportunityChatSession FindSession(PXGraph graph, string opportunityID)
+		protected static string BuildInitialContextMessage(LSOpportunityChatContext context, bool refresh)
+		{
+			StringBuilder message = new StringBuilder();
+			message.AppendLine(refresh ? "Opportunity context refresh." : "Initial opportunity context.");
+			message.Append("Snapshot generated at UTC: ").AppendLine(DateTime.UtcNow.ToString("O"));
+			message.Append("Opportunity ID: ").AppendLine(context.OpportunityID);
+			message.Append("Subject: ").AppendLine(context.Subject);
+			message.Append("Status: ").AppendLine(context.Status);
+			message.Append("Stage: ").AppendLine(context.StageID);
+			message.Append("Class: ").AppendLine(context.ClassID);
+			message.Append("Business Account ID: ").AppendLine(Convert.ToString(context.BAccountID));
+			message.Append("Contact ID: ").AppendLine(Convert.ToString(context.ContactID));
+			message.Append("Owner ID: ").AppendLine(Convert.ToString(context.OwnerID));
+			message.Append("Workgroup ID: ").AppendLine(Convert.ToString(context.WorkgroupID));
+			message.Append("Currency: ").AppendLine(context.CuryID);
+			return message.ToString().Trim();
+		}
+
+		protected static LSOpportunityChatSession FindLatestSession(PXGraph graph, string opportunityID)
 		{
 			return PXSelect<LSOpportunityChatSession,
-				Where<LSOpportunityChatSession.opportunityID, Equal<Required<LSOpportunityChatSession.opportunityID>>>>
+				Where<LSOpportunityChatSession.opportunityID, Equal<Required<LSOpportunityChatSession.opportunityID>>>,
+				OrderBy<Desc<LSOpportunityChatSession.createdDateTime, Desc<LSOpportunityChatSession.chatSessionID>>>>
 				.SelectWindowed(graph, 0, 1, opportunityID)
 				.TopFirst;
 		}
@@ -193,7 +245,8 @@ namespace LSOpportunityMeetingNotesApproval
 
 			CROpportunity opportunity = FindOpportunity(this, session.OpportunityID);
 			LSOpportunityChatContext context = BuildContext(opportunity);
-			List<LSOpportunityChatMessage> chatHistory = GetRecentChatHistory(session.ChatSessionID);
+			EnsureContextMessageCurrent(session, opportunity, context);
+			List<LSOpportunityChatMessage> chatHistory = GetChatHistory(session.ChatSessionID);
 			string payload = BuildWebhookPayload(session, userMessageText, context, setup.N8nClientSecret, chatHistory);
 			byte[] payloadBytes = Encoding.UTF8.GetBytes(payload);
 
@@ -262,18 +315,40 @@ namespace LSOpportunityMeetingNotesApproval
 			};
 		}
 
-		protected virtual List<LSOpportunityChatMessage> GetRecentChatHistory(int? chatSessionID)
+		protected virtual void EnsureContextMessageCurrent(LSOpportunityChatSession session, CROpportunity opportunity, LSOpportunityChatContext context)
+		{
+			LSOpportunityChatMessage latestContext = PXSelect<LSOpportunityChatMessage,
+				Where<LSOpportunityChatMessage.chatSessionID, Equal<Required<LSOpportunityChatMessage.chatSessionID>>,
+					And<LSOpportunityChatMessage.role, Equal<LSOpportunityChatMessageRole.system>>>,
+				OrderBy<Desc<LSOpportunityChatMessage.messageDateTime, Desc<LSOpportunityChatMessage.chatMessageID>>>>
+				.SelectWindowed(this, 0, 1, session.ChatSessionID)
+				.TopFirst;
+
+			if (latestContext == null)
+			{
+				InsertMessage(session.ChatSessionID, LSOpportunityChatMessageRole.System, BuildInitialContextMessage(context, false));
+				Actions.PressSave();
+				return;
+			}
+
+			if (opportunity?.LastModifiedDateTime != null && latestContext.CreatedDateTime != null && opportunity.LastModifiedDateTime > latestContext.CreatedDateTime)
+			{
+				InsertMessage(session.ChatSessionID, LSOpportunityChatMessageRole.System, BuildInitialContextMessage(context, true));
+				Actions.PressSave();
+			}
+		}
+
+		protected virtual List<LSOpportunityChatMessage> GetChatHistory(int? chatSessionID)
 		{
 			List<LSOpportunityChatMessage> result = new List<LSOpportunityChatMessage>();
 			foreach (LSOpportunityChatMessage message in PXSelect<LSOpportunityChatMessage,
 				Where<LSOpportunityChatMessage.chatSessionID, Equal<Required<LSOpportunityChatMessage.chatSessionID>>>,
-				OrderBy<Desc<LSOpportunityChatMessage.messageDateTime, Desc<LSOpportunityChatMessage.chatMessageID>>>>
-				.SelectWindowed(this, 0, 12, chatSessionID))
+				OrderBy<Asc<LSOpportunityChatMessage.messageDateTime, Asc<LSOpportunityChatMessage.chatMessageID>>>>
+				.Select(this, chatSessionID))
 			{
 				result.Add(message);
 			}
 
-			result.Reverse();
 			return result;
 		}
 

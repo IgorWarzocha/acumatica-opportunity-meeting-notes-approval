@@ -24,6 +24,7 @@ import {
 })
 export class LS501020 extends PXScreen {
 	Send: PXActionState;
+	NewChat: PXActionState;
 
 	@viewInfo({ containerName: "Opportunity Chat" })
 	Document = createSingle(LSOpportunityChatSession);
