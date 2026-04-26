@@ -306,12 +306,20 @@ n8n workflow artifact:
 - `n8n/opportunity-chat-claude.workflow.json`
 - builder: `n8n/build-opportunity-chat-workflow.mjs`
 
-Required n8n environment variables:
+Required n8n configuration, as either environment variables or n8n variables:
 
-- `ACUMATICA_BASE_URL`
-- `LS_N8N_CLIENT_SECRET`
+- `ACUMATICA_BASE_URL` — base URL visible from the n8n container, including the Acumatica instance path, for example `http://host.docker.internal:38121/AcumaticaERP` if that route is reachable
+- `LS_N8N_CLIENT_SECRET` — must match `N8nClientSecret` configured on `LS501030`
 - `ANTHROPIC_API_KEY`
-- `ANTHROPIC_MODEL` optional
+- `ANTHROPIC_MODEL` optional, default `claude-3-5-sonnet-latest`
+- `ANTHROPIC_MAX_TOKENS` optional, default `1200`
+
+After import, attach the existing Acumatica OAuth2 credential to both Acumatica HTTP Request nodes:
+
+- `GET Opportunity Context`
+- `GET Related Meeting Notes and Transcripts`
+
+The workflow is sequential: validate request → GET Opportunity context → GET related approval/transcript rows → build Claude prompt → call Anthropic → return `{ answer }`.
 
 Runtime contract from Acumatica to n8n:
 
@@ -343,7 +351,7 @@ Runtime contract from Acumatica to n8n:
 }
 ```
 
-n8n validates `clientSecret`, then uses OAuth credentials to perform **GET-only** calls to Acumatica:
+n8n validates `clientSecret`, then uses the attached OAuth credential to perform **GET-only** calls to Acumatica:
 
 - `GET /entity/LSOpportunityNotes/25.200.001/OpportunityChatContext/{OpportunityID}`
 - `GET /entity/LSOpportunityNotes/25.200.001/OpportunityNotesApproval?$filter=ConfirmedOpportunityID eq '{OpportunityID}'`
