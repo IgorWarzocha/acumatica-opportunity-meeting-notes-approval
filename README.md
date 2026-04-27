@@ -44,6 +44,10 @@ This folder is intended for another developer to:
 - `sql/001-LSOpportunityMeetingNotesApproval.table.sql`
 - `sql/003-LSOpportunityChat.table.sql`
 
+### Validation scripts
+- `scripts/audit-modern-ui-bindings.py`
+  - static graph/TypeScript/HTML binding audit for modern UI screens
+
 ### Mock n8n assets
 - `n8n/README.md`
 - `n8n/*.mjs`
@@ -93,7 +97,16 @@ The customization package includes:
   - `n8n/fireflies-opportunity-meeting-notes-mock.workflow.json`
   - `n8n/build-fireflies-opportunity-workflow.mjs`
 
-### 3. Upload the package
+### 3. Run validation
+
+```bash
+python3 scripts/audit-modern-ui-bindings.py
+dotnet build LSOpportunityMeetingNotesApproval.sln -c Release -nologo
+```
+
+Acuminator can be run from the parent Acumatica workspace when available.
+
+### 4. Upload the package
 - import/publish `ls-opportunity-meeting-notes-approval.zip` in Acumatica
 
 ## Notes for another developer
@@ -114,4 +127,5 @@ The customization package includes:
 - Visual Studio solution: `./LSOpportunityMeetingNotesApproval.sln`
 - SQL review artifacts: `./sql/`
 - n8n assets: `./n8n/`
+- validation scripts: `./scripts/`
 
