@@ -272,6 +272,8 @@ Expected webhook payload still only needs a transcript/meeting ID, e.g.:
 
 The Fireflies node returns the transcript under `data`; the workflow treats that Fireflies node output as the only supported live shape.
 
+Processing status is intentionally handled by n8n execution status, not by the Fireflies HTTP response. The webhook responds `202 Accepted` after structural validation; downstream transcript fetch, Claude/tool calls, and Acumatica API calls are recorded by n8n as successful or failed executions. The workflow settings retain success/error execution data and progress for production troubleshooting.
+
 ## Mock Workflow Usage
 
 Use the mock workflow when you want to keep moving without a live Fireflies account.

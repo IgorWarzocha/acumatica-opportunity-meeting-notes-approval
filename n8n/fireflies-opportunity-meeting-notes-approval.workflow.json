@@ -1,7 +1,7 @@
 [
 	{
-		"updatedAt": "2026-04-27T08:36:00.567Z",
-		"createdAt": "2026-04-27T08:36:00.567Z",
+		"updatedAt": "2026-04-27T08:40:41.292Z",
+		"createdAt": "2026-04-27T08:40:41.293Z",
 		"id": "5c7c4f1e-8f3d-4ec7-8fd8-72ec145f0c33",
 		"name": "Fireflies Opportunity Meeting Notes Approval",
 		"description": "Receives Fireflies webhook events, fetches transcript data, suggests an Acumatica opportunity, and creates a pending approval record through the LSOpportunityNotes endpoint. Acumatica persists the pending-review transcript as an approval-row .html attachment and renders TranscriptHtml from that file; approval creates the downstream CRActivity attachment.",
@@ -351,7 +351,14 @@
 				]
 			}
 		},
-		"settings": {},
+		"settings": {
+			"executionOrder": "v1",
+			"saveDataErrorExecution": "all",
+			"saveDataSuccessExecution": "all",
+			"saveExecutionProgress": true,
+			"saveManualExecutions": true,
+			"executionTimeout": 300
+		},
 		"staticData": null,
 		"meta": null,
 		"pinData": {},
