@@ -20,9 +20,6 @@ namespace LSOpportunityMeetingNotesApproval
 				And<LSOpportunityChatMessage.role, NotEqual<LSOpportunityChatMessageRole.system>>>,
 			OrderBy<Asc<LSOpportunityChatMessage.messageDateTime, Asc<LSOpportunityChatMessage.chatMessageID>>>> ChatMessages;
 
-		public PXSelect<LSOpportunityChatMessage,
-			Where<LSOpportunityChatMessage.chatSessionID, Equal<Current<LSOpportunityChatSession.chatSessionID>>>,
-			OrderBy<Asc<LSOpportunityChatMessage.messageDateTime, Asc<LSOpportunityChatMessage.chatMessageID>>>> ConversationMessages;
 
 		public PXFilter<LSOpportunityChatPrompt> Prompt;
 		public PXFilter<LSOpportunityChatContext> Context;
@@ -194,7 +191,7 @@ namespace LSOpportunityMeetingNotesApproval
 
 		protected virtual void InsertMessage(int? chatSessionID, string role, string messageText)
 		{
-			ConversationMessages.Insert(new LSOpportunityChatMessage
+			ChatMessages.Cache.Insert(new LSOpportunityChatMessage
 			{
 				ChatSessionID = chatSessionID,
 				Role = role,
