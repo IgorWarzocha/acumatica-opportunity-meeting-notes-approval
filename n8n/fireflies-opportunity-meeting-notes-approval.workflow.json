@@ -1,7 +1,7 @@
 [
 	{
-		"updatedAt": "2026-04-16T20:42:52.317Z",
-		"createdAt": "2026-04-16T20:42:52.323Z",
+		"updatedAt": "2026-04-27T08:29:59.801Z",
+		"createdAt": "2026-04-27T08:29:59.801Z",
 		"id": "5c7c4f1e-8f3d-4ec7-8fd8-72ec145f0c33",
 		"name": "Fireflies Opportunity Meeting Notes Approval",
 		"description": "Receives Fireflies webhook events, fetches transcript data, suggests an Acumatica opportunity, and creates a pending approval record through the LSOpportunityNotes endpoint. Acumatica persists the pending-review transcript as an approval-row .html attachment and renders TranscriptHtml from that file; approval creates the downstream CRActivity attachment.",
@@ -49,38 +49,21 @@
 			{
 				"id": "3",
 				"name": "Fetch Fireflies Transcript",
-				"type": "n8n-nodes-base.httpRequest",
-				"typeVersion": 4.4,
+				"type": "@firefliesai/n8n-nodes-fireflies.fireflies",
+				"typeVersion": 1,
 				"position": [
 					780,
 					300
 				],
 				"parameters": {
-					"method": "POST",
-					"url": "={{ $env.FIREFLIES_GRAPHQL_URL || \"https://api.fireflies.ai/graphql\" }}",
-					"authentication": "none",
-					"sendHeaders": true,
-					"specifyHeaders": "keypair",
-					"headerParameters": {
-						"parameters": [
-							{
-								"name": "Authorization",
-								"value": "={{ \"Bearer \" + $env.FIREFLIES_API_KEY }}"
-							}
-						]
-					},
-					"sendBody": true,
-					"contentType": "json",
-					"specifyBody": "json",
-					"jsonBody": "={{ ({ query: \"query Transcript($transcriptId: String!) {\\\\n\\ttranscript(id: $transcriptId) {\\\\n\\t\\tid\\\\n\\t\\ttitle\\\\n\\t\\tdate\\\\n\\t\\torganizer_email\\\\n\\t\\tparticipants\\\\n\\t\\ttranscript_url\\\\n\\t\\tduration\\\\n\\t\\tsummary {\\\\n\\t\\t\\toverview\\\\n\\t\\t\\taction_items\\\\n\\t\\t\\tshorthand_bullet\\\\n\\t\\t\\tshort_summary\\\\n\\t\\t\\tshort_overview\\\\n\\t\\t\\ttopics_discussed\\\\n\\t\\t}\\\\n\\t\\tsentences {\\\\n\\t\\t\\tspeaker_name\\\\n\\t\\t\\ttext\\\\n\\t\\t\\tstart_time\\\\n\\t\\t\\tend_time\\\\n\\t\\t}\\\\n\\t}\\\\n}\", variables: { transcriptId: $json.meetingId } }) }}",
-					"options": {
-						"timeout": 60000,
-						"response": {
-							"response": {
-								"neverError": false,
-								"responseFormat": "json"
-							}
-						}
+					"resource": "transcript",
+					"operation": "getTranscript",
+					"transcriptId": "={{ $json.meetingId }}"
+				},
+				"credentials": {
+					"firefliesApi": {
+						"id": "",
+						"name": "Fireflies API"
 					}
 				}
 			},
@@ -96,7 +79,7 @@
 				"parameters": {
 					"mode": "runOnceForAllItems",
 					"language": "javaScript",
-					"jsCode": "\nconst input = $input.first()?.json ?? {};\nconst transcript = input?.data?.transcript;\n\nif (!transcript) {\n\tthrow new Error(\"Fireflies transcript response did not contain data.transcript\");\n}\n\nconst normalizeEmail = (value) => String(value ?? \"\").trim().toLowerCase();\n\nconst asArray = (value) => {\n\tif (Array.isArray(value)) {\n\t\treturn value;\n\t}\n\n\tif (value == null || value === \"\") {\n\t\treturn [];\n\t}\n\n\treturn [value];\n};\n\nconst participantEmails = Array.from(\n\tnew Set(\n\t\tasArray(transcript.participants)\n\t\t\t.flatMap((participant) => {\n\t\t\t\tif (typeof participant === \"string\") {\n\t\t\t\t\treturn [participant];\n\t\t\t\t}\n\n\t\t\t\tif (participant && typeof participant === \"object\") {\n\t\t\t\t\treturn [\n\t\t\t\t\t\tparticipant.email,\n\t\t\t\t\t\tparticipant.emailAddress,\n\t\t\t\t\t\tparticipant.email_address,\n\t\t\t\t\t\tparticipant.user_email,\n\t\t\t\t\t].filter(Boolean);\n\t\t\t\t}\n\n\t\t\t\treturn [];\n\t\t\t})\n\t\t\t.map(normalizeEmail)\n\t\t\t.filter(Boolean),\n\t),\n);\n\nconst sentences = Array.isArray(transcript.sentences) ? transcript.sentences : [];\nconst groupedSentences = [];\n\nfor (const sentence of sentences) {\n\tconst speakerName = String(sentence?.speaker_name ?? \"Unknown Speaker\").trim() || \"Unknown Speaker\";\n\tconst text = String(sentence?.text ?? sentence?.raw_text ?? sentence?.ai_filters?.text_cleanup ?? \"\").trim();\n\n\tif (!text) {\n\t\tcontinue;\n\t}\n\n\tconst currentGroup = groupedSentences[groupedSentences.length - 1];\n\tif (currentGroup && currentGroup.speakerName === speakerName) {\n\t\tcurrentGroup.parts.push(text);\n\t\tcontinue;\n\t}\n\n\tgroupedSentences.push({\n\t\tspeakerName,\n\t\tparts: [text],\n\t});\n}\n\nconst formattedTranscript = groupedSentences\n\t.map((group) => \"**\" + group.speakerName + \":** \" + group.parts.join(\" \"))\n\t.join(\"\\\\n\\\\n\");\n\nconst summary = transcript.summary ?? {};\nconst actionItems = Array.isArray(summary.action_items)\n\t? summary.action_items.map((item) => \"- \" + String(item ?? \"\").trim()).filter((item) => item !== \"- \").join(\"\\\\n\")\n\t: String(summary.action_items ?? \"\");\n\nreturn [\n\t{\n\t\tjson: {\n\t\t\tid: transcript.id,\n\t\t\tformattedTranscript,\n\t\t\tattendees: participantEmails,\n\t\t\tdate: transcript.date ?? \"\",\n\t\t\thost: normalizeEmail(transcript.organizer_email),\n\t\t\tsubject: transcript.title ?? \"Meeting Notes Summary\",\n\t\t\tkeywords: Array.isArray(summary.topics_discussed) ? summary.topics_discussed : [],\n\t\t\tactionItems,\n\t\t\tshorthandBullet: summary.shorthand_bullet ?? \"\",\n\t\t\toverview: summary.overview ?? \"\",\n\t\t\tbulletGist: summary.shorthand_bullet ?? \"\",\n\t\t\tgist: summary.short_overview ?? \"\",\n\t\t\tshortSummary: summary.short_summary ?? \"\",\n\t\t\ttranscriptUrl: transcript.transcript_url ?? \"\",\n\t\t\tduration: transcript.duration ?? null,\n\t\t},\n\t},\n];\n"
+					"jsCode": "\nconst input = $input.first()?.json ?? {};\nconst transcript = input?.data;\n\nif (!transcript) {\n\tthrow new Error(\"Fireflies transcript node response did not contain data\");\n}\n\nconst normalizeEmail = (value) => String(value ?? \"\").trim().toLowerCase();\n\nconst asArray = (value) => {\n\tif (Array.isArray(value)) {\n\t\treturn value;\n\t}\n\n\tif (value == null || value === \"\") {\n\t\treturn [];\n\t}\n\n\treturn [value];\n};\n\nconst participantEmails = Array.from(\n\tnew Set(\n\t\tasArray(transcript.participants)\n\t\t\t.flatMap((participant) => {\n\t\t\t\tif (typeof participant === \"string\") {\n\t\t\t\t\treturn [participant];\n\t\t\t\t}\n\n\t\t\t\tif (participant && typeof participant === \"object\") {\n\t\t\t\t\treturn [\n\t\t\t\t\t\tparticipant.email,\n\t\t\t\t\t\tparticipant.emailAddress,\n\t\t\t\t\t\tparticipant.email_address,\n\t\t\t\t\t\tparticipant.user_email,\n\t\t\t\t\t].filter(Boolean);\n\t\t\t\t}\n\n\t\t\t\treturn [];\n\t\t\t})\n\t\t\t.map(normalizeEmail)\n\t\t\t.filter(Boolean),\n\t),\n);\n\nconst sentences = Array.isArray(transcript.sentences) ? transcript.sentences : [];\nconst groupedSentences = [];\n\nfor (const sentence of sentences) {\n\tconst speakerName = String(sentence?.speaker_name ?? \"Unknown Speaker\").trim() || \"Unknown Speaker\";\n\tconst text = String(sentence?.text ?? sentence?.raw_text ?? sentence?.ai_filters?.text_cleanup ?? \"\").trim();\n\n\tif (!text) {\n\t\tcontinue;\n\t}\n\n\tconst currentGroup = groupedSentences[groupedSentences.length - 1];\n\tif (currentGroup && currentGroup.speakerName === speakerName) {\n\t\tcurrentGroup.parts.push(text);\n\t\tcontinue;\n\t}\n\n\tgroupedSentences.push({\n\t\tspeakerName,\n\t\tparts: [text],\n\t});\n}\n\nconst formattedTranscript = groupedSentences\n\t.map((group) => \"**\" + group.speakerName + \":** \" + group.parts.join(\" \"))\n\t.join(\"\\\\n\\\\n\");\n\nconst summary = transcript.summary ?? {};\nconst actionItems = Array.isArray(summary.action_items)\n\t? summary.action_items.map((item) => \"- \" + String(item ?? \"\").trim()).filter((item) => item !== \"- \").join(\"\\\\n\")\n\t: String(summary.action_items ?? \"\");\n\nreturn [\n\t{\n\t\tjson: {\n\t\t\tid: transcript.id,\n\t\t\tformattedTranscript,\n\t\t\tattendees: participantEmails,\n\t\t\tdate: transcript.date ?? \"\",\n\t\t\thost: normalizeEmail(transcript.organizer_email),\n\t\t\tsubject: transcript.title ?? \"Meeting Notes Summary\",\n\t\t\tkeywords: Array.isArray(summary.topics_discussed) ? summary.topics_discussed : [],\n\t\t\tactionItems,\n\t\t\tshorthandBullet: summary.shorthand_bullet ?? \"\",\n\t\t\toverview: summary.overview ?? \"\",\n\t\t\tbulletGist: summary.shorthand_bullet ?? \"\",\n\t\t\tgist: summary.short_overview ?? \"\",\n\t\t\tshortSummary: summary.short_summary ?? \"\",\n\t\t\ttranscriptUrl: transcript.transcript_url ?? \"\",\n\t\t\tduration: transcript.duration ?? null,\n\t\t},\n\t},\n];\n"
 				}
 			},
 			{

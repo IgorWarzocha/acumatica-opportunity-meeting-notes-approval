@@ -69,11 +69,12 @@ These are runtime/deployment values for n8n and external connectivity. They are 
 
 ### Fireflies
 
-- `FIREFLIES_API_KEY`
-  - Required bearer token for Fireflies GraphQL.
-- `FIREFLIES_GRAPHQL_URL`
-  - Optional.
-  - Defaults to `https://api.fireflies.ai/graphql`.
+The live workflow uses the installed community Fireflies node:
+
+- `@firefliesai/n8n-nodes-fireflies.fireflies`
+- node operation: `Transcript` → `Get`
+
+Create/attach an n8n credential of type `firefliesApi` to the `Fetch Fireflies Transcript` node. The old raw HTTP GraphQL node is no longer used for transcript fetches.
 
 ### Acumatica
 
@@ -176,7 +177,7 @@ These are specific to the current local n8n container and are now part of the do
 - One-shot CLI execution from a separate temporary n8n container can fail if the workflow relies on stored OAuth credentials, because that execution path may not initialize the same license/provider state used by the long-running container.
 - The reliable local dev path was:
   1. export/import the workflow through the running `n8n` container
-  2. use the existing `Acumatica OAuth` credential for the imported workflow in the running container
+  2. attach the existing `Acumatica OAuth` credential to Acumatica HTTP nodes and a `firefliesApi` credential to the Fireflies node
   3. for forced CLI one-shot execution, temporarily replace the HTTP node auth with a direct `Authorization: Bearer ...` header using a freshly refreshed token from the documented dev OAuth app
 
 ## Latest Verified Local Mock Run
@@ -232,6 +233,31 @@ docker exec n8n sh -lc 'n8n export:workflow --all --output=/tmp/all-workflows.js
 	"clientReferenceId": "fireflies-sample-20260109"
 }
 ```
+
+## Live Fireflies Workflow Usage
+
+The live workflow now uses the Fireflies community node instead of a hand-built GraphQL HTTP request.
+
+After import, configure credentials:
+
+- `Fetch Fireflies Transcript` → Fireflies credential (`firefliesApi`)
+- `Get Contacts`, `Get Opportunities`, `Create Approval Record` → Acumatica OAuth2 credential
+
+The Fireflies webhook still starts at:
+
+- `POST /webhook/fireflies/opportunity-meeting-notes-approval`
+
+Expected webhook payload still only needs a transcript/meeting ID, e.g.:
+
+```json
+{
+	"meetingId": "01KEG1NZ6RHJ7S3V71D4T70ZBJ",
+	"eventType": "Transcription completed",
+	"clientReferenceId": "fireflies-sample-20260109"
+}
+```
+
+The Fireflies node returns the transcript under `data`; the workflow treats that Fireflies node output as the only supported live shape.
 
 ## Mock Workflow Usage
 

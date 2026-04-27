@@ -36,10 +36,10 @@ const firefliesTranscriptQuery = [
 
 const canonicalizeFirefliesTranscriptCode = String.raw`
 const input = $input.first()?.json ?? {};
-const transcript = input?.data?.transcript;
+const transcript = input?.data;
 
 if (!transcript) {
-	throw new Error("Fireflies transcript response did not contain data.transcript");
+	throw new Error("Fireflies transcript node response did not contain data");
 }
 
 const normalizeEmail = (value) => String(value ?? "").trim().toLowerCase();
@@ -537,35 +537,18 @@ const workflow = [
 			{
 				id: "3",
 				name: "Fetch Fireflies Transcript",
-				type: "n8n-nodes-base.httpRequest",
-				typeVersion: 4.4,
+				type: "@firefliesai/n8n-nodes-fireflies.fireflies",
+				typeVersion: 1,
 				position: [780, 300],
 				parameters: {
-					method: "POST",
-					url: '={{ $env.FIREFLIES_GRAPHQL_URL || "https://api.fireflies.ai/graphql" }}',
-					authentication: "none",
-					sendHeaders: true,
-					specifyHeaders: "keypair",
-					headerParameters: {
-						parameters: [
-							{
-								name: "Authorization",
-								value: '={{ "Bearer " + $env.FIREFLIES_API_KEY }}',
-							},
-						],
-					},
-					sendBody: true,
-					contentType: "json",
-					specifyBody: "json",
-					jsonBody: `={{ ({ query: ${JSON.stringify(firefliesTranscriptQuery)}, variables: { transcriptId: $json.meetingId } }) }}`,
-					options: {
-						timeout: 60000,
-						response: {
-							response: {
-								neverError: false,
-								responseFormat: "json",
-							},
-						},
+					resource: "transcript",
+					operation: "getTranscript",
+					transcriptId: "={{ $json.meetingId }}",
+				},
+				credentials: {
+					firefliesApi: {
+						id: "",
+						name: "Fireflies API",
 					},
 				},
 			},
