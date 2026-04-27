@@ -1,7 +1,7 @@
 [
 	{
-		"updatedAt": "2026-04-27T08:29:59.801Z",
-		"createdAt": "2026-04-27T08:29:59.801Z",
+		"updatedAt": "2026-04-27T08:36:00.567Z",
+		"createdAt": "2026-04-27T08:36:00.567Z",
 		"id": "5c7c4f1e-8f3d-4ec7-8fd8-72ec145f0c33",
 		"name": "Fireflies Opportunity Meeting Notes Approval",
 		"description": "Receives Fireflies webhook events, fetches transcript data, suggests an Acumatica opportunity, and creates a pending approval record through the LSOpportunityNotes endpoint. Acumatica persists the pending-review transcript as an approval-row .html attachment and renders TranscriptHtml from that file; approval creates the downstream CRActivity attachment.",
@@ -99,14 +99,63 @@
 			},
 			{
 				"id": "6",
-				"name": "Get Contacts",
-				"type": "n8n-nodes-base.httpRequest",
-				"typeVersion": 4.4,
+				"name": "AI Agent",
+				"type": "@n8n/n8n-nodes-langchain.agent",
+				"typeVersion": 3.1,
 				"position": [
-					1300,
+					1360,
 					300
 				],
 				"parameters": {
+					"promptType": "define",
+					"text": "=\nYou are an automation agent that processes Fireflies meeting transcripts and creates Acumatica Opportunity Meeting Notes Approval records.\n\nUse the provided normalized transcript JSON as the source of truth.\n\nRequired workflow:\n1. Identify external attendee emails from externalParticipantEmails. Do not query or match @bpw.com host emails.\n2. For each external email, call get_contact_from_acumatica to find the matching Acumatica contact and Business Account.\n3. Call get_opportunities_from_acumatica to retrieve open opportunities. Select the best matching opportunity using Business Account first, then meeting subject, summary, keywords, and transcript content.\n4. If no confident opportunity match exists, still create the approval record with ConfirmedOpportunityID blank and include the best SuggestedOpportunityID only when defensible.\n5. Call create_opportunity_meeting_notes_approval exactly once with an Acumatica payload for the LSOpportunityNotes endpoint.\n\nPayload requirements for create_opportunity_meeting_notes_approval:\n- ExternalMeetingID.value = meetingId\n- MeetingTitle.value = title\n- MeetingDate.value = meetingDate\n- OrganizerEmail.value = organizerEmail\n- ParticipantEmails.value = participantEmails joined by comma and space\n- SuggestedOpportunityID.value = selected OpportunityID, or omit/blank if no defensible match\n- ConfirmedOpportunityID.value = blank unless the match is certain enough to route directly to that opportunity\n- Status.value = \"P\"\n- TranscriptHtml.value = transcriptHtml\n- Summary.value = summaryText\n\nReturn a concise JSON-like result describing created/skipped status and selected opportunity. Do not create CRM activities directly. The Acumatica approval screen handles user review and downstream activity creation.\n\nHere is the normalized Fireflies transcript JSON:\n{{ $json.toJsonString() }}\n",
+					"hasOutputParser": false,
+					"needsFallback": false,
+					"options": {
+						"systemMessage": "You orchestrate Fireflies transcript ingestion into Acumatica. Use the available Acumatica tools for contact lookup, opportunity lookup, and approval-record creation. Never create CRM activities directly.",
+						"maxIterations": 8,
+						"returnIntermediateSteps": false,
+						"enableStreaming": false
+					}
+				}
+			},
+			{
+				"id": "7",
+				"name": "Anthropic Chat Model",
+				"type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+				"typeVersion": 1.3,
+				"position": [
+					1360,
+					560
+				],
+				"parameters": {
+					"model": {
+						"mode": "list",
+						"value": "claude-sonnet-4-5-20250929",
+						"cachedResultName": "Claude Sonnet 4.5"
+					},
+					"options": {
+						"maxTokensToSample": 1800
+					}
+				},
+				"credentials": {
+					"anthropicApi": {
+						"id": "l9RIE8TC7FUqezEI",
+						"name": "Anthropic account"
+					}
+				}
+			},
+			{
+				"id": "8",
+				"name": "get_contact_from_acumatica",
+				"type": "n8n-nodes-base.httpRequestTool",
+				"typeVersion": 4.4,
+				"position": [
+					1100,
+					560
+				],
+				"parameters": {
+					"toolDescription": "GET Acumatica Contact by exact email. Input email must be an external attendee email, never an @bpw.com host email. Returns Contact fields including BusinessAccount when available.",
 					"method": "GET",
 					"url": "={{ ($env.ACU_BASE_URL || \"https://localhost:443\") + \"/\" + ($env.ACU_INSTANCE_NAME || \"demo\") + \"/entity/Default/25.200.001/Contact\" }}",
 					"authentication": "genericCredentialType",
@@ -116,31 +165,32 @@
 						"parameters": [
 							{
 								"name": "$filter",
-								"value": "={{ \"Email eq '\" + (($json.attendeeEmail || \"__no_match__\").replace(/'/g, \"''\")) + \"'\" }}"
+								"value": "={{ \"Email eq '\" + $fromAI(\"email\", \"External attendee email address to look up\", \"string\").replace(/'/g, \"''\") + \"'\" }}"
 							}
 						]
 					},
 					"options": {
-						"timeout": 60000,
-						"response": {
-							"response": {
-								"neverError": false,
-								"responseFormat": "json"
-							}
-						}
+						"timeout": 60000
+					}
+				},
+				"credentials": {
+					"oAuth2Api": {
+						"id": "f4ac1647-48e9-4a7b-876e-1a6fd7c0c146",
+						"name": "Acumatica OAuth"
 					}
 				}
 			},
 			{
-				"id": "7",
-				"name": "Get Opportunities",
-				"type": "n8n-nodes-base.httpRequest",
+				"id": "9",
+				"name": "get_opportunities_from_acumatica",
+				"type": "n8n-nodes-base.httpRequestTool",
 				"typeVersion": 4.4,
 				"position": [
-					1560,
-					300
+					1620,
+					560
 				],
 				"parameters": {
+					"toolDescription": "GET open Acumatica opportunities. Use Contact/Business Account lookup results plus meeting content to choose the best OpportunityID. Does not mutate data.",
 					"method": "GET",
 					"url": "={{ ($env.ACU_BASE_URL || \"https://localhost:443\") + \"/\" + ($env.ACU_INSTANCE_NAME || \"demo\") + \"/entity/Default/25.200.001/Opportunity\" }}",
 					"authentication": "genericCredentialType",
@@ -159,41 +209,27 @@
 						]
 					},
 					"options": {
-						"timeout": 60000,
-						"response": {
-							"response": {
-								"neverError": false,
-								"responseFormat": "json"
-							}
-						}
+						"timeout": 60000
+					}
+				},
+				"credentials": {
+					"oAuth2Api": {
+						"id": "f4ac1647-48e9-4a7b-876e-1a6fd7c0c146",
+						"name": "Acumatica OAuth"
 					}
 				}
 			},
 			{
-				"id": "8",
-				"name": "Aggregate And Build Payload",
-				"type": "n8n-nodes-base.code",
-				"typeVersion": 2,
-				"position": [
-					1820,
-					300
-				],
-				"parameters": {
-					"mode": "runOnceForAllItems",
-					"language": "javaScript",
-					"jsCode": "\nconst attendeeItems = $('Normalize Fireflies Transcript').all();\nconst contactItems = $('Get Contacts').all();\nconst opportunityItems = $('Get Opportunities').all();\nconst webhookMetadata = $('Validate Fireflies Webhook').first()?.json ?? {};\n\nconst readValue = (record, ...keys) => {\n\tif (!record || typeof record !== \"object\") {\n\t\treturn null;\n\t}\n\n\tfor (const key of keys) {\n\t\tif (!(key in record)) {\n\t\t\tcontinue;\n\t\t}\n\n\t\tconst value = record[key];\n\t\tif (value && typeof value === \"object\" && \"value\" in value) {\n\t\t\treturn value.value;\n\t\t}\n\t\tif (value !== undefined) {\n\t\t\treturn value;\n\t\t}\n\t}\n\n\treturn null;\n};\n\nconst asArray = (value) => {\n\tif (Array.isArray(value)) {\n\t\treturn value;\n\t}\n\n\tif (value == null) {\n\t\treturn [];\n\t}\n\n\treturn [value];\n};\n\nconst toIntOrNull = (value) => {\n\tif (value == null || value === \"\") {\n\t\treturn null;\n\t}\n\n\tconst parsed = Number.parseInt(String(value), 10);\n\treturn Number.isFinite(parsed) ? parsed : null;\n};\n\nconst keywordSet = (value) => new Set(\n\tString(value ?? \"\")\n\t\t.toLowerCase()\n\t\t.replace(/[^a-z0-9\\s]/g, \" \")\n\t\t.split(/\\s+/)\n\t\t.filter((word) => word.length > 2),\n);\n\nconst scoreOpportunity = (opportunity, matchCorpus, businessAccounts) => {\n\tlet score = 0;\n\tconst opportunitySubject = String(readValue(opportunity, \"Subject\", \"subject\") ?? \"\");\n\tconst subjectKeywords = keywordSet(opportunitySubject);\n\tconst corpusKeywords = keywordSet(matchCorpus);\n\n\tfor (const word of subjectKeywords) {\n\t\tif (corpusKeywords.has(word)) {\n\t\t\tscore += 5;\n\t\t}\n\t}\n\n\tconst businessAccount = String(readValue(opportunity, \"BusinessAccount\", \"businessAccount\", \"BAccountID\", \"bAccountID\") ?? \"\");\n\tif (businessAccount && businessAccounts.has(businessAccount.toLowerCase())) {\n\t\tscore += 20;\n\t}\n\n\treturn score;\n};\n\nconst firstMeeting = attendeeItems[0]?.json;\nif (!firstMeeting) {\n\tthrow new Error(\"No normalized Fireflies items were produced\");\n}\n\nconst unmatchedEmails = [];\nconst matchedContacts = [];\nconst businessAccounts = new Set();\nconst candidateOpportunities = [];\n\nfor (let index = 0; index < attendeeItems.length; index += 1) {\n\tconst attendee = attendeeItems[index]?.json ?? {};\n\tconst attendeeEmail = attendee.attendeeEmail;\n\tconst contactsResponse = contactItems[index]?.json;\n\tconst opportunitiesResponse = opportunityItems[index]?.json;\n\n\tconst contacts = asArray(contactsResponse).filter((record) => record && typeof record === \"object\");\n\tif (attendeeEmail && contacts.length === 0) {\n\t\tunmatchedEmails.push(attendeeEmail);\n\t}\n\n\tfor (const contact of contacts) {\n\t\tconst businessAccount = readValue(contact, \"BusinessAccount\", \"businessAccount\", \"BAccountID\", \"bAccountID\");\n\t\tconst contactID = readValue(contact, \"id\", \"ContactID\", \"contactID\");\n\n\t\tif (businessAccount) {\n\t\t\tbusinessAccounts.add(String(businessAccount).toLowerCase());\n\t\t}\n\n\t\tmatchedContacts.push({\n\t\t\tattendeeEmail,\n\t\t\tcontactID,\n\t\t\tbusinessAccount,\n\t\t\tdisplayName: readValue(contact, \"DisplayName\", \"displayName\", \"FullName\", \"fullName\"),\n\t\t});\n\t}\n\n\tfor (const opportunity of asArray(opportunitiesResponse).filter((record) => record && typeof record === \"object\")) {\n\t\tconst opportunityID = readValue(opportunity, \"OpportunityID\", \"opportunityID\");\n\t\tif (!opportunityID) {\n\t\t\tcontinue;\n\t\t}\n\n\t\tcandidateOpportunities.push(opportunity);\n\t}\n}\n\nconst dedupedOpportunities = Array.from(\n\tnew Map(\n\t\tcandidateOpportunities.map((opportunity) => [\n\t\t\tString(readValue(opportunity, \"OpportunityID\", \"opportunityID\")),\n\t\t\topportunity,\n\t\t]),\n\t).values(),\n);\n\nconst ranked = dedupedOpportunities\n\t.map((opportunity) => ({\n\t\topportunity,\n\t\topportunityID: String(readValue(opportunity, \"OpportunityID\", \"opportunityID\")),\n\t\tsubject: String(readValue(opportunity, \"Subject\", \"subject\") ?? \"\"),\n\t\tbusinessAccount: String(readValue(opportunity, \"BusinessAccount\", \"businessAccount\", \"BAccountID\", \"bAccountID\") ?? \"\"),\n\t\tscore: scoreOpportunity(opportunity, firstMeeting.matchCorpus, businessAccounts),\n\t}))\n\t.sort((left, right) => right.score - left.score);\n\nconst bestCandidate = ranked[0] ?? null;\nconst topCandidates = bestCandidate\n\t? ranked.filter((entry) => entry.score === bestCandidate.score)\n\t: [];\nconst hasUniqueBestCandidate = topCandidates.length === 1;\nconst suggestedOpportunityID = hasUniqueBestCandidate ? bestCandidate.opportunityID : null;\n// Acumatica owns final confirmation. n8n may suggest a candidate, but Stephen must\n// explicitly confirm or correct ConfirmedOpportunityID before approval.\nconst confirmedOpportunityID = null;\nconst participantEmails = Array.isArray(firstMeeting.participantEmails) ? firstMeeting.participantEmails : [];\n\nconst acumaticaApprovalPayload = {\n\tExternalMeetingID: { value: firstMeeting.meetingId },\n\tExternalClientReferenceID: { value: webhookMetadata.clientReferenceId || \"\" },\n\tMeetingDate: { value: firstMeeting.meetingDate },\n\tMeetingTitle: { value: firstMeeting.title },\n\tMeetingSummary: { value: firstMeeting.summaryText || \"Meeting Notes Summary\" },\n\tTranscriptHtml: { value: firstMeeting.transcriptHtml },\n\tTranscriptUrl: { value: firstMeeting.transcriptUrl || \"\" },\n\tOrganizerEmail: { value: firstMeeting.organizerEmail || \"\" },\n\tParticipantEmails: { value: participantEmails.join(\";\") },\n\tMatchDiagnostics: {\n\t\tvalue: JSON.stringify({\n\t\t\tunmatchedEmails,\n\t\t\tmatchedContacts,\n\t\t\trankedCandidates: ranked.map((entry) => ({\n\t\t\t\topportunityID: entry.opportunityID,\n\t\t\t\tsubject: entry.subject,\n\t\t\t\tbusinessAccount: entry.businessAccount,\n\t\t\t\tscore: entry.score,\n\t\t\t})),\n\t\t\tambiguousTopCandidates: hasUniqueBestCandidate ? [] : topCandidates.map((entry) => ({\n\t\t\t\topportunityID: entry.opportunityID,\n\t\t\t\tsubject: entry.subject,\n\t\t\t\tbusinessAccount: entry.businessAccount,\n\t\t\t\tscore: entry.score,\n\t\t\t})),\n\t\t}),\n\t},\n};\n\nif (suggestedOpportunityID) {\n\tacumaticaApprovalPayload.SuggestedOpportunityID = { value: suggestedOpportunityID };\n}\n\nif (confirmedOpportunityID) {\n\tacumaticaApprovalPayload.ConfirmedOpportunityID = { value: confirmedOpportunityID };\n}\n\nreturn [\n\t{\n\t\tjson: {\n\t\t\texternalMeetingID: firstMeeting.meetingId,\n\t\t\texternalClientReferenceID: webhookMetadata.clientReferenceId || \"\",\n\t\t\tmeetingDate: firstMeeting.meetingDate,\n\t\t\tmeetingTitle: firstMeeting.title,\n\t\t\tmeetingSummary: firstMeeting.summaryText || \"Meeting Notes Summary\",\n\t\t\ttranscriptHtml: firstMeeting.transcriptHtml,\n\t\t\ttranscriptFileName: firstMeeting.transcriptFileName,\n\t\t\ttranscriptUrl: firstMeeting.transcriptUrl,\n\t\t\torganizerEmail: firstMeeting.organizerEmail,\n\t\t\tparticipantEmails,\n\t\t\tunmatchedEmails,\n\t\t\tmatchedContacts,\n\t\t\tcandidateOpportunities: ranked,\n\t\t\tsuggestedOpportunityID,\n\t\t\tconfirmedOpportunityID,\n\t\t\tacumaticaApprovalPayload,\n\t\t},\n\t},\n];\n"
-				}
-			},
-			{
 				"id": "10",
-				"name": "Create Approval Record",
-				"type": "n8n-nodes-base.httpRequest",
+				"name": "create_opportunity_meeting_notes_approval",
+				"type": "n8n-nodes-base.httpRequestTool",
 				"typeVersion": 4.4,
 				"position": [
-					2080,
-					300
+					1880,
+					560
 				],
 				"parameters": {
+					"toolDescription": "PUT one pending LSOpportunityNotes OpportunityNotesApproval record. Body must be Acumatica JSON with .value wrappers. This creates only the approval queue row; Acumatica creates the CRM activity later after user approval.",
 					"method": "PUT",
 					"url": "={{ ($env.ACU_BASE_URL || \"https://localhost:443\") + \"/\" + ($env.ACU_INSTANCE_NAME || \"demo\") + \"/entity/\" + ($env.ACU_APPROVAL_ENDPOINT_NAME || \"LSOpportunityNotes\") + \"/\" + ($env.ACU_APPROVAL_ENDPOINT_VERSION || \"25.200.001\") + \"/OpportunityNotesApproval\" }}",
 					"authentication": "genericCredentialType",
@@ -201,15 +237,15 @@
 					"sendBody": true,
 					"contentType": "json",
 					"specifyBody": "json",
-					"jsonBody": "={{ $(\"Aggregate And Build Payload\").first().json.acumaticaApprovalPayload }}",
+					"jsonBody": "={{ $fromAI(\"approvalPayload\", \"Complete Acumatica OpportunityNotesApproval JSON body using .value wrappers\", \"json\") }}",
 					"options": {
-						"timeout": 60000,
-						"response": {
-							"response": {
-								"neverError": false,
-								"responseFormat": "json"
-							}
-						}
+						"timeout": 60000
+					}
+				},
+				"credentials": {
+					"oAuth2Api": {
+						"id": "f4ac1647-48e9-4a7b-876e-1a6fd7c0c146",
+						"name": "Acumatica OAuth"
 					}
 				}
 			}
@@ -263,41 +299,52 @@
 				"main": [
 					[
 						{
-							"node": "Get Contacts",
+							"node": "AI Agent",
 							"type": "main",
 							"index": 0
 						}
 					]
 				]
 			},
-			"Get Contacts": {
-				"main": [
+			"Anthropic Chat Model": {
+				"ai_languageModel": [
 					[
 						{
-							"node": "Get Opportunities",
-							"type": "main",
+							"node": "AI Agent",
+							"type": "ai_languageModel",
 							"index": 0
 						}
 					]
 				]
 			},
-			"Get Opportunities": {
-				"main": [
+			"get_contact_from_acumatica": {
+				"ai_tool": [
 					[
 						{
-							"node": "Aggregate And Build Payload",
-							"type": "main",
+							"node": "AI Agent",
+							"type": "ai_tool",
 							"index": 0
 						}
 					]
 				]
 			},
-			"Aggregate And Build Payload": {
-				"main": [
+			"get_opportunities_from_acumatica": {
+				"ai_tool": [
 					[
 						{
-							"node": "Create Approval Record",
-							"type": "main",
+							"node": "AI Agent",
+							"type": "ai_tool",
+							"index": 0
+						}
+					]
+				]
+			},
+			"create_opportunity_meeting_notes_approval": {
+				"ai_tool": [
+					[
+						{
+							"node": "AI Agent",
+							"type": "ai_tool",
 							"index": 0
 						}
 					]

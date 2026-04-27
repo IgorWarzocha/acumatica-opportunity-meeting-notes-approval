@@ -236,12 +236,25 @@ docker exec n8n sh -lc 'n8n export:workflow --all --output=/tmp/all-workflows.js
 
 ## Live Fireflies Workflow Usage
 
-The live workflow now uses the Fireflies community node instead of a hand-built GraphQL HTTP request.
+The live workflow follows Aleks' AI Agent shape, with transcript retrieval connected before Claude:
+
+```text
+Fireflies Webhook
+  → Validate Fireflies Webhook
+  → Fetch Fireflies Transcript
+  → Canonicalize Fireflies Transcript
+  → Normalize Fireflies Transcript
+  → AI Agent / Claude
+       ↳ get_contact_from_acumatica
+       ↳ get_opportunities_from_acumatica
+       ↳ create_opportunity_meeting_notes_approval
+```
 
 After import, configure credentials:
 
 - `Fetch Fireflies Transcript` → Fireflies credential (`firefliesApi`)
-- `Get Contacts`, `Get Opportunities`, `Create Approval Record` → Acumatica OAuth2 credential
+- `Anthropic Chat Model` → Anthropic credential
+- `get_contact_from_acumatica`, `get_opportunities_from_acumatica`, `create_opportunity_meeting_notes_approval` → Acumatica OAuth2 credential
 
 The Fireflies webhook still starts at:
 
