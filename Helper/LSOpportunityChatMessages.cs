@@ -1,6 +1,6 @@
 using PX.Common;
 
-namespace LSOpportunityMeetingNotesApproval.Helper
+namespace LS.OpportunityMeetingNotesApproval.Helper
 {
 	[PXLocalizable]
 	public static class LSOpportunityChatMessages

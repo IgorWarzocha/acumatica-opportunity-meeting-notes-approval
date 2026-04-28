@@ -8,11 +8,11 @@ using PX.Data;
 using PX.Objects.CR;
 using PX.Objects.EP;
 using PX.SM;
-using LSOpportunityMeetingNotesApproval.DAC;
-using LSOpportunityMeetingNotesApproval.Helper;
-using Approval = LSOpportunityMeetingNotesApproval.DAC.LSOpportunityMeetingNotesApproval;
+using LS.OpportunityMeetingNotesApproval.DAC;
+using LS.OpportunityMeetingNotesApproval.Helper;
+using Approval = LS.OpportunityMeetingNotesApproval.DAC.LSOpportunityMeetingNotesApproval;
 
-namespace LSOpportunityMeetingNotesApproval.Graph
+namespace LS.OpportunityMeetingNotesApproval.Graph
 {
 	public class LSOpportunityMeetingNotesApprovalEntry : PXGraph<LSOpportunityMeetingNotesApprovalEntry, Approval>
 	{

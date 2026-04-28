@@ -2,9 +2,9 @@ using System;
 using PX.Data;
 using PX.Data.BQL;
 using PX.Objects.CR;
-using LSOpportunityMeetingNotesApproval.Graph;
+using LS.OpportunityMeetingNotesApproval.Graph;
 
-namespace LSOpportunityMeetingNotesApproval.DAC
+namespace LS.OpportunityMeetingNotesApproval.DAC
 {
 	[Serializable]
 	[PXCacheName("Opportunity Chat Session")]

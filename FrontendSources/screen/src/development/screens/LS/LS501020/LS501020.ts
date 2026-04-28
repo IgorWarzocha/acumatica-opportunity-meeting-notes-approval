@@ -18,7 +18,7 @@ import {
 } from "client-controls";
 
 @graphInfo({
-	graphType: "LSOpportunityMeetingNotesApproval.Graph.LSOpportunityChatMaint",
+	graphType: "LS.OpportunityMeetingNotesApproval.Graph.LSOpportunityChatMaint",
 	primaryView: "Document",
 	pageLoadBehavior: PXPageLoadBehavior.PopulateSavedValues,
 })

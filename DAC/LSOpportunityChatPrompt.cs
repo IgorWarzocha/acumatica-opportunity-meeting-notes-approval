@@ -3,7 +3,7 @@ using PX.Data;
 using PX.Data.BQL;
 using PX.Objects.CR;
 
-namespace LSOpportunityMeetingNotesApproval.DAC
+namespace LS.OpportunityMeetingNotesApproval.DAC
 {
 	[Serializable]
 	[PXCacheName("Opportunity Chat Prompt")]
