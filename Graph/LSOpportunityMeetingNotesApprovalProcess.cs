@@ -4,26 +4,29 @@ using System.Collections.Generic;
 using PX.Data;
 using PX.Objects.CR;
 using PX.Objects.EP;
+using LSOpportunityMeetingNotesApproval.DAC;
+using LSOpportunityMeetingNotesApproval.Helper;
+using Approval = LSOpportunityMeetingNotesApproval.DAC.LSOpportunityMeetingNotesApproval;
 
-namespace LSOpportunityMeetingNotesApproval
+namespace LSOpportunityMeetingNotesApproval.Graph
 {
 	public class LSOpportunityMeetingNotesApprovalProcess : PXGraph<LSOpportunityMeetingNotesApprovalProcess>
 	{
 		#region Views
-		public PXSave<LSOpportunityMeetingNotesApproval> Save;
-		public PXCancel<LSOpportunityMeetingNotesApproval> Cancel;
+		public PXSave<Approval> Save;
+		public PXCancel<Approval> Cancel;
 
 		[PXFilterable]
-		public PXProcessing<LSOpportunityMeetingNotesApproval> Records;
+		public PXProcessing<Approval> Records;
 		#endregion
 
 		#region Ctor
 		public LSOpportunityMeetingNotesApprovalProcess()
 		{
-			Records.SetSelected<LSOpportunityMeetingNotesApproval.selected>();
+			Records.SetSelected<Approval.selected>();
 			Records.SetProcessCaption("Approve");
 			Records.SetProcessAllCaption("Approve All");
-			Records.SetProcessDelegate(delegate(List<LSOpportunityMeetingNotesApproval> list)
+			Records.SetProcessDelegate(delegate(List<Approval> list)
 			{
 				LSOpportunityMeetingNotesApprovalEntry.ApproveMethod(list, true);
 			});
@@ -34,20 +37,20 @@ namespace LSOpportunityMeetingNotesApproval
 		protected virtual IEnumerable records()
 		{
 			return PXSelect<
-					LSOpportunityMeetingNotesApproval,
-					Where<LSOpportunityMeetingNotesApproval.status, NotEqual<LSOpportunityMeetingNotesApprovalStatus.approved>>>
+					Approval,
+					Where<Approval.status, NotEqual<LSOpportunityMeetingNotesApprovalStatus.approved>>>
 				.Select(this);
 		}
 		#endregion
 
 		#region Actions
-		public PXAction<LSOpportunityMeetingNotesApproval> Reject;
+		public PXAction<Approval> Reject;
 		[PXButton(CommitChanges = true)]
 		[PXUIField(DisplayName = "Reject", MapEnableRights = PXCacheRights.Update, MapViewRights = PXCacheRights.Select)]
 		public virtual IEnumerable reject(PXAdapter adapter)
 		{
-			List<LSOpportunityMeetingNotesApproval> list = new List<LSOpportunityMeetingNotesApproval>();
-			foreach (LSOpportunityMeetingNotesApproval approvalRecord in adapter.Get<LSOpportunityMeetingNotesApproval>())
+			List<Approval> list = new List<Approval>();
+			foreach (Approval approvalRecord in adapter.Get<Approval>())
 			{
 				if (approvalRecord != null)
 				{
@@ -64,7 +67,7 @@ namespace LSOpportunityMeetingNotesApproval
 			return adapter.Get();
 		}
 
-		public PXAction<LSOpportunityMeetingNotesApproval> ViewOpportunity;
+		public PXAction<Approval> ViewOpportunity;
 		[PXButton]
 		[PXUIField(DisplayName = "", MapEnableRights = PXCacheRights.Select, MapViewRights = PXCacheRights.Select)]
 		[PXEditDetailButton]
@@ -73,7 +76,7 @@ namespace LSOpportunityMeetingNotesApproval
 			return RedirectToOpportunity(adapter, Records.Current?.ConfirmedOpportunityID);
 		}
 
-		public PXAction<LSOpportunityMeetingNotesApproval> ViewSuggestedOpportunity;
+		public PXAction<Approval> ViewSuggestedOpportunity;
 		[PXButton]
 		[PXUIField(DisplayName = "", MapEnableRights = PXCacheRights.Select, MapViewRights = PXCacheRights.Select)]
 		[PXEditDetailButton]
@@ -82,20 +85,20 @@ namespace LSOpportunityMeetingNotesApproval
 			return RedirectToOpportunity(adapter, Records.Current?.SuggestedOpportunityID);
 		}
 
-		public PXAction<LSOpportunityMeetingNotesApproval> ViewDocument;
+		public PXAction<Approval> ViewDocument;
 		[PXButton]
 		[PXUIField(DisplayName = "", MapEnableRights = PXCacheRights.Select, MapViewRights = PXCacheRights.Select)]
 		[PXEditDetailButton]
 		public virtual IEnumerable viewDocument(PXAdapter adapter)
 		{
-			LSOpportunityMeetingNotesApproval approvalRecord = Records.Current;
+			Approval approvalRecord = Records.Current;
 			if (approvalRecord?.ApprovalID == null)
 			{
 				return adapter.Get();
 			}
 
 			LSOpportunityMeetingNotesApprovalEntry graph = PXGraph.CreateInstance<LSOpportunityMeetingNotesApprovalEntry>();
-			LSOpportunityMeetingNotesApproval document = LSOpportunityMeetingNotesApproval.PK.Find(graph, approvalRecord.ApprovalID);
+			Approval document = Approval.PK.Find(graph, approvalRecord.ApprovalID);
 			if (document == null)
 			{
 				return adapter.Get();
@@ -105,13 +108,13 @@ namespace LSOpportunityMeetingNotesApproval
 			return adapter.Get();
 		}
 
-		public PXAction<LSOpportunityMeetingNotesApproval> ViewActivity;
+		public PXAction<Approval> ViewActivity;
 		[PXButton]
 		[PXUIField(DisplayName = "", MapEnableRights = PXCacheRights.Select, MapViewRights = PXCacheRights.Select)]
 		[PXEditDetailButton]
 		public virtual IEnumerable viewActivity(PXAdapter adapter)
 		{
-			LSOpportunityMeetingNotesApproval approvalRecord = Records.Current;
+			Approval approvalRecord = Records.Current;
 			if (approvalRecord?.ActivityNoteID == null)
 			{
 				return adapter.Get();

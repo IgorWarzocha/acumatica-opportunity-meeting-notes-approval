@@ -8,28 +8,31 @@ using PX.Data;
 using PX.Objects.CR;
 using PX.Objects.EP;
 using PX.SM;
+using LSOpportunityMeetingNotesApproval.DAC;
+using LSOpportunityMeetingNotesApproval.Helper;
+using Approval = LSOpportunityMeetingNotesApproval.DAC.LSOpportunityMeetingNotesApproval;
 
-namespace LSOpportunityMeetingNotesApproval
+namespace LSOpportunityMeetingNotesApproval.Graph
 {
-	public class LSOpportunityMeetingNotesApprovalEntry : PXGraph<LSOpportunityMeetingNotesApprovalEntry, LSOpportunityMeetingNotesApproval>
+	public class LSOpportunityMeetingNotesApprovalEntry : PXGraph<LSOpportunityMeetingNotesApprovalEntry, Approval>
 	{
 		private bool _persistingTranscriptAttachments;
 
 		#region Views
-		[PXCopyPasteHiddenFields(typeof(LSOpportunityMeetingNotesApproval.transcriptHtml), typeof(LSOpportunityMeetingNotesApproval.matchDiagnostics))]
-		public PXSelect<LSOpportunityMeetingNotesApproval> Document;
+		[PXCopyPasteHiddenFields(typeof(Approval.transcriptHtml), typeof(Approval.matchDiagnostics))]
+		public PXSelect<Approval> Document;
 
-		public new PXSave<LSOpportunityMeetingNotesApproval> Save;
-		public new PXCancel<LSOpportunityMeetingNotesApproval> Cancel;
+		public new PXSave<Approval> Save;
+		public new PXCancel<Approval> Cancel;
 		#endregion
 
 		#region Actions
-		public PXAction<LSOpportunityMeetingNotesApproval> Approve;
+		public PXAction<Approval> Approve;
 		[PXButton(CommitChanges = true)]
 		[PXUIField(DisplayName = "Approve", MapEnableRights = PXCacheRights.Update, MapViewRights = PXCacheRights.Select)]
 		public virtual IEnumerable approve(PXAdapter adapter)
 		{
-			List<LSOpportunityMeetingNotesApproval> list = adapter.Get<LSOpportunityMeetingNotesApproval>().ToList();
+			List<Approval> list = adapter.Get<Approval>().ToList();
 			bool massProcess = adapter.MassProcess;
 
 			PXLongOperation.StartOperation(this, () =>
@@ -40,12 +43,12 @@ namespace LSOpportunityMeetingNotesApproval
 			return list;
 		}
 
-		public PXAction<LSOpportunityMeetingNotesApproval> Reject;
+		public PXAction<Approval> Reject;
 		[PXButton(CommitChanges = true)]
 		[PXUIField(DisplayName = "Reject", MapEnableRights = PXCacheRights.Update, MapViewRights = PXCacheRights.Select)]
 		public virtual IEnumerable reject(PXAdapter adapter)
 		{
-			List<LSOpportunityMeetingNotesApproval> list = adapter.Get<LSOpportunityMeetingNotesApproval>().ToList();
+			List<Approval> list = adapter.Get<Approval>().ToList();
 			bool massProcess = adapter.MassProcess;
 
 			PXLongOperation.StartOperation(this, () =>
@@ -56,7 +59,7 @@ namespace LSOpportunityMeetingNotesApproval
 			return list;
 		}
 
-		public PXAction<LSOpportunityMeetingNotesApproval> ViewSuggestedOpportunity;
+		public PXAction<Approval> ViewSuggestedOpportunity;
 		[PXButton]
 		[PXUIField(DisplayName = "View Suggested Opportunity", MapEnableRights = PXCacheRights.Select, MapViewRights = PXCacheRights.Select)]
 		public virtual IEnumerable viewSuggestedOpportunity(PXAdapter adapter)
@@ -64,7 +67,7 @@ namespace LSOpportunityMeetingNotesApproval
 			return RedirectToOpportunity(adapter, Document.Current?.SuggestedOpportunityID);
 		}
 
-		public PXAction<LSOpportunityMeetingNotesApproval> ViewConfirmedOpportunity;
+		public PXAction<Approval> ViewConfirmedOpportunity;
 		[PXButton]
 		[PXUIField(DisplayName = "View Confirmed Opportunity", MapEnableRights = PXCacheRights.Select, MapViewRights = PXCacheRights.Select)]
 		public virtual IEnumerable viewConfirmedOpportunity(PXAdapter adapter)
@@ -74,7 +77,7 @@ namespace LSOpportunityMeetingNotesApproval
 		#endregion
 
 		#region Events
-		protected virtual void _(Events.RowSelected<LSOpportunityMeetingNotesApproval> e)
+		protected virtual void _(Events.RowSelected<Approval> e)
 		{
 			if (e.Row == null)
 			{
@@ -82,12 +85,12 @@ namespace LSOpportunityMeetingNotesApproval
 			}
 
 			bool isApproved = e.Row.Status == LSOpportunityMeetingNotesApprovalStatus.Approved;
-			PXUIFieldAttribute.SetEnabled<LSOpportunityMeetingNotesApproval.confirmedOpportunityID>(e.Cache, e.Row, !isApproved);
-			PXUIFieldAttribute.SetEnabled<LSOpportunityMeetingNotesApproval.suggestedOpportunityID>(e.Cache, e.Row, !isApproved);
-			PXUIFieldAttribute.SetEnabled<LSOpportunityMeetingNotesApproval.transcriptHtml>(e.Cache, e.Row, !isApproved);
+			PXUIFieldAttribute.SetEnabled<Approval.confirmedOpportunityID>(e.Cache, e.Row, !isApproved);
+			PXUIFieldAttribute.SetEnabled<Approval.suggestedOpportunityID>(e.Cache, e.Row, !isApproved);
+			PXUIFieldAttribute.SetEnabled<Approval.transcriptHtml>(e.Cache, e.Row, !isApproved);
 		}
 
-		protected virtual void _(Events.FieldSelecting<LSOpportunityMeetingNotesApproval, LSOpportunityMeetingNotesApproval.transcriptHtml> e)
+		protected virtual void _(Events.FieldSelecting<Approval, Approval.transcriptHtml> e)
 		{
 			if (e.Row == null)
 			{
@@ -99,7 +102,7 @@ namespace LSOpportunityMeetingNotesApproval
 				: e.Row.TranscriptHtml;
 		}
 
-		protected virtual void _(Events.RowPersisting<LSOpportunityMeetingNotesApproval> e)
+		protected virtual void _(Events.RowPersisting<Approval> e)
 		{
 			if (e.Row == null || e.Operation.Command() == PXDBOperation.Delete)
 			{
@@ -108,17 +111,17 @@ namespace LSOpportunityMeetingNotesApproval
 
 			if (!string.IsNullOrWhiteSpace(e.Row.ExternalMeetingID))
 			{
-				LSOpportunityMeetingNotesApproval duplicate = PXSelectReadonly<
-						LSOpportunityMeetingNotesApproval,
+				Approval duplicate = PXSelectReadonly<
+						Approval,
 						Where<
-							LSOpportunityMeetingNotesApproval.externalMeetingID, Equal<Required<LSOpportunityMeetingNotesApproval.externalMeetingID>>,
-							And<LSOpportunityMeetingNotesApproval.approvalID, NotEqual<Required<LSOpportunityMeetingNotesApproval.approvalID>>>>>
+							Approval.externalMeetingID, Equal<Required<Approval.externalMeetingID>>,
+							And<Approval.approvalID, NotEqual<Required<Approval.approvalID>>>>>
 					.SelectWindowed(this, 0, 1, e.Row.ExternalMeetingID, e.Row.ApprovalID ?? -1)
 					.TopFirst;
 
 				if (duplicate != null)
 				{
-					throw new PXSetPropertyException<LSOpportunityMeetingNotesApproval.externalMeetingID>(LSOpportunityMeetingNotesApprovalMessages.ExternalMeetingIdMustBeUnique);
+					throw new PXSetPropertyException<Approval.externalMeetingID>(LSOpportunityMeetingNotesApprovalMessages.ExternalMeetingIdMustBeUnique);
 				}
 			}
 		}
@@ -133,8 +136,8 @@ namespace LSOpportunityMeetingNotesApproval
 				return;
 			}
 
-			List<(LSOpportunityMeetingNotesApproval Row, string TranscriptHtml)> transcriptRows = Document.Cache.Cached
-				.Cast<LSOpportunityMeetingNotesApproval>()
+			List<(Approval Row, string TranscriptHtml)> transcriptRows = Document.Cache.Cached
+				.Cast<Approval>()
 				.Where(row => row != null)
 				.Select(row => (Row: row, TranscriptHtml: row.TranscriptHtml))
 				.Where(item => !string.IsNullOrWhiteSpace(item.TranscriptHtml))
@@ -150,7 +153,7 @@ namespace LSOpportunityMeetingNotesApproval
 				base.Persist();
 
 				bool hasAttachmentChanges = false;
-				foreach ((LSOpportunityMeetingNotesApproval row, string transcriptHtml) in transcriptRows)
+				foreach ((Approval row, string transcriptHtml) in transcriptRows)
 				{
 					if (PersistTranscriptAttachment(Document.Cache, row, transcriptHtml))
 					{
@@ -178,18 +181,18 @@ namespace LSOpportunityMeetingNotesApproval
 		#endregion
 
 		#region Processing Methods
-		public static void ApproveMethod(List<LSOpportunityMeetingNotesApproval> list, bool massProcess)
+		public static void ApproveMethod(List<Approval> list, bool massProcess)
 		{
 			for (int i = 0; i < list.Count; i++)
 			{
-				LSOpportunityMeetingNotesApproval approvalRecord = list[i];
+				Approval approvalRecord = list[i];
 
 				try
 				{
 					using (PXTransactionScope scope = new PXTransactionScope())
 					{
 						LSOpportunityMeetingNotesApprovalEntry graph = PXGraph.CreateInstance<LSOpportunityMeetingNotesApprovalEntry>();
-						approvalRecord = LSOpportunityMeetingNotesApproval.PK.Find(graph, approvalRecord?.ApprovalID);
+						approvalRecord = Approval.PK.Find(graph, approvalRecord?.ApprovalID);
 
 						if (approvalRecord == null)
 						{
@@ -200,14 +203,14 @@ namespace LSOpportunityMeetingNotesApproval
 						{
 							if (massProcess)
 							{
-								PXProcessing<LSOpportunityMeetingNotesApproval>.SetInfo(i, LSOpportunityMeetingNotesApprovalMessages.RecordAlreadyApproved);
+								PXProcessing<Approval>.SetInfo(i, LSOpportunityMeetingNotesApprovalMessages.RecordAlreadyApproved);
 							}
 							continue;
 						}
 
 						if (string.IsNullOrWhiteSpace(approvalRecord.ConfirmedOpportunityID))
 						{
-							throw new PXSetPropertyException<LSOpportunityMeetingNotesApproval.confirmedOpportunityID>(LSOpportunityMeetingNotesApprovalMessages.ConfirmedOpportunityIsRequired);
+							throw new PXSetPropertyException<Approval.confirmedOpportunityID>(LSOpportunityMeetingNotesApprovalMessages.ConfirmedOpportunityIsRequired);
 						}
 
 						CROpportunity opportunity = FindOpportunity(graph, approvalRecord.ConfirmedOpportunityID);
@@ -253,7 +256,7 @@ namespace LSOpportunityMeetingNotesApproval
 
 					if (massProcess)
 					{
-						PXProcessing<LSOpportunityMeetingNotesApproval>.SetInfo(i, LSOpportunityMeetingNotesApprovalMessages.RecordApproved);
+						PXProcessing<Approval>.SetInfo(i, LSOpportunityMeetingNotesApprovalMessages.RecordApproved);
 					}
 				}
 				catch (PXException ex)
@@ -261,7 +264,7 @@ namespace LSOpportunityMeetingNotesApproval
 					MarkAsError(approvalRecord?.ApprovalID, ex.Message);
 					if (massProcess)
 					{
-						PXProcessing<LSOpportunityMeetingNotesApproval>.SetError(i, ex);
+						PXProcessing<Approval>.SetError(i, ex);
 					}
 					else
 					{
@@ -273,7 +276,7 @@ namespace LSOpportunityMeetingNotesApproval
 					MarkAsError(approvalRecord?.ApprovalID, ex.Message);
 					if (massProcess)
 					{
-						PXProcessing<LSOpportunityMeetingNotesApproval>.SetError(i, ex);
+						PXProcessing<Approval>.SetError(i, ex);
 					}
 					else
 					{
@@ -283,18 +286,18 @@ namespace LSOpportunityMeetingNotesApproval
 			}
 		}
 
-		public static void RejectMethod(List<LSOpportunityMeetingNotesApproval> list, bool massProcess)
+		public static void RejectMethod(List<Approval> list, bool massProcess)
 		{
 			for (int i = 0; i < list.Count; i++)
 			{
-				LSOpportunityMeetingNotesApproval approvalRecord = list[i];
+				Approval approvalRecord = list[i];
 
 				try
 				{
 					using (PXTransactionScope scope = new PXTransactionScope())
 					{
 						LSOpportunityMeetingNotesApprovalEntry graph = PXGraph.CreateInstance<LSOpportunityMeetingNotesApprovalEntry>();
-						approvalRecord = LSOpportunityMeetingNotesApproval.PK.Find(graph, approvalRecord?.ApprovalID);
+						approvalRecord = Approval.PK.Find(graph, approvalRecord?.ApprovalID);
 
 						if (approvalRecord == null)
 						{
@@ -316,14 +319,14 @@ namespace LSOpportunityMeetingNotesApproval
 
 					if (massProcess)
 					{
-						PXProcessing<LSOpportunityMeetingNotesApproval>.SetInfo(i, LSOpportunityMeetingNotesApprovalMessages.RecordRejected);
+						PXProcessing<Approval>.SetInfo(i, LSOpportunityMeetingNotesApprovalMessages.RecordRejected);
 					}
 				}
 				catch (PXException ex)
 				{
 					if (massProcess)
 					{
-						PXProcessing<LSOpportunityMeetingNotesApproval>.SetError(i, ex);
+						PXProcessing<Approval>.SetError(i, ex);
 					}
 					else
 					{
@@ -335,7 +338,7 @@ namespace LSOpportunityMeetingNotesApproval
 		#endregion
 
 		#region Helpers
-		public static string GetTranscriptAttachmentHtml(PXGraph graph, LSOpportunityMeetingNotesApproval approvalRecord)
+		public static string GetTranscriptAttachmentHtml(PXGraph graph, Approval approvalRecord)
 		{
 			UploadFile file = GetTranscriptAttachment(graph, approvalRecord);
  
@@ -347,7 +350,7 @@ namespace LSOpportunityMeetingNotesApproval
 			return Encoding.UTF8.GetString(file.Data);
 		}
 
-		public static bool PersistTranscriptAttachment(PXCache targetCache, LSOpportunityMeetingNotesApproval approvalRecord, string transcriptHtml)
+		public static bool PersistTranscriptAttachment(PXCache targetCache, Approval approvalRecord, string transcriptHtml)
 		{
 			if (targetCache == null)
 			{
@@ -392,7 +395,7 @@ namespace LSOpportunityMeetingNotesApproval
 			return true;
 		}
 
-		public static bool EnsureTranscriptAttachmentOnActivity(PXCache targetCache, object targetRow, LSOpportunityMeetingNotesApproval approvalRecord, string transcriptHtml)
+		public static bool EnsureTranscriptAttachmentOnActivity(PXCache targetCache, object targetRow, Approval approvalRecord, string transcriptHtml)
 		{
 			if (targetCache == null)
 			{
@@ -423,14 +426,14 @@ namespace LSOpportunityMeetingNotesApproval
 			return true;
 		}
 
-		public static UploadFile GetTranscriptAttachment(PXGraph graph, LSOpportunityMeetingNotesApproval approvalRecord)
+		public static UploadFile GetTranscriptAttachment(PXGraph graph, Approval approvalRecord)
 		{
 			if (graph == null || approvalRecord == null)
 			{
 				return null;
 			}
 
-			PXCache cache = graph.Caches[typeof(LSOpportunityMeetingNotesApproval)];
+			PXCache cache = graph.Caches[typeof(Approval)];
 			Guid[] fileNotes = PXNoteAttribute.GetFileNotes(cache, approvalRecord) ?? Array.Empty<Guid>();
 			if (fileNotes.Length == 0)
 			{
@@ -495,7 +498,7 @@ namespace LSOpportunityMeetingNotesApproval
 			}
 
 			LSOpportunityMeetingNotesApprovalEntry graph = PXGraph.CreateInstance<LSOpportunityMeetingNotesApprovalEntry>();
-			LSOpportunityMeetingNotesApproval approvalRecord = LSOpportunityMeetingNotesApproval.PK.Find(graph, approvalID);
+			Approval approvalRecord = Approval.PK.Find(graph, approvalID);
 			if (approvalRecord == null || approvalRecord.Status == LSOpportunityMeetingNotesApprovalStatus.Approved)
 			{
 				return;
@@ -507,7 +510,7 @@ namespace LSOpportunityMeetingNotesApproval
 			graph.Actions.PressSave();
 		}
 
-		private static string BuildTranscriptFileName(LSOpportunityMeetingNotesApproval approvalRecord)
+		private static string BuildTranscriptFileName(Approval approvalRecord)
 		{
 			string seed = approvalRecord?.ExternalMeetingID;
 			if (string.IsNullOrWhiteSpace(seed))

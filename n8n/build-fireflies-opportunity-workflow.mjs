@@ -278,8 +278,7 @@ Here is the normalized Fireflies transcript JSON:
 {{ $json.toJsonString() }}
 `;
 
-const workflow = [
-	{
+const workflow = {
 		updatedAt: new Date().toISOString(),
 		createdAt: new Date().toISOString(),
 		id: workflowId,
@@ -528,8 +527,7 @@ const workflow = [
 			name: null,
 			description: null,
 		},
-	},
-];
+};
 
 mkdirSync(dirname(outputPath), { recursive: true });
 writeFileSync(outputPath, `${JSON.stringify(workflow, null, "\t")}\n`);

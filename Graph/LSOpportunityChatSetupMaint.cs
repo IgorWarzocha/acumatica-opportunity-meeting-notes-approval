@@ -1,6 +1,8 @@
 using PX.Data;
+using LSOpportunityMeetingNotesApproval.DAC;
+using LSOpportunityMeetingNotesApproval.Helper;
 
-namespace LSOpportunityMeetingNotesApproval
+namespace LSOpportunityMeetingNotesApproval.Graph
 {
 	public class LSOpportunityChatSetupMaint : PXGraph<LSOpportunityChatSetupMaint, LSOpportunityChatSetup>
 	{

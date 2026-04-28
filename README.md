@@ -90,12 +90,14 @@ The customization package includes:
 - customization metadata: `_project/...`
 - SQL review scripts: `sql/...`
 
-### 2. Review mock integration flow
+### 2. Review integration workflows
 - start with `n8n/README.md`
-- inspect:
-  - `n8n/build-fireflies-mock-workflow.mjs`
-  - `n8n/fireflies-opportunity-meeting-notes-mock.workflow.json`
+- inspect/import the final workflow exports:
+  - `n8n/fireflies-opportunity-meeting-notes-approval.workflow.json`
+  - `n8n/opportunity-chat-claude.workflow.json`
+- regenerate from builders when needed:
   - `n8n/build-fireflies-opportunity-workflow.mjs`
+  - `n8n/build-opportunity-chat-workflow.mjs`
 
 ### 3. Run validation
 

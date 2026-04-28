@@ -2,7 +2,7 @@ using System;
 using PX.Data;
 using PX.Data.BQL;
 
-namespace LSOpportunityMeetingNotesApproval
+namespace LSOpportunityMeetingNotesApproval.DAC
 {
 	[Serializable]
 	[PXCacheName("Opportunity Chat Message")]

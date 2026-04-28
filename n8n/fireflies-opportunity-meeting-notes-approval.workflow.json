@@ -1,375 +1,373 @@
-[
-	{
-		"updatedAt": "2026-04-27T08:40:41.292Z",
-		"createdAt": "2026-04-27T08:40:41.293Z",
-		"id": "5c7c4f1e-8f3d-4ec7-8fd8-72ec145f0c33",
-		"name": "Fireflies Opportunity Meeting Notes Approval",
-		"description": "Receives Fireflies webhook events, fetches transcript data, suggests an Acumatica opportunity, and creates a pending approval record through the LSOpportunityNotes endpoint. Acumatica persists the pending-review transcript as an approval-row .html attachment and renders TranscriptHtml from that file; approval creates the downstream CRActivity attachment.",
-		"active": false,
-		"isArchived": false,
-		"nodes": [
-			{
-				"id": "1",
-				"name": "Fireflies Webhook",
-				"type": "n8n-nodes-base.webhook",
-				"typeVersion": 2.1,
-				"position": [
-					260,
-					300
-				],
-				"parameters": {
-					"httpMethod": "POST",
-					"path": "fireflies/opportunity-meeting-notes-approval",
-					"responseMode": "onReceived",
-					"options": {
-						"responseCode": {
-							"values": {
-								"responseCode": 202
-							}
+{
+	"updatedAt": "2026-04-28T21:09:19.085Z",
+	"createdAt": "2026-04-28T21:09:19.085Z",
+	"id": "5c7c4f1e-8f3d-4ec7-8fd8-72ec145f0c33",
+	"name": "Fireflies Opportunity Meeting Notes Approval",
+	"description": "Receives Fireflies webhook events, fetches transcript data, suggests an Acumatica opportunity, and creates a pending approval record through the LSOpportunityNotes endpoint. Acumatica persists the pending-review transcript as an approval-row .html attachment and renders TranscriptHtml from that file; approval creates the downstream CRActivity attachment.",
+	"active": false,
+	"isArchived": false,
+	"nodes": [
+		{
+			"id": "1",
+			"name": "Fireflies Webhook",
+			"type": "n8n-nodes-base.webhook",
+			"typeVersion": 2.1,
+			"position": [
+				260,
+				300
+			],
+			"parameters": {
+				"httpMethod": "POST",
+				"path": "fireflies/opportunity-meeting-notes-approval",
+				"responseMode": "onReceived",
+				"options": {
+					"responseCode": {
+						"values": {
+							"responseCode": 202
+						}
+					},
+					"responseData": "{\"status\":\"accepted\"}"
+				}
+			}
+		},
+		{
+			"id": "2",
+			"name": "Validate Fireflies Webhook",
+			"type": "n8n-nodes-base.code",
+			"typeVersion": 2,
+			"position": [
+				520,
+				300
+			],
+			"parameters": {
+				"mode": "runOnceForAllItems",
+				"language": "javaScript",
+				"jsCode": "\nconst input = $input.first()?.json ?? {};\nconst body = input && typeof input.body === \"object\" && input.body !== null ? input.body : input;\nconst meetingId = body.meetingId || body.meetingID;\n\nif (!meetingId) {\n\tthrow new Error(\"Fireflies webhook payload did not contain meetingId\");\n}\n\nreturn [\n\t{\n\t\tjson: {\n\t\t\tmeetingId: String(meetingId),\n\t\t\teventType: body.eventType || body.event || \"\",\n\t\t\tclientReferenceId: body.clientReferenceId || body.client_reference_id || \"\",\n\t\t\trawPayload: body,\n\t\t},\n\t},\n];\n"
+			}
+		},
+		{
+			"id": "3",
+			"name": "Fetch Fireflies Transcript",
+			"type": "@firefliesai/n8n-nodes-fireflies.fireflies",
+			"typeVersion": 1,
+			"position": [
+				780,
+				300
+			],
+			"parameters": {
+				"resource": "transcript",
+				"operation": "getTranscript",
+				"transcriptId": "={{ $json.meetingId }}"
+			},
+			"credentials": {
+				"firefliesApi": {
+					"id": "",
+					"name": "Fireflies API"
+				}
+			}
+		},
+		{
+			"id": "4",
+			"name": "Canonicalize Fireflies Transcript",
+			"type": "n8n-nodes-base.code",
+			"typeVersion": 2,
+			"position": [
+				910,
+				300
+			],
+			"parameters": {
+				"mode": "runOnceForAllItems",
+				"language": "javaScript",
+				"jsCode": "\nconst input = $input.first()?.json ?? {};\nconst transcript = input?.data;\n\nif (!transcript) {\n\tthrow new Error(\"Fireflies transcript node response did not contain data\");\n}\n\nconst normalizeEmail = (value) => String(value ?? \"\").trim().toLowerCase();\n\nconst asArray = (value) => {\n\tif (Array.isArray(value)) {\n\t\treturn value;\n\t}\n\n\tif (value == null || value === \"\") {\n\t\treturn [];\n\t}\n\n\treturn [value];\n};\n\nconst participantEmails = Array.from(\n\tnew Set(\n\t\tasArray(transcript.participants)\n\t\t\t.flatMap((participant) => {\n\t\t\t\tif (typeof participant === \"string\") {\n\t\t\t\t\treturn [participant];\n\t\t\t\t}\n\n\t\t\t\tif (participant && typeof participant === \"object\") {\n\t\t\t\t\treturn [\n\t\t\t\t\t\tparticipant.email,\n\t\t\t\t\t\tparticipant.emailAddress,\n\t\t\t\t\t\tparticipant.email_address,\n\t\t\t\t\t\tparticipant.user_email,\n\t\t\t\t\t].filter(Boolean);\n\t\t\t\t}\n\n\t\t\t\treturn [];\n\t\t\t})\n\t\t\t.map(normalizeEmail)\n\t\t\t.filter(Boolean),\n\t),\n);\n\nconst sentences = Array.isArray(transcript.sentences) ? transcript.sentences : [];\nconst groupedSentences = [];\n\nfor (const sentence of sentences) {\n\tconst speakerName = String(sentence?.speaker_name ?? \"Unknown Speaker\").trim() || \"Unknown Speaker\";\n\tconst text = String(sentence?.text ?? sentence?.raw_text ?? sentence?.ai_filters?.text_cleanup ?? \"\").trim();\n\n\tif (!text) {\n\t\tcontinue;\n\t}\n\n\tconst currentGroup = groupedSentences[groupedSentences.length - 1];\n\tif (currentGroup && currentGroup.speakerName === speakerName) {\n\t\tcurrentGroup.parts.push(text);\n\t\tcontinue;\n\t}\n\n\tgroupedSentences.push({\n\t\tspeakerName,\n\t\tparts: [text],\n\t});\n}\n\nconst formattedTranscript = groupedSentences\n\t.map((group) => \"**\" + group.speakerName + \":** \" + group.parts.join(\" \"))\n\t.join(\"\\\\n\\\\n\");\n\nconst summary = transcript.summary ?? {};\nconst actionItems = Array.isArray(summary.action_items)\n\t? summary.action_items.map((item) => \"- \" + String(item ?? \"\").trim()).filter((item) => item !== \"- \").join(\"\\\\n\")\n\t: String(summary.action_items ?? \"\");\n\nreturn [\n\t{\n\t\tjson: {\n\t\t\tid: transcript.id,\n\t\t\tformattedTranscript,\n\t\t\tattendees: participantEmails,\n\t\t\tdate: transcript.date ?? \"\",\n\t\t\thost: normalizeEmail(transcript.organizer_email),\n\t\t\tsubject: transcript.title ?? \"Meeting Notes Summary\",\n\t\t\tkeywords: Array.isArray(summary.topics_discussed) ? summary.topics_discussed : [],\n\t\t\tactionItems,\n\t\t\tshorthandBullet: summary.shorthand_bullet ?? \"\",\n\t\t\toverview: summary.overview ?? \"\",\n\t\t\tbulletGist: summary.shorthand_bullet ?? \"\",\n\t\t\tgist: summary.short_overview ?? \"\",\n\t\t\tshortSummary: summary.short_summary ?? \"\",\n\t\t\ttranscriptUrl: transcript.transcript_url ?? \"\",\n\t\t\tduration: transcript.duration ?? null,\n\t\t},\n\t},\n];\n"
+			}
+		},
+		{
+			"id": "5",
+			"name": "Normalize Fireflies Transcript",
+			"type": "n8n-nodes-base.code",
+			"typeVersion": 2,
+			"position": [
+				1130,
+				300
+			],
+			"parameters": {
+				"mode": "runOnceForAllItems",
+				"language": "javaScript",
+				"jsCode": "\nconst input = $input.first()?.json ?? {};\nconst transcript = Array.isArray(input) ? input[0] : input;\n\nif (!transcript?.formattedTranscript) {\n\tthrow new Error(\"Canonical Fireflies transcript payload did not contain formattedTranscript\");\n}\n\nconst escapeHtml = (value) => String(value ?? \"\")\n\t.replace(/&/g, \"&amp;\")\n\t.replace(/</g, \"&lt;\")\n\t.replace(/>/g, \"&gt;\")\n\t.replace(/\"/g, \"&quot;\")\n\t.replace(/'/g, \"&#39;\");\n\nconst normalizeEmail = (value) => String(value ?? \"\").trim().toLowerCase();\n\nconst asArray = (value) => {\n\tif (Array.isArray(value)) {\n\t\treturn value;\n\t}\n\n\tif (value == null || value === \"\") {\n\t\treturn [];\n\t}\n\n\treturn [value];\n};\n\nconst markdownParagraphsToHtml = (value) =>\n\tString(value ?? \"\")\n\t\t.split(/\\n{2,}/)\n\t\t.map((paragraph) => paragraph.trim())\n\t\t.filter(Boolean)\n\t\t.map((paragraph) => {\n\t\t\tconst escaped = escapeHtml(paragraph).replace(/\\*\\*(.+?)\\*\\*/g, \"<strong>$1</strong>\");\n\t\t\treturn \"<p>\" + escaped + \"</p>\";\n\t\t})\n\t\t.join(\"\");\n\nconst participantEmails = Array.from(new Set([...asArray(transcript.attendees), transcript.host].map(normalizeEmail).filter(Boolean)));\n\nconst externalEmails = participantEmails.filter((email) => !email.endsWith(\"@bpw.com\"));\n\nconst summary = {\n\toverview: transcript.overview ?? \"\",\n\taction_items: transcript.actionItems ?? \"\",\n\tshorthand_bullet: transcript.shorthandBullet ?? transcript.bulletGist ?? \"\",\n\tshort_summary: transcript.shortSummary ?? \"\",\n\tshort_overview: transcript.gist ?? \"\",\n\ttopics_discussed: transcript.keywords ?? [],\n};\n\nconst transcriptHtml = markdownParagraphsToHtml(transcript.formattedTranscript);\n\nconst title = transcript.subject || \"Meeting Notes Summary\";\nconst meetingDate = transcript.date || new Date().toISOString();\nconst summaryText = [\n\tsummary.overview,\n\tsummary.short_summary,\n\tsummary.short_overview,\n]\n\t.filter(Boolean)\n\t.join(\"\\\\n\\\\n\")\n\t.trim();\n\nconst transcriptFileName = [\n\t(title || \"meeting-notes\")\n\t\t.replace(/[^A-Za-z0-9._-]+/g, \"-\")\n\t\t.replace(/-+/g, \"-\")\n\t\t.replace(/^-|-$/g, \"\")\n\t\t.toLowerCase() || \"meeting-notes\",\n\t\".html\",\n].join(\"\");\n\nconst basePayload = {\n\tmeetingId: transcript.id,\n\ttitle,\n\tmeetingDate,\n\torganizerEmail: normalizeEmail(transcript.host),\n\tparticipantEmails,\n\texternalParticipantEmails: externalEmails,\n\ttranscriptUrl: transcript.transcriptUrl || \"\",\n\tduration: transcript.duration ?? null,\n\tsummary,\n\tsummaryText,\n\ttranscriptHtml,\n\ttranscriptFileName,\n\tmatchCorpus: [\n\t\ttitle,\n\t\tsummary.overview,\n\t\tsummary.short_summary,\n\t\tsummary.short_overview,\n\t\tsummary.shorthand_bullet,\n\t\tArray.isArray(summary.topics_discussed) ? summary.topics_discussed.join(\" \") : summary.topics_discussed,\n\t]\n\t\t.filter(Boolean)\n\t\t.join(\" \")\n\t\t.toLowerCase(),\n};\n\nif (externalEmails.length === 0) {\n\treturn [\n\t\t{\n\t\t\tjson: {\n\t\t\t\t...basePayload,\n\t\t\t\tattendeeEmail: null,\n\t\t\t},\n\t\t},\n\t];\n}\n\nreturn externalEmails.map((attendeeEmail) => ({\n\tjson: {\n\t\t...basePayload,\n\t\tattendeeEmail,\n\t},\n}));\n"
+			}
+		},
+		{
+			"id": "6",
+			"name": "AI Agent",
+			"type": "@n8n/n8n-nodes-langchain.agent",
+			"typeVersion": 3.1,
+			"position": [
+				1360,
+				300
+			],
+			"parameters": {
+				"promptType": "define",
+				"text": "=\nYou are an automation agent that processes Fireflies meeting transcripts and creates Acumatica Opportunity Meeting Notes Approval records.\n\nUse the provided normalized transcript JSON as the source of truth.\n\nRequired workflow:\n1. Identify external attendee emails from externalParticipantEmails. Do not query or match @bpw.com host emails.\n2. For each external email, call get_contact_from_acumatica to find the matching Acumatica contact and Business Account.\n3. Call get_opportunities_from_acumatica to retrieve open opportunities. Select the best matching opportunity using Business Account first, then meeting subject, summary, keywords, and transcript content.\n4. If no confident opportunity match exists, still create the approval record with ConfirmedOpportunityID blank and include the best SuggestedOpportunityID only when defensible.\n5. Call create_opportunity_meeting_notes_approval exactly once with an Acumatica payload for the LSOpportunityNotes endpoint.\n\nPayload requirements for create_opportunity_meeting_notes_approval:\n- ExternalMeetingID.value = meetingId\n- MeetingTitle.value = title\n- MeetingDate.value = meetingDate\n- OrganizerEmail.value = organizerEmail\n- ParticipantEmails.value = participantEmails joined by comma and space\n- SuggestedOpportunityID.value = selected OpportunityID, or omit/blank if no defensible match\n- ConfirmedOpportunityID.value = blank unless the match is certain enough to route directly to that opportunity\n- Status.value = \"P\"\n- TranscriptHtml.value = transcriptHtml\n- Summary.value = summaryText\n\nReturn a concise JSON-like result describing created/skipped status and selected opportunity. Do not create CRM activities directly. The Acumatica approval screen handles user review and downstream activity creation.\n\nHere is the normalized Fireflies transcript JSON:\n{{ $json.toJsonString() }}\n",
+				"hasOutputParser": false,
+				"needsFallback": false,
+				"options": {
+					"systemMessage": "You orchestrate Fireflies transcript ingestion into Acumatica. Use the available Acumatica tools for contact lookup, opportunity lookup, and approval-record creation. Never create CRM activities directly.",
+					"maxIterations": 8,
+					"returnIntermediateSteps": false,
+					"enableStreaming": false
+				}
+			}
+		},
+		{
+			"id": "7",
+			"name": "Anthropic Chat Model",
+			"type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+			"typeVersion": 1.3,
+			"position": [
+				1360,
+				560
+			],
+			"parameters": {
+				"model": {
+					"mode": "list",
+					"value": "claude-sonnet-4-5-20250929",
+					"cachedResultName": "Claude Sonnet 4.5"
+				},
+				"options": {
+					"maxTokensToSample": 1800
+				}
+			},
+			"credentials": {
+				"anthropicApi": {
+					"id": "l9RIE8TC7FUqezEI",
+					"name": "Anthropic account"
+				}
+			}
+		},
+		{
+			"id": "8",
+			"name": "get_contact_from_acumatica",
+			"type": "n8n-nodes-base.httpRequestTool",
+			"typeVersion": 4.4,
+			"position": [
+				1100,
+				560
+			],
+			"parameters": {
+				"toolDescription": "GET Acumatica Contact by exact email. Input email must be an external attendee email, never an @bpw.com host email. Returns Contact fields including BusinessAccount when available.",
+				"method": "GET",
+				"url": "={{ ($env.ACU_BASE_URL || \"https://localhost:443\") + \"/\" + ($env.ACU_INSTANCE_NAME || \"demo\") + \"/entity/Default/25.200.001/Contact\" }}",
+				"authentication": "genericCredentialType",
+				"genericAuthType": "oAuth2Api",
+				"sendQuery": true,
+				"queryParameters": {
+					"parameters": [
+						{
+							"name": "$filter",
+							"value": "={{ \"Email eq '\" + $fromAI(\"email\", \"External attendee email address to look up\", \"string\").replace(/'/g, \"''\") + \"'\" }}"
+						}
+					]
+				},
+				"options": {
+					"timeout": 60000
+				}
+			},
+			"credentials": {
+				"oAuth2Api": {
+					"id": "f4ac1647-48e9-4a7b-876e-1a6fd7c0c146",
+					"name": "Acumatica OAuth"
+				}
+			}
+		},
+		{
+			"id": "9",
+			"name": "get_opportunities_from_acumatica",
+			"type": "n8n-nodes-base.httpRequestTool",
+			"typeVersion": 4.4,
+			"position": [
+				1620,
+				560
+			],
+			"parameters": {
+				"toolDescription": "GET open Acumatica opportunities. Use Contact/Business Account lookup results plus meeting content to choose the best OpportunityID. Does not mutate data.",
+				"method": "GET",
+				"url": "={{ ($env.ACU_BASE_URL || \"https://localhost:443\") + \"/\" + ($env.ACU_INSTANCE_NAME || \"demo\") + \"/entity/Default/25.200.001/Opportunity\" }}",
+				"authentication": "genericCredentialType",
+				"genericAuthType": "oAuth2Api",
+				"sendQuery": true,
+				"queryParameters": {
+					"parameters": [
+						{
+							"name": "$select",
+							"value": "OpportunityID,BusinessAccount,Subject,Status"
 						},
-						"responseData": "{\"status\":\"accepted\"}"
-					}
-				}
-			},
-			{
-				"id": "2",
-				"name": "Validate Fireflies Webhook",
-				"type": "n8n-nodes-base.code",
-				"typeVersion": 2,
-				"position": [
-					520,
-					300
-				],
-				"parameters": {
-					"mode": "runOnceForAllItems",
-					"language": "javaScript",
-					"jsCode": "\nconst input = $input.first()?.json ?? {};\nconst body = input && typeof input.body === \"object\" && input.body !== null ? input.body : input;\nconst meetingId = body.meetingId || body.meetingID;\n\nif (!meetingId) {\n\tthrow new Error(\"Fireflies webhook payload did not contain meetingId\");\n}\n\nreturn [\n\t{\n\t\tjson: {\n\t\t\tmeetingId: String(meetingId),\n\t\t\teventType: body.eventType || body.event || \"\",\n\t\t\tclientReferenceId: body.clientReferenceId || body.client_reference_id || \"\",\n\t\t\trawPayload: body,\n\t\t},\n\t},\n];\n"
-				}
-			},
-			{
-				"id": "3",
-				"name": "Fetch Fireflies Transcript",
-				"type": "@firefliesai/n8n-nodes-fireflies.fireflies",
-				"typeVersion": 1,
-				"position": [
-					780,
-					300
-				],
-				"parameters": {
-					"resource": "transcript",
-					"operation": "getTranscript",
-					"transcriptId": "={{ $json.meetingId }}"
+						{
+							"name": "$filter",
+							"value": "Status ne 'Lost' and Status ne 'Won'"
+						}
+					]
 				},
-				"credentials": {
-					"firefliesApi": {
-						"id": "",
-						"name": "Fireflies API"
-					}
+				"options": {
+					"timeout": 60000
 				}
 			},
-			{
-				"id": "4",
-				"name": "Canonicalize Fireflies Transcript",
-				"type": "n8n-nodes-base.code",
-				"typeVersion": 2,
-				"position": [
-					910,
-					300
-				],
-				"parameters": {
-					"mode": "runOnceForAllItems",
-					"language": "javaScript",
-					"jsCode": "\nconst input = $input.first()?.json ?? {};\nconst transcript = input?.data;\n\nif (!transcript) {\n\tthrow new Error(\"Fireflies transcript node response did not contain data\");\n}\n\nconst normalizeEmail = (value) => String(value ?? \"\").trim().toLowerCase();\n\nconst asArray = (value) => {\n\tif (Array.isArray(value)) {\n\t\treturn value;\n\t}\n\n\tif (value == null || value === \"\") {\n\t\treturn [];\n\t}\n\n\treturn [value];\n};\n\nconst participantEmails = Array.from(\n\tnew Set(\n\t\tasArray(transcript.participants)\n\t\t\t.flatMap((participant) => {\n\t\t\t\tif (typeof participant === \"string\") {\n\t\t\t\t\treturn [participant];\n\t\t\t\t}\n\n\t\t\t\tif (participant && typeof participant === \"object\") {\n\t\t\t\t\treturn [\n\t\t\t\t\t\tparticipant.email,\n\t\t\t\t\t\tparticipant.emailAddress,\n\t\t\t\t\t\tparticipant.email_address,\n\t\t\t\t\t\tparticipant.user_email,\n\t\t\t\t\t].filter(Boolean);\n\t\t\t\t}\n\n\t\t\t\treturn [];\n\t\t\t})\n\t\t\t.map(normalizeEmail)\n\t\t\t.filter(Boolean),\n\t),\n);\n\nconst sentences = Array.isArray(transcript.sentences) ? transcript.sentences : [];\nconst groupedSentences = [];\n\nfor (const sentence of sentences) {\n\tconst speakerName = String(sentence?.speaker_name ?? \"Unknown Speaker\").trim() || \"Unknown Speaker\";\n\tconst text = String(sentence?.text ?? sentence?.raw_text ?? sentence?.ai_filters?.text_cleanup ?? \"\").trim();\n\n\tif (!text) {\n\t\tcontinue;\n\t}\n\n\tconst currentGroup = groupedSentences[groupedSentences.length - 1];\n\tif (currentGroup && currentGroup.speakerName === speakerName) {\n\t\tcurrentGroup.parts.push(text);\n\t\tcontinue;\n\t}\n\n\tgroupedSentences.push({\n\t\tspeakerName,\n\t\tparts: [text],\n\t});\n}\n\nconst formattedTranscript = groupedSentences\n\t.map((group) => \"**\" + group.speakerName + \":** \" + group.parts.join(\" \"))\n\t.join(\"\\\\n\\\\n\");\n\nconst summary = transcript.summary ?? {};\nconst actionItems = Array.isArray(summary.action_items)\n\t? summary.action_items.map((item) => \"- \" + String(item ?? \"\").trim()).filter((item) => item !== \"- \").join(\"\\\\n\")\n\t: String(summary.action_items ?? \"\");\n\nreturn [\n\t{\n\t\tjson: {\n\t\t\tid: transcript.id,\n\t\t\tformattedTranscript,\n\t\t\tattendees: participantEmails,\n\t\t\tdate: transcript.date ?? \"\",\n\t\t\thost: normalizeEmail(transcript.organizer_email),\n\t\t\tsubject: transcript.title ?? \"Meeting Notes Summary\",\n\t\t\tkeywords: Array.isArray(summary.topics_discussed) ? summary.topics_discussed : [],\n\t\t\tactionItems,\n\t\t\tshorthandBullet: summary.shorthand_bullet ?? \"\",\n\t\t\toverview: summary.overview ?? \"\",\n\t\t\tbulletGist: summary.shorthand_bullet ?? \"\",\n\t\t\tgist: summary.short_overview ?? \"\",\n\t\t\tshortSummary: summary.short_summary ?? \"\",\n\t\t\ttranscriptUrl: transcript.transcript_url ?? \"\",\n\t\t\tduration: transcript.duration ?? null,\n\t\t},\n\t},\n];\n"
-				}
-			},
-			{
-				"id": "5",
-				"name": "Normalize Fireflies Transcript",
-				"type": "n8n-nodes-base.code",
-				"typeVersion": 2,
-				"position": [
-					1130,
-					300
-				],
-				"parameters": {
-					"mode": "runOnceForAllItems",
-					"language": "javaScript",
-					"jsCode": "\nconst input = $input.first()?.json ?? {};\nconst transcript = Array.isArray(input) ? input[0] : input;\n\nif (!transcript?.formattedTranscript) {\n\tthrow new Error(\"Canonical Fireflies transcript payload did not contain formattedTranscript\");\n}\n\nconst escapeHtml = (value) => String(value ?? \"\")\n\t.replace(/&/g, \"&amp;\")\n\t.replace(/</g, \"&lt;\")\n\t.replace(/>/g, \"&gt;\")\n\t.replace(/\"/g, \"&quot;\")\n\t.replace(/'/g, \"&#39;\");\n\nconst normalizeEmail = (value) => String(value ?? \"\").trim().toLowerCase();\n\nconst asArray = (value) => {\n\tif (Array.isArray(value)) {\n\t\treturn value;\n\t}\n\n\tif (value == null || value === \"\") {\n\t\treturn [];\n\t}\n\n\treturn [value];\n};\n\nconst markdownParagraphsToHtml = (value) =>\n\tString(value ?? \"\")\n\t\t.split(/\\n{2,}/)\n\t\t.map((paragraph) => paragraph.trim())\n\t\t.filter(Boolean)\n\t\t.map((paragraph) => {\n\t\t\tconst escaped = escapeHtml(paragraph).replace(/\\*\\*(.+?)\\*\\*/g, \"<strong>$1</strong>\");\n\t\t\treturn \"<p>\" + escaped + \"</p>\";\n\t\t})\n\t\t.join(\"\");\n\nconst participantEmails = Array.from(new Set([...asArray(transcript.attendees), transcript.host].map(normalizeEmail).filter(Boolean)));\n\nconst externalEmails = participantEmails.filter((email) => !email.endsWith(\"@bpw.com\"));\n\nconst summary = {\n\toverview: transcript.overview ?? \"\",\n\taction_items: transcript.actionItems ?? \"\",\n\tshorthand_bullet: transcript.shorthandBullet ?? transcript.bulletGist ?? \"\",\n\tshort_summary: transcript.shortSummary ?? \"\",\n\tshort_overview: transcript.gist ?? \"\",\n\ttopics_discussed: transcript.keywords ?? [],\n};\n\nconst transcriptHtml = markdownParagraphsToHtml(transcript.formattedTranscript);\n\nconst title = transcript.subject || \"Meeting Notes Summary\";\nconst meetingDate = transcript.date || new Date().toISOString();\nconst summaryText = [\n\tsummary.overview,\n\tsummary.short_summary,\n\tsummary.short_overview,\n]\n\t.filter(Boolean)\n\t.join(\"\\\\n\\\\n\")\n\t.trim();\n\nconst transcriptFileName = [\n\t(title || \"meeting-notes\")\n\t\t.replace(/[^A-Za-z0-9._-]+/g, \"-\")\n\t\t.replace(/-+/g, \"-\")\n\t\t.replace(/^-|-$/g, \"\")\n\t\t.toLowerCase() || \"meeting-notes\",\n\t\".html\",\n].join(\"\");\n\nconst basePayload = {\n\tmeetingId: transcript.id,\n\ttitle,\n\tmeetingDate,\n\torganizerEmail: normalizeEmail(transcript.host),\n\tparticipantEmails,\n\texternalParticipantEmails: externalEmails,\n\ttranscriptUrl: transcript.transcriptUrl || \"\",\n\tduration: transcript.duration ?? null,\n\tsummary,\n\tsummaryText,\n\ttranscriptHtml,\n\ttranscriptFileName,\n\tmatchCorpus: [\n\t\ttitle,\n\t\tsummary.overview,\n\t\tsummary.short_summary,\n\t\tsummary.short_overview,\n\t\tsummary.shorthand_bullet,\n\t\tArray.isArray(summary.topics_discussed) ? summary.topics_discussed.join(\" \") : summary.topics_discussed,\n\t]\n\t\t.filter(Boolean)\n\t\t.join(\" \")\n\t\t.toLowerCase(),\n};\n\nif (externalEmails.length === 0) {\n\treturn [\n\t\t{\n\t\t\tjson: {\n\t\t\t\t...basePayload,\n\t\t\t\tattendeeEmail: null,\n\t\t\t},\n\t\t},\n\t];\n}\n\nreturn externalEmails.map((attendeeEmail) => ({\n\tjson: {\n\t\t...basePayload,\n\t\tattendeeEmail,\n\t},\n}));\n"
-				}
-			},
-			{
-				"id": "6",
-				"name": "AI Agent",
-				"type": "@n8n/n8n-nodes-langchain.agent",
-				"typeVersion": 3.1,
-				"position": [
-					1360,
-					300
-				],
-				"parameters": {
-					"promptType": "define",
-					"text": "=\nYou are an automation agent that processes Fireflies meeting transcripts and creates Acumatica Opportunity Meeting Notes Approval records.\n\nUse the provided normalized transcript JSON as the source of truth.\n\nRequired workflow:\n1. Identify external attendee emails from externalParticipantEmails. Do not query or match @bpw.com host emails.\n2. For each external email, call get_contact_from_acumatica to find the matching Acumatica contact and Business Account.\n3. Call get_opportunities_from_acumatica to retrieve open opportunities. Select the best matching opportunity using Business Account first, then meeting subject, summary, keywords, and transcript content.\n4. If no confident opportunity match exists, still create the approval record with ConfirmedOpportunityID blank and include the best SuggestedOpportunityID only when defensible.\n5. Call create_opportunity_meeting_notes_approval exactly once with an Acumatica payload for the LSOpportunityNotes endpoint.\n\nPayload requirements for create_opportunity_meeting_notes_approval:\n- ExternalMeetingID.value = meetingId\n- MeetingTitle.value = title\n- MeetingDate.value = meetingDate\n- OrganizerEmail.value = organizerEmail\n- ParticipantEmails.value = participantEmails joined by comma and space\n- SuggestedOpportunityID.value = selected OpportunityID, or omit/blank if no defensible match\n- ConfirmedOpportunityID.value = blank unless the match is certain enough to route directly to that opportunity\n- Status.value = \"P\"\n- TranscriptHtml.value = transcriptHtml\n- Summary.value = summaryText\n\nReturn a concise JSON-like result describing created/skipped status and selected opportunity. Do not create CRM activities directly. The Acumatica approval screen handles user review and downstream activity creation.\n\nHere is the normalized Fireflies transcript JSON:\n{{ $json.toJsonString() }}\n",
-					"hasOutputParser": false,
-					"needsFallback": false,
-					"options": {
-						"systemMessage": "You orchestrate Fireflies transcript ingestion into Acumatica. Use the available Acumatica tools for contact lookup, opportunity lookup, and approval-record creation. Never create CRM activities directly.",
-						"maxIterations": 8,
-						"returnIntermediateSteps": false,
-						"enableStreaming": false
-					}
-				}
-			},
-			{
-				"id": "7",
-				"name": "Anthropic Chat Model",
-				"type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
-				"typeVersion": 1.3,
-				"position": [
-					1360,
-					560
-				],
-				"parameters": {
-					"model": {
-						"mode": "list",
-						"value": "claude-sonnet-4-5-20250929",
-						"cachedResultName": "Claude Sonnet 4.5"
-					},
-					"options": {
-						"maxTokensToSample": 1800
-					}
-				},
-				"credentials": {
-					"anthropicApi": {
-						"id": "l9RIE8TC7FUqezEI",
-						"name": "Anthropic account"
-					}
-				}
-			},
-			{
-				"id": "8",
-				"name": "get_contact_from_acumatica",
-				"type": "n8n-nodes-base.httpRequestTool",
-				"typeVersion": 4.4,
-				"position": [
-					1100,
-					560
-				],
-				"parameters": {
-					"toolDescription": "GET Acumatica Contact by exact email. Input email must be an external attendee email, never an @bpw.com host email. Returns Contact fields including BusinessAccount when available.",
-					"method": "GET",
-					"url": "={{ ($env.ACU_BASE_URL || \"https://localhost:443\") + \"/\" + ($env.ACU_INSTANCE_NAME || \"demo\") + \"/entity/Default/25.200.001/Contact\" }}",
-					"authentication": "genericCredentialType",
-					"genericAuthType": "oAuth2Api",
-					"sendQuery": true,
-					"queryParameters": {
-						"parameters": [
-							{
-								"name": "$filter",
-								"value": "={{ \"Email eq '\" + $fromAI(\"email\", \"External attendee email address to look up\", \"string\").replace(/'/g, \"''\") + \"'\" }}"
-							}
-						]
-					},
-					"options": {
-						"timeout": 60000
-					}
-				},
-				"credentials": {
-					"oAuth2Api": {
-						"id": "f4ac1647-48e9-4a7b-876e-1a6fd7c0c146",
-						"name": "Acumatica OAuth"
-					}
-				}
-			},
-			{
-				"id": "9",
-				"name": "get_opportunities_from_acumatica",
-				"type": "n8n-nodes-base.httpRequestTool",
-				"typeVersion": 4.4,
-				"position": [
-					1620,
-					560
-				],
-				"parameters": {
-					"toolDescription": "GET open Acumatica opportunities. Use Contact/Business Account lookup results plus meeting content to choose the best OpportunityID. Does not mutate data.",
-					"method": "GET",
-					"url": "={{ ($env.ACU_BASE_URL || \"https://localhost:443\") + \"/\" + ($env.ACU_INSTANCE_NAME || \"demo\") + \"/entity/Default/25.200.001/Opportunity\" }}",
-					"authentication": "genericCredentialType",
-					"genericAuthType": "oAuth2Api",
-					"sendQuery": true,
-					"queryParameters": {
-						"parameters": [
-							{
-								"name": "$select",
-								"value": "OpportunityID,BusinessAccount,Subject,Status"
-							},
-							{
-								"name": "$filter",
-								"value": "Status ne 'Lost' and Status ne 'Won'"
-							}
-						]
-					},
-					"options": {
-						"timeout": 60000
-					}
-				},
-				"credentials": {
-					"oAuth2Api": {
-						"id": "f4ac1647-48e9-4a7b-876e-1a6fd7c0c146",
-						"name": "Acumatica OAuth"
-					}
-				}
-			},
-			{
-				"id": "10",
-				"name": "create_opportunity_meeting_notes_approval",
-				"type": "n8n-nodes-base.httpRequestTool",
-				"typeVersion": 4.4,
-				"position": [
-					1880,
-					560
-				],
-				"parameters": {
-					"toolDescription": "PUT one pending LSOpportunityNotes OpportunityNotesApproval record. Body must be Acumatica JSON with .value wrappers. This creates only the approval queue row; Acumatica creates the CRM activity later after user approval.",
-					"method": "PUT",
-					"url": "={{ ($env.ACU_BASE_URL || \"https://localhost:443\") + \"/\" + ($env.ACU_INSTANCE_NAME || \"demo\") + \"/entity/\" + ($env.ACU_APPROVAL_ENDPOINT_NAME || \"LSOpportunityNotes\") + \"/\" + ($env.ACU_APPROVAL_ENDPOINT_VERSION || \"25.200.001\") + \"/OpportunityNotesApproval\" }}",
-					"authentication": "genericCredentialType",
-					"genericAuthType": "oAuth2Api",
-					"sendBody": true,
-					"contentType": "json",
-					"specifyBody": "json",
-					"jsonBody": "={{ $fromAI(\"approvalPayload\", \"Complete Acumatica OpportunityNotesApproval JSON body using .value wrappers\", \"json\") }}",
-					"options": {
-						"timeout": 60000
-					}
-				},
-				"credentials": {
-					"oAuth2Api": {
-						"id": "f4ac1647-48e9-4a7b-876e-1a6fd7c0c146",
-						"name": "Acumatica OAuth"
-					}
+			"credentials": {
+				"oAuth2Api": {
+					"id": "f4ac1647-48e9-4a7b-876e-1a6fd7c0c146",
+					"name": "Acumatica OAuth"
 				}
 			}
-		],
-		"connections": {
-			"Fireflies Webhook": {
-				"main": [
-					[
-						{
-							"node": "Validate Fireflies Webhook",
-							"type": "main",
-							"index": 0
-						}
-					]
-				]
+		},
+		{
+			"id": "10",
+			"name": "create_opportunity_meeting_notes_approval",
+			"type": "n8n-nodes-base.httpRequestTool",
+			"typeVersion": 4.4,
+			"position": [
+				1880,
+				560
+			],
+			"parameters": {
+				"toolDescription": "PUT one pending LSOpportunityNotes OpportunityNotesApproval record. Body must be Acumatica JSON with .value wrappers. This creates only the approval queue row; Acumatica creates the CRM activity later after user approval.",
+				"method": "PUT",
+				"url": "={{ ($env.ACU_BASE_URL || \"https://localhost:443\") + \"/\" + ($env.ACU_INSTANCE_NAME || \"demo\") + \"/entity/\" + ($env.ACU_APPROVAL_ENDPOINT_NAME || \"LSOpportunityNotes\") + \"/\" + ($env.ACU_APPROVAL_ENDPOINT_VERSION || \"25.200.001\") + \"/OpportunityNotesApproval\" }}",
+				"authentication": "genericCredentialType",
+				"genericAuthType": "oAuth2Api",
+				"sendBody": true,
+				"contentType": "json",
+				"specifyBody": "json",
+				"jsonBody": "={{ $fromAI(\"approvalPayload\", \"Complete Acumatica OpportunityNotesApproval JSON body using .value wrappers\", \"json\") }}",
+				"options": {
+					"timeout": 60000
+				}
 			},
-			"Validate Fireflies Webhook": {
-				"main": [
-					[
-						{
-							"node": "Fetch Fireflies Transcript",
-							"type": "main",
-							"index": 0
-						}
-					]
-				]
-			},
-			"Fetch Fireflies Transcript": {
-				"main": [
-					[
-						{
-							"node": "Canonicalize Fireflies Transcript",
-							"type": "main",
-							"index": 0
-						}
-					]
-				]
-			},
-			"Canonicalize Fireflies Transcript": {
-				"main": [
-					[
-						{
-							"node": "Normalize Fireflies Transcript",
-							"type": "main",
-							"index": 0
-						}
-					]
-				]
-			},
-			"Normalize Fireflies Transcript": {
-				"main": [
-					[
-						{
-							"node": "AI Agent",
-							"type": "main",
-							"index": 0
-						}
-					]
-				]
-			},
-			"Anthropic Chat Model": {
-				"ai_languageModel": [
-					[
-						{
-							"node": "AI Agent",
-							"type": "ai_languageModel",
-							"index": 0
-						}
-					]
-				]
-			},
-			"get_contact_from_acumatica": {
-				"ai_tool": [
-					[
-						{
-							"node": "AI Agent",
-							"type": "ai_tool",
-							"index": 0
-						}
-					]
-				]
-			},
-			"get_opportunities_from_acumatica": {
-				"ai_tool": [
-					[
-						{
-							"node": "AI Agent",
-							"type": "ai_tool",
-							"index": 0
-						}
-					]
-				]
-			},
-			"create_opportunity_meeting_notes_approval": {
-				"ai_tool": [
-					[
-						{
-							"node": "AI Agent",
-							"type": "ai_tool",
-							"index": 0
-						}
-					]
-				]
+			"credentials": {
+				"oAuth2Api": {
+					"id": "f4ac1647-48e9-4a7b-876e-1a6fd7c0c146",
+					"name": "Acumatica OAuth"
+				}
 			}
-		},
-		"settings": {
-			"executionOrder": "v1",
-			"saveDataErrorExecution": "all",
-			"saveDataSuccessExecution": "all",
-			"saveExecutionProgress": true,
-			"saveManualExecutions": true,
-			"executionTimeout": 300
-		},
-		"staticData": null,
-		"meta": null,
-		"pinData": {},
-		"versionId": "2a6ecc01-d8bb-4640-b20c-51fffdca60a5",
-		"activeVersionId": null,
-		"versionCounter": 1,
-		"triggerCount": 0,
-		"tags": [],
-		"versionMetadata": {
-			"name": null,
-			"description": null
 		}
+	],
+	"connections": {
+		"Fireflies Webhook": {
+			"main": [
+				[
+					{
+						"node": "Validate Fireflies Webhook",
+						"type": "main",
+						"index": 0
+					}
+				]
+			]
+		},
+		"Validate Fireflies Webhook": {
+			"main": [
+				[
+					{
+						"node": "Fetch Fireflies Transcript",
+						"type": "main",
+						"index": 0
+					}
+				]
+			]
+		},
+		"Fetch Fireflies Transcript": {
+			"main": [
+				[
+					{
+						"node": "Canonicalize Fireflies Transcript",
+						"type": "main",
+						"index": 0
+					}
+				]
+			]
+		},
+		"Canonicalize Fireflies Transcript": {
+			"main": [
+				[
+					{
+						"node": "Normalize Fireflies Transcript",
+						"type": "main",
+						"index": 0
+					}
+				]
+			]
+		},
+		"Normalize Fireflies Transcript": {
+			"main": [
+				[
+					{
+						"node": "AI Agent",
+						"type": "main",
+						"index": 0
+					}
+				]
+			]
+		},
+		"Anthropic Chat Model": {
+			"ai_languageModel": [
+				[
+					{
+						"node": "AI Agent",
+						"type": "ai_languageModel",
+						"index": 0
+					}
+				]
+			]
+		},
+		"get_contact_from_acumatica": {
+			"ai_tool": [
+				[
+					{
+						"node": "AI Agent",
+						"type": "ai_tool",
+						"index": 0
+					}
+				]
+			]
+		},
+		"get_opportunities_from_acumatica": {
+			"ai_tool": [
+				[
+					{
+						"node": "AI Agent",
+						"type": "ai_tool",
+						"index": 0
+					}
+				]
+			]
+		},
+		"create_opportunity_meeting_notes_approval": {
+			"ai_tool": [
+				[
+					{
+						"node": "AI Agent",
+						"type": "ai_tool",
+						"index": 0
+					}
+				]
+			]
+		}
+	},
+	"settings": {
+		"executionOrder": "v1",
+		"saveDataErrorExecution": "all",
+		"saveDataSuccessExecution": "all",
+		"saveExecutionProgress": true,
+		"saveManualExecutions": true,
+		"executionTimeout": 300
+	},
+	"staticData": null,
+	"meta": null,
+	"pinData": {},
+	"versionId": "2a6ecc01-d8bb-4640-b20c-51fffdca60a5",
+	"activeVersionId": null,
+	"versionCounter": 1,
+	"triggerCount": 0,
+	"tags": [],
+	"versionMetadata": {
+		"name": null,
+		"description": null
 	}
-]
+}

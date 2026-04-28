@@ -1,8 +1,10 @@
 using System.Collections;
 using PX.Data;
 using PX.Objects.CR;
+using LSOpportunityMeetingNotesApproval.DAC;
+using LSOpportunityMeetingNotesApproval.Helper;
 
-namespace LSOpportunityMeetingNotesApproval
+namespace LSOpportunityMeetingNotesApproval.Graph
 {
 	public class LSOpportunityChatOpportunityMaintExt : PXGraphExtension<OpportunityMaint>
 	{

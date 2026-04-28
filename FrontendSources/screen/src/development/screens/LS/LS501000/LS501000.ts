@@ -24,7 +24,7 @@ import {
 } from "client-controls";
 
 @graphInfo({
-	graphType: "LSOpportunityMeetingNotesApproval.LSOpportunityMeetingNotesApprovalProcess",
+	graphType: "LSOpportunityMeetingNotesApproval.Graph.LSOpportunityMeetingNotesApprovalProcess",
 	primaryView: "Records",
 	pageLoadBehavior: PXPageLoadBehavior.PopulateSavedValues,
 })

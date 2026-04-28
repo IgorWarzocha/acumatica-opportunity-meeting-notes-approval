@@ -1,7 +1,6 @@
 import { writeFileSync } from "node:fs";
 
-const workflow = [
-	{
+const workflow = {
 		"id": "26816b4b-966b-4e69-8b2f-5964f92e71d2",
 		"name": "LS Opportunity Chat Claude Backend",
 		"active": false,
@@ -236,7 +235,6 @@ const workflow = [
 		"settings": {
 			"executionOrder": "v1"
 		}
-	}
-];
+};
 
 writeFileSync(new URL("./opportunity-chat-claude.workflow.json", import.meta.url), JSON.stringify(workflow, null, "\t"));

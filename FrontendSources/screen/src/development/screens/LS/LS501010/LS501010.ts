@@ -15,7 +15,7 @@ import {
 } from "client-controls";
 
 @graphInfo({
-	graphType: "LSOpportunityMeetingNotesApproval.LSOpportunityMeetingNotesApprovalEntry",
+	graphType: "LSOpportunityMeetingNotesApproval.Graph.LSOpportunityMeetingNotesApprovalEntry",
 	primaryView: "Document",
 	pageLoadBehavior: PXPageLoadBehavior.PopulateSavedValues,
 })

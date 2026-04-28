@@ -7,8 +7,10 @@ using System.Text;
 using PX.Common;
 using PX.Data;
 using PX.Objects.CR;
+using LSOpportunityMeetingNotesApproval.DAC;
+using LSOpportunityMeetingNotesApproval.Helper;
 
-namespace LSOpportunityMeetingNotesApproval
+namespace LSOpportunityMeetingNotesApproval.Graph
 {
 	public class LSOpportunityChatMaint : PXGraph<LSOpportunityChatMaint, LSOpportunityChatSession>
 	{
