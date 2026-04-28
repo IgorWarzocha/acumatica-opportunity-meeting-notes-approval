@@ -27,8 +27,6 @@ namespace LS.OpportunityMeetingNotesApproval.Graph
 		public PXFilter<LSOpportunityChatContext> Context;
 		public PXSetup<LSOpportunityChatSetup> Setup;
 
-		public new PXSave<LSOpportunityChatSession> Save;
-		public new PXCancel<LSOpportunityChatSession> Cancel;
 		#endregion
 
 		#region View Delegates

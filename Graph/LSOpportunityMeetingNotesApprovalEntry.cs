@@ -22,8 +22,6 @@ namespace LS.OpportunityMeetingNotesApproval.Graph
 		[PXCopyPasteHiddenFields(typeof(Approval.transcriptHtml), typeof(Approval.matchDiagnostics))]
 		public PXSelect<Approval> Document;
 
-		public new PXSave<Approval> Save;
-		public new PXCancel<Approval> Cancel;
 		#endregion
 
 		#region Actions

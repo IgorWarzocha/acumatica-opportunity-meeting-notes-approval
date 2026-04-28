@@ -8,8 +8,6 @@ namespace LS.OpportunityMeetingNotesApproval.Graph
 	{
 		#region Views
 		public PXSelect<LSOpportunityChatSetup> Setup;
-		public new PXSave<LSOpportunityChatSetup> Save;
-		public new PXCancel<LSOpportunityChatSetup> Cancel;
 		#endregion
 	}
 }
