@@ -1,4 +1,3 @@
-import "client-controls/controls/simple/button/qp-button.html";
 import {
 	columnConfig,
 	controlConfig,

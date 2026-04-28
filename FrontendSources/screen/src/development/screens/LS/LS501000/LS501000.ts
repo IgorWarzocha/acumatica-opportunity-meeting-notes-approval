@@ -1,9 +1,3 @@
-import "client-controls/controls/simple/button/qp-button.html";
-import "client-controls/controls/simple/text-editor/qp-text-editor.html";
-import "client-controls/controls/simple/longrun-indicator/qp-longrun-indicator.html";
-import "client-controls/controls/dialog/long-run/qp-long-run.html";
-import "client-controls/controls/dialog/quick-processing/qp-quick-processing.html";
-import "client-controls/controls/compound/grid/qp-grid.html";
 import "client-controls/controls/utility/options/qp-options";
 
 import {
